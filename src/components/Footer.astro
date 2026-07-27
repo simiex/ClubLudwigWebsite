@@ -1,0 +1,133 @@
+---
+const year = new Date().getFullYear();
+---
+
+<footer id="kontakt" class="footer">
+  <div class="footer__inner">
+    <div class="footer__grid">
+      <div>
+        <img src="/assets/logo-white.png" alt="Club Ludwig" width="660" height="136" loading="lazy" />
+        <p class="footer__claim">Gemeinsam raus. Gemeinsam weiter.</p>
+        <p class="footer__location">Bonn, Germany</p>
+      </div>
+      <nav class="footer__col" aria-label="Club">
+        <p class="footer__label">Club</p>
+        <a href="/#touren">Touren</a>
+        <a href="/#club">Der Club</a>
+        <a href="/#community">Partner</a>
+        <a href="mailto:hallo@clubludwig.de">Kontakt</a>
+      </nav>
+      <nav class="footer__col" aria-label="Social Media">
+        <p class="footer__label">Social</p>
+        <a href="https://www.instagram.com" target="_blank" rel="noopener">Instagram</a>
+        <a href="https://www.strava.com" target="_blank" rel="noopener">Strava</a>
+      </nav>
+      <nav class="footer__col" aria-label="Rechtliches">
+        <p class="footer__label">Rechtliches</p>
+        <a href="/impressum/">Impressum</a>
+        <a href="/datenschutz/">Datenschutz</a>
+      </nav>
+    </div>
+    <div class="footer__bottom">
+      <p>© {year} Club Ludwig</p>
+      <p class="footer__tagline">From Beethoven&rsquo;s City to the Trails</p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    background: var(--color-night-deep);
+    color: var(--color-cream);
+    padding: 96px var(--pad-x) 48px;
+  }
+
+  .footer__inner {
+    max-width: var(--max-width-content);
+    margin: 0 auto;
+  }
+
+  .footer__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) repeat(3, minmax(0, 0.6fr));
+    gap: 64px;
+  }
+
+  .footer__grid img {
+    height: 32px;
+    width: auto;
+    display: block;
+  }
+
+  .footer__claim {
+    margin: 20px 0 0;
+    font-size: 15px;
+    color: rgba(242, 238, 228, 0.6);
+    max-width: 32ch;
+    line-height: 1.6;
+  }
+
+  .footer__location {
+    margin: 16px 0 0;
+    font-size: 13px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(242, 238, 228, 0.4);
+  }
+
+  .footer__col {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    font-size: 15px;
+  }
+
+  .footer__col a {
+    color: var(--cream-80);
+  }
+
+  .footer__col a:hover {
+    color: var(--color-lime);
+  }
+
+  .footer__label {
+    margin: 0 0 6px;
+    font-size: 12px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(242, 238, 228, 0.4);
+  }
+
+  .footer__bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 24px;
+    margin-top: 80px;
+    padding-top: 28px;
+    border-top: 1px solid rgba(242, 238, 228, 0.12);
+    flex-wrap: wrap;
+  }
+
+  .footer__bottom p {
+    margin: 0;
+    font-size: 13px;
+    color: var(--cream-45);
+  }
+
+  .footer__tagline {
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  @media (max-width: 899px) {
+    .footer {
+      padding: 64px 24px 36px;
+    }
+
+    .footer__grid {
+      grid-template-columns: 1fr;
+      gap: 40px;
+    }
+  }
+</style>

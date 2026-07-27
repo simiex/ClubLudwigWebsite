@@ -1,0 +1,229 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getUpcomingEvents, events, formatFullDate, formatWeekday, formatDay, formatMonth } from '../../lib/events';
+
+const upcoming = getUpcomingEvents();
+const list = upcoming.length > 0 ? upcoming : events;
+---
+
+<BaseLayout
+  title="Touren – Club Ludwig"
+  description="Alle kommenden Wanderungen des Club Ludwig aus Bonn – mit Distanz, Höhenmetern, Schwierigkeitsgrad und Anmeldung."
+>
+  <section class="tours-page">
+    <div class="tours-page__inner">
+      <p class="kicker tours-page__kicker">Tourenkalender</p>
+      <h1>Kommende Wanderungen</h1>
+      <p class="tours-page__lead">
+        Alle geplanten Touren auf einen Blick. Vor jeder Tour steht, wie lang und wie anspruchsvoll
+        sie wird – such dir die aus, die zu dir passt.
+      </p>
+
+      <ol class="tour-list">
+        {
+          list.map((event) => (
+            <li class="tour-card">
+              <div class="tour-card__date">
+                <span class="tour-card__day">{formatDay(event)}</span>
+                <span class="tour-card__month">{formatMonth(event)}</span>
+              </div>
+              <div class="tour-card__body">
+                <p class="tour-card__when">
+                  {formatWeekday(event)}, {formatFullDate(event)} · {event.time} Uhr · {event.meetingPoint}
+                </p>
+                <h2>{event.title}</h2>
+                <p class="tour-card__desc">{event.description}</p>
+                <dl class="tour-card__meta">
+                  <div><dt>Distanz</dt><dd>{event.distance}</dd></div>
+                  <div><dt>Höhenmeter</dt><dd>{event.elevation}</dd></div>
+                  <div><dt>Dauer</dt><dd>{event.duration}</dd></div>
+                  <div><dt>Level</dt><dd>{event.difficulty}</dd></div>
+                  <div><dt>Gelände</dt><dd>{event.terrain}</dd></div>
+                  <div><dt>Fitness</dt><dd>{event.fitness}</dd></div>
+                  <div><dt>Hund erlaubt</dt><dd>{event.dogsAllowed}</dd></div>
+                  <div><dt>Kosten</dt><dd>{event.cost}</dd></div>
+                </dl>
+                <div class="tour-card__foot">
+                  <span class="tour-card__status">{event.registrationStatus}</span>
+                  <a class="btn btn--primary tour-card__cta" href={event.registrationLink}>Anmelden</a>
+                </div>
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+
+      <a class="link-underline tours-page__back" href="/">Zurück zur Startseite</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .tours-page {
+    background: var(--color-night);
+    color: var(--color-cream);
+    padding: 200px var(--pad-x) 128px;
+    min-height: 100vh;
+  }
+
+  .tours-page__inner {
+    max-width: 1080px;
+    margin: 0 auto;
+  }
+
+  .tours-page__kicker {
+    color: var(--color-lime);
+  }
+
+  h1 {
+    margin: 20px 0 0;
+    font-size: clamp(40px, 5vw, 84px);
+    font-weight: 800;
+    line-height: 0.98;
+    letter-spacing: -0.03em;
+    text-wrap: balance;
+  }
+
+  .tours-page__lead {
+    margin: 24px 0 0;
+    font-size: 17px;
+    line-height: 1.65;
+    color: var(--cream-72);
+    max-width: 56ch;
+  }
+
+  .tour-list {
+    list-style: none;
+    margin: 72px 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+  }
+
+  .tour-card {
+    display: grid;
+    grid-template-columns: 160px minmax(0, 1fr);
+    gap: 40px;
+    border: 1px solid var(--cream-line);
+    border-radius: var(--radius);
+    padding: 40px;
+  }
+
+  .tour-card__date {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .tour-card__day {
+    font-size: 72px;
+    font-weight: 800;
+    line-height: 0.85;
+    letter-spacing: -0.04em;
+  }
+
+  .tour-card__month {
+    margin-top: 10px;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--cream-55);
+  }
+
+  .tour-card__when {
+    margin: 0;
+    font-size: 13px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--cream-55);
+  }
+
+  .tour-card h2 {
+    margin: 12px 0 0;
+    font-size: clamp(28px, 3vw, 44px);
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    line-height: 1.02;
+  }
+
+  .tour-card__desc {
+    margin: 16px 0 0;
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--cream-72);
+    max-width: 60ch;
+  }
+
+  .tour-card__meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 18px 24px;
+    margin: 28px 0 0;
+    padding-top: 24px;
+    border-top: 1px solid var(--cream-line);
+  }
+
+  .tour-card__meta dt {
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(242, 238, 228, 0.5);
+  }
+
+  .tour-card__meta dd {
+    margin: 5px 0 0;
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  .tour-card__foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    margin-top: 32px;
+    flex-wrap: wrap;
+  }
+
+  .tour-card__status {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-lime);
+  }
+
+  .tour-card__cta {
+    padding: 14px 28px;
+    font-size: 14px;
+  }
+
+  .tours-page__back {
+    display: inline-block;
+    margin-top: 64px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--cream-72);
+  }
+
+  @media (max-width: 899px) {
+    .tours-page {
+      padding: 140px 24px 72px;
+    }
+
+    .tour-card {
+      grid-template-columns: 1fr;
+      gap: 24px;
+      padding: 28px 24px;
+    }
+
+    .tour-card__date {
+      flex-direction: row;
+      align-items: baseline;
+      gap: 12px;
+    }
+
+    .tour-card__day {
+      font-size: 48px;
+    }
+  }
+</style>

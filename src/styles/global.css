@@ -1,0 +1,204 @@
+/* ============================================================
+   Club Ludwig – globale Styles & Design-Tokens
+   Farbwelt und Typografie stammen aus dem Design-Prototyp.
+   ============================================================ */
+
+:root {
+  /* Farben */
+  --color-night: #0a141f;        /* dunkles Blau – Hintergrund */
+  --color-night-deep: #070e16;   /* Footer */
+  --color-night-soft: #0e1c2b;
+  --color-night-mid: #17293b;
+  --color-cream: #f2eee4;        /* helles Beige – Text auf dunkel / helle Flächen */
+  --color-lime: #dbff3e;         /* Akzent */
+  --color-moss: #313d2f;         /* Community-Sektion */
+  --color-moss-soft: #3d4a3a;
+  --color-forest: #25321f;
+  --color-forest-mid: #2a3828;
+  --color-sand: #d8cdb4;
+  --color-sage: #8c8f7f;
+
+  /* Abgeleitete Töne */
+  --cream-80: rgba(242, 238, 228, 0.8);
+  --cream-72: rgba(242, 238, 228, 0.72);
+  --cream-65: rgba(242, 238, 228, 0.65);
+  --cream-55: rgba(242, 238, 228, 0.55);
+  --cream-45: rgba(242, 238, 228, 0.45);
+  --cream-line: rgba(242, 238, 228, 0.18);
+  --night-72: rgba(10, 20, 31, 0.72);
+  --night-65: rgba(10, 20, 31, 0.65);
+  --night-55: rgba(10, 20, 31, 0.55);
+
+  /* Typografie */
+  --font-sans: 'Archivo Variable', 'Archivo', system-ui, sans-serif;
+
+  /* Layout */
+  --max-width: 1560px;
+  --max-width-content: 1464px;
+  --pad-x: 48px;
+  --radius: 6px;
+  --radius-sm: 4px;
+}
+
+html {
+  scroll-behavior: smooth;
+  box-sizing: border-box;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+
+body {
+  margin: 0;
+  background: var(--color-night);
+  color: var(--color-cream);
+  font-family: var(--font-sans);
+  overflow-x: clip;
+  -webkit-font-smoothing: antialiased;
+}
+
+img {
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+}
+
+a:focus-visible,
+button:focus-visible {
+  outline: 3px solid var(--color-lime);
+  outline-offset: 3px;
+}
+
+::selection {
+  background: var(--color-lime);
+  color: var(--color-night);
+}
+
+/* Wiederkehrende Bausteine ---------------------------------- */
+
+/* Kicker: kleine Overline mit Strich, z. B. "Der Club" */
+.kicker {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.kicker::before {
+  content: '';
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: currentColor;
+}
+
+/* Buttons */
+.btn {
+  display: inline-block;
+  padding: 18px 34px;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-align: center;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.btn--primary {
+  background: var(--color-lime);
+  color: var(--color-night);
+}
+
+.btn--primary:hover {
+  background: var(--color-cream);
+  color: var(--color-night);
+}
+
+.btn--ghost {
+  border: 1px solid rgba(242, 238, 228, 0.4);
+  color: var(--color-cream);
+  padding: 17px 34px;
+  font-weight: 600;
+}
+
+.btn--ghost:hover {
+  border-color: var(--color-cream);
+  color: var(--color-cream);
+}
+
+/* Medien-Platzhalter (bis echte Fotos/Videos vorliegen) */
+.media-placeholder {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.media-placeholder__label {
+  position: absolute;
+  left: 24px;
+  bottom: 20px;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--cream-55);
+  pointer-events: none;
+}
+
+.media-placeholder--light .media-placeholder__label {
+  color: var(--night-65);
+}
+
+.media-placeholder > img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Text-Link mit Unterstrich */
+.link-underline {
+  border-bottom: 1px solid rgba(242, 238, 228, 0.35);
+  padding-bottom: 3px;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.link-underline:hover {
+  color: var(--color-lime);
+  border-color: var(--color-lime);
+}
+
+/* Reduced Motion -------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (max-width: 899px) {
+  :root {
+    --pad-x: 24px;
+  }
+}

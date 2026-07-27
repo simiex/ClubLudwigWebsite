@@ -1,0 +1,96 @@
+---
+---
+
+<section class="manifest" aria-labelledby="manifest-heading">
+  <div class="manifest__media" data-parallax role="img" aria-label="Foto-Platzhalter: Gruppe oberhalb des Rheins im Abendlicht">
+    <div class="manifest__media-bg"></div>
+  </div>
+  <div class="manifest__scrim"></div>
+  <p class="manifest__note" aria-hidden="true">
+    Fullscreen Foto/Video-Platzhalter<br />Gruppe oberhalb des Rheins, Abendlicht
+  </p>
+  <div class="manifest__head">
+    <h2 id="manifest-heading" data-reveal>
+      Bonn ist unser Startpunkt. <span>Nicht unser Limit.</span>
+    </h2>
+  </div>
+</section>
+
+<style>
+  .manifest {
+    position: relative;
+    height: 100vh;
+    min-height: 640px;
+    overflow: hidden;
+    background: var(--color-night-soft);
+  }
+
+  .manifest__media {
+    position: absolute;
+    inset: -8% 0;
+  }
+
+  .manifest__media-bg {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(120deg, var(--color-night-mid) 0%, var(--color-forest) 45%, var(--color-sand) 130%);
+  }
+
+  .manifest__scrim {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to top,
+      rgba(10, 20, 31, 0.8) 0%,
+      rgba(10, 20, 31, 0.2) 50%,
+      rgba(10, 20, 31, 0.3) 100%
+    );
+    pointer-events: none;
+  }
+
+  .manifest__note {
+    position: absolute;
+    top: 40px;
+    right: 48px;
+    margin: 0;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--cream-55);
+    pointer-events: none;
+    text-align: right;
+  }
+
+  .manifest__head {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 0 var(--pad-x);
+    pointer-events: none;
+  }
+
+  h2 {
+    margin: 0;
+    font-size: clamp(44px, 6.5vw, 110px);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 0.98;
+    color: var(--color-cream);
+    max-width: 16ch;
+    text-wrap: balance;
+  }
+
+  h2 span {
+    color: var(--color-lime);
+  }
+
+  @media (max-width: 899px) {
+    .manifest__head {
+      padding: 0 24px;
+    }
+  }
+</style>

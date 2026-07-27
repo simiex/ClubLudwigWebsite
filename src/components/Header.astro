@@ -1,0 +1,271 @@
+---
+interface Props {
+  /** true: startet transparent über dunklem Hero (Startseite) */
+  transparent?: boolean;
+}
+
+const { transparent = false } = Astro.props;
+const home = transparent ? '' : '/';
+---
+
+<header class:list={['site-header', { 'is-solid': !transparent }]} data-header data-transparent={transparent ? 'true' : null}>
+  <div class="site-header__inner">
+    <a class="site-header__logo" href={transparent ? '#top' : '/'} aria-label="Club Ludwig – Start">
+      <img class="site-header__logo-light" src="/assets/logo-white.png" alt="Club Ludwig" width="660" height="136" />
+      <img class="site-header__logo-dark" src="/assets/logo-dark.png" alt="" aria-hidden="true" width="660" height="136" />
+    </a>
+    <nav class="site-header__nav" aria-label="Hauptnavigation">
+      <a href={`${home}#touren`}>Touren</a>
+      <a href={`${home}#club`}>Der Club</a>
+      <a href={`${home}#kontakt`}>Kontakt</a>
+      <a class="site-header__cta" href={`${home}#touren`}>Mitwandern</a>
+    </nav>
+    <button class="site-header__burger" data-menu-toggle aria-label="Menü öffnen" aria-expanded="false" aria-controls="mobile-menu">
+      <span></span>
+      <span></span>
+    </button>
+  </div>
+</header>
+
+<div class="mobile-menu" id="mobile-menu" data-menu hidden>
+  <nav aria-label="Mobile Navigation">
+    <a href={`${home}#touren`} data-menu-link>Touren</a>
+    <a href={`${home}#club`} data-menu-link>Der Club</a>
+    <a href={`${home}#kontakt`} data-menu-link>Kontakt</a>
+  </nav>
+  <a class="btn btn--primary mobile-menu__cta" href={`${home}#touren`} data-menu-link>Mitwandern</a>
+  <div class="mobile-menu__tag">Hiking Club · Bonn</div>
+</div>
+
+<style>
+  .site-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 60;
+    background: transparent;
+    border-bottom: 1px solid transparent;
+    transition: background 0.35s ease, border-color 0.35s ease;
+  }
+
+  .site-header__inner {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 26px var(--pad-x);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: padding 0.35s ease;
+  }
+
+  .site-header__logo {
+    display: block;
+    position: relative;
+  }
+
+  .site-header__logo img {
+    height: 34px;
+    width: auto;
+    display: block;
+  }
+
+  .site-header__logo-dark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
+  }
+
+  .site-header__logo img,
+  .site-header__nav a,
+  .site-header__burger span {
+    transition: opacity 0.35s ease, color 0.35s ease, background 0.35s ease;
+  }
+
+  .site-header__nav {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+  }
+
+  .site-header__nav a {
+    color: var(--color-cream);
+  }
+
+  .site-header__nav a:hover {
+    opacity: 0.65;
+  }
+
+  .site-header__cta {
+    background: var(--color-lime);
+    color: var(--color-night) !important;
+    padding: 12px 24px;
+    border-radius: var(--radius-sm);
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .site-header__cta:hover {
+    background: var(--color-cream);
+    opacity: 1 !important;
+  }
+
+  .site-header__burger {
+    display: none;
+    flex-direction: column;
+    gap: 6px;
+    background: none;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+  }
+
+  .site-header__burger span {
+    display: block;
+    width: 26px;
+    height: 2px;
+    background: var(--color-cream);
+  }
+
+  /* Eingescrollt: helle Leiste, dunkles Logo */
+  .site-header.is-solid {
+    background: rgba(242, 238, 228, 0.97);
+    border-bottom-color: rgba(10, 20, 31, 0.12);
+  }
+
+  .site-header.is-scrolled .site-header__inner {
+    padding-top: 14px;
+    padding-bottom: 14px;
+  }
+
+  .site-header.is-solid .site-header__logo-light {
+    opacity: 0;
+  }
+
+  .site-header.is-solid .site-header__logo-dark {
+    opacity: 1;
+  }
+
+  .site-header.is-solid .site-header__nav a:not(.site-header__cta),
+  .site-header.is-solid .site-header__nav a {
+    color: var(--color-night);
+  }
+
+  .site-header.is-solid .site-header__burger span {
+    background: var(--color-night);
+  }
+
+  /* Offenes Menü: dunkle Leiste, helles Logo */
+  .site-header.is-menu-open {
+    background: var(--color-night);
+    border-bottom-color: transparent;
+  }
+
+  .site-header.is-menu-open .site-header__logo-light {
+    opacity: 1;
+  }
+
+  .site-header.is-menu-open .site-header__logo-dark {
+    opacity: 0;
+  }
+
+  .site-header.is-menu-open .site-header__burger span {
+    background: var(--color-cream);
+  }
+
+  .mobile-menu {
+    position: fixed;
+    inset: 0;
+    z-index: 55;
+    background: var(--color-night);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 32px 28px;
+  }
+
+  .mobile-menu[hidden] {
+    display: none;
+  }
+
+  .mobile-menu nav {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .mobile-menu nav a {
+    font-size: 40px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    padding: 10px 0;
+    color: var(--color-cream);
+  }
+
+  .mobile-menu__cta {
+    margin-top: 40px;
+    padding: 20px;
+    font-size: 16px;
+  }
+
+  .mobile-menu__tag {
+    margin-top: 48px;
+    font-size: 13px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(242, 238, 228, 0.5);
+  }
+
+  @media (max-width: 899px) {
+    .site-header__nav {
+      display: none;
+    }
+
+    .site-header__burger {
+      display: flex;
+    }
+  }
+</style>
+
+<script>
+  const header = document.querySelector<HTMLElement>('[data-header]');
+  const toggle = document.querySelector<HTMLButtonElement>('[data-menu-toggle]');
+  const menu = document.querySelector<HTMLElement>('[data-menu]');
+  const transparent = header?.dataset.transparent === 'true';
+
+  let menuOpen = false;
+
+  function syncHeader() {
+    if (!header) return;
+    const scrolled = window.scrollY > 40;
+    header.classList.toggle('is-scrolled', scrolled);
+    if (transparent) header.classList.toggle('is-solid', scrolled && !menuOpen);
+  }
+
+  function setMenu(open: boolean) {
+    if (!header || !toggle || !menu) return;
+    menuOpen = open;
+    menu.hidden = !open;
+    header.classList.toggle('is-menu-open', open);
+    toggle.setAttribute('aria-expanded', String(open));
+    toggle.setAttribute('aria-label', open ? 'Menü schließen' : 'Menü öffnen');
+    document.body.style.overflow = open ? 'hidden' : '';
+    syncHeader();
+  }
+
+  toggle?.addEventListener('click', () => setMenu(!menuOpen));
+  menu?.querySelectorAll('[data-menu-link]').forEach((link) => {
+    link.addEventListener('click', () => setMenu(false));
+  });
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && menuOpen) setMenu(false);
+  });
+  window.addEventListener('scroll', syncHeader, { passive: true });
+  syncHeader();
+</script>
