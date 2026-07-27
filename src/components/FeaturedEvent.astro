@@ -1,0 +1,234 @@
+---
+import type { ClubEvent } from '../lib/events';
+import { formatDay, formatMonth, formatYear, formatWeekday } from '../lib/events';
+
+interface Props {
+  event: ClubEvent;
+}
+
+const { event } = Astro.props;
+
+const meta: Array<{ label: string; value: string; wide?: boolean; accent?: boolean }> = [
+  { label: 'Start', value: event.meetingPoint },
+  { label: 'Distanz', value: event.distance },
+  { label: 'Höhenmeter', value: event.elevation },
+  { label: 'Dauer', value: event.duration },
+  { label: 'Level', value: event.difficulty },
+  { label: 'Gelände', value: event.terrain, wide: true },
+  { label: 'Fitness', value: event.fitness, wide: true },
+  { label: 'Hund erlaubt', value: event.dogsAllowed, wide: true },
+  { label: 'Kosten', value: event.cost, wide: true },
+  { label: 'Status', value: event.registrationStatus, wide: true, accent: true },
+];
+---
+
+<section id="touren" class="featured" aria-labelledby="featured-heading">
+  <div class="featured__inner">
+    <div class="featured__head" data-reveal>
+      <p class="kicker featured__kicker">Nächste Wanderung</p>
+      <p class="featured__note">{event.cost} · Anmeldung erforderlich</p>
+    </div>
+    <div class="featured__grid">
+      <div class="featured__date" data-reveal>
+        <p class="featured__day">{formatDay(event)}</p>
+        <p class="featured__month">
+          {formatMonth(event)} <span>{formatYear(event)}</span>
+        </p>
+        <p class="featured__weekday">{formatWeekday(event)} · {event.time} Uhr</p>
+      </div>
+      <div>
+        <h2 id="featured-heading" data-reveal>{event.title}</h2>
+        <p class="featured__desc" data-reveal>{event.description}</p>
+        <dl class="featured__meta">
+          {
+            meta.map((m) => (
+              <div class:list={[{ 'is-wide': m.wide }]}>
+                <dt>{m.label}</dt>
+                <dd class:list={[{ 'is-accent': m.accent }]}>{m.value}</dd>
+              </div>
+            ))
+          }
+        </dl>
+        <div class="featured__ctas">
+          <a class="btn btn--primary" href={event.registrationLink}>Kostenlos anmelden</a>
+          <a class="link-underline featured__all" href="/touren/">Alle Touren ansehen</a>
+        </div>
+        <a class="featured__hint" data-reveal href="#community">Was du vor deiner ersten Tour wissen solltest</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .featured {
+    background: var(--color-night);
+    color: var(--color-cream);
+    padding: 128px var(--pad-x);
+  }
+
+  .featured__inner {
+    max-width: var(--max-width-content);
+    margin: 0 auto;
+  }
+
+  .featured__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+
+  .featured__kicker {
+    color: var(--color-lime);
+  }
+
+  .featured__note {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--cream-65);
+  }
+
+  .featured__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+    gap: 80px;
+    margin-top: 48px;
+    align-items: end;
+  }
+
+  .featured__day {
+    margin: 0;
+    font-size: clamp(120px, 16vw, 240px);
+    font-weight: 800;
+    line-height: 0.82;
+    letter-spacing: -0.04em;
+  }
+
+  .featured__month {
+    margin: 12px 0 0;
+    font-size: clamp(28px, 3vw, 44px);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  .featured__month span {
+    color: var(--cream-45);
+  }
+
+  .featured__weekday {
+    margin: 10px 0 0;
+    font-size: 14px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--cream-55);
+  }
+
+  h2 {
+    margin: 0;
+    font-size: clamp(40px, 4.6vw, 76px);
+    font-weight: 800;
+    line-height: 0.98;
+    letter-spacing: -0.03em;
+    text-wrap: balance;
+  }
+
+  .featured__desc {
+    margin: 24px 0 0;
+    font-size: 17px;
+    line-height: 1.65;
+    color: var(--cream-72);
+    max-width: 56ch;
+  }
+
+  .featured__meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, auto));
+    gap: 0 8px;
+    margin: 40px 0 0;
+    border-top: 1px solid var(--cream-line);
+  }
+
+  .featured__meta > div {
+    padding: 18px 32px 0 0;
+  }
+
+  .featured__meta > div.is-wide {
+    padding-bottom: 14px;
+  }
+
+  .featured__meta dt {
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(242, 238, 228, 0.5);
+  }
+
+  .featured__meta dd {
+    margin: 6px 0 0;
+    font-size: 17px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .featured__meta > div.is-wide dd {
+    font-size: 15px;
+    font-weight: 600;
+    white-space: normal;
+  }
+
+  .featured__meta dd.is-accent {
+    color: var(--color-lime);
+    font-weight: 700;
+  }
+
+  .featured__ctas {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    margin-top: 44px;
+    flex-wrap: wrap;
+  }
+
+  .featured__all {
+    font-size: 15px;
+    font-weight: 600;
+    color: rgba(242, 238, 228, 0.75);
+  }
+
+  .featured__hint {
+    display: inline-block;
+    margin-top: 20px;
+    font-size: 14px;
+    color: var(--cream-55);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .featured__hint:hover {
+    color: var(--color-lime);
+  }
+
+  @media (max-width: 899px) {
+    .featured {
+      padding: 72px 24px;
+    }
+
+    .featured__grid {
+      grid-template-columns: 1fr;
+      gap: 36px;
+    }
+
+    .featured__day {
+      font-size: 96px;
+    }
+
+    .featured__meta {
+      grid-template-columns: 1fr 1fr;
+      gap: 0 24px;
+    }
+  }
+</style>

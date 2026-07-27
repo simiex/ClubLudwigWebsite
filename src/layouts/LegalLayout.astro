@@ -1,0 +1,84 @@
+---
+import BaseLayout from './BaseLayout.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  heading: string;
+}
+
+const { title, description, heading } = Astro.props;
+---
+
+<BaseLayout title={title} description={description}>
+  <section class="legal">
+    <div class="legal__inner">
+      <h1>{heading}</h1>
+      <div class="legal__content">
+        <slot />
+      </div>
+      <a class="link-underline legal__back" href="/">Zurück zur Startseite</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .legal {
+    background: var(--color-night);
+    color: var(--color-cream);
+    padding: 200px var(--pad-x) 128px;
+    min-height: 70vh;
+  }
+
+  .legal__inner {
+    max-width: 760px;
+    margin: 0 auto;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: clamp(36px, 4.5vw, 72px);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+
+  .legal__content {
+    margin-top: 48px;
+    font-size: 16px;
+    line-height: 1.7;
+    color: var(--cream-80);
+  }
+
+  .legal__content :global(h2) {
+    margin: 40px 0 0;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--color-cream);
+  }
+
+  .legal__content :global(p) {
+    margin: 14px 0 0;
+  }
+
+  .legal__content :global(a) {
+    color: var(--color-lime);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .legal__back {
+    display: inline-block;
+    margin-top: 64px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--cream-72);
+  }
+
+  @media (max-width: 899px) {
+    .legal {
+      padding: 140px 24px 72px;
+    }
+  }
+</style>

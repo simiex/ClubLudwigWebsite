@@ -1,0 +1,24 @@
+# Entpackter Design-Export (Quelle: "Bonner Hiking Club Website Concept.zip")
+_prototype/
+
+# Build output
+dist/
+.astro/
+
+# Dependencies
+node_modules/
+
+# Logs
+npm-debug.log*
+pnpm-debug.log*
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# OS / Editor
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json

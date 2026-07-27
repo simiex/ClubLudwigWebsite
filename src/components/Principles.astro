@@ -1,0 +1,307 @@
+---
+import type { ClubEvent } from '../lib/events';
+import { formatShortDate } from '../lib/events';
+
+interface Props {
+  event: ClubEvent;
+}
+
+const { event } = Astro.props;
+
+const principles = [
+  {
+    number: '01',
+    title: 'Von Bonn auf die Trails',
+    text: 'Unsere Touren starten dort, wo Stadt und Natur aufeinandertreffen – vom Hofgarten bis ins Siebengebirge.',
+    label: 'Foto-Platzhalter · Hofgarten, Startpunkt',
+    panelClass: 'panel--city',
+    mobileClass: 'mob-media--city',
+  },
+  {
+    number: '02',
+    title: 'Gemeinsam statt gegeneinander',
+    text: 'Kein Wettkampf und kein elitäres Outdoor-Gehabe. Wir gehen gemeinsam los und kommen gemeinsam an – niemand bleibt zurück.',
+    label: 'Foto-Platzhalter · Waldtrail im Ennert',
+    panelClass: 'panel--forest',
+    mobileClass: 'mob-media--forest',
+  },
+  {
+    number: '03',
+    title: 'Du kommst allein. Du gehst mit einer Gruppe nach Hause.',
+    text: 'Und manchmal endet die Tour nicht am Ziel, sondern am Rhein, im Brauhaus oder bei einem Kaffee.',
+    label: 'Foto-Platzhalter · Gruppenmoment am Ziel',
+    panelClass: 'panel--group',
+    mobileClass: 'mob-media--group',
+  },
+];
+---
+
+<section id="club" class="club" aria-labelledby="club-heading">
+  <div class="club__text">
+    <p class="kicker club__kicker" data-reveal id="club-heading">Der Club</p>
+    {
+      principles.map((p, i) => (
+        <div class="principle" data-principle={i}>
+          <p class="principle__number">{p.number}</p>
+          <h2>{p.title}</h2>
+          <p class="principle__text">{p.text}</p>
+          <div class:list={['principle__mob-media', p.mobileClass]} role="img" aria-label={p.label}>
+            <span class="media-placeholder__label">{p.label}</span>
+          </div>
+        </div>
+      ))
+    }
+    <div class="event-bar">
+      <p class="event-bar__info">
+        <span class="event-bar__date">{formatShortDate(event)}</span>
+        <span class="event-bar__title">{event.title}</span>
+        <span class="event-bar__meta">{event.distance}</span>
+      </p>
+      <a class="event-bar__cta" href="#touren">Tour ansehen</a>
+    </div>
+  </div>
+  <div class="club__panel-col">
+    <div class="club__panel-sticky">
+      {
+        principles.map((p, i) => (
+          <div class:list={['panel', p.panelClass]} data-panel={i} role="img" aria-label={p.label}>
+            {i === 0 && <div class="panel__horizon" />}
+            <span class="panel__label">{p.label}</span>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .club {
+    position: relative;
+    background: var(--color-cream);
+    color: var(--color-night);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 44%;
+    gap: 64px;
+    padding: 96px var(--pad-x) 64px;
+    max-width: var(--max-width);
+    margin: 0 auto;
+  }
+
+  .club__text {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .club__kicker {
+    color: var(--color-moss-soft);
+  }
+
+  .club__kicker::before {
+    background: var(--color-night);
+  }
+
+  .principle {
+    min-height: 88vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .principle__number {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: var(--color-moss-soft);
+  }
+
+  .principle h2 {
+    margin: 14px 0 0;
+    font-size: clamp(32px, 3.4vw, 52px);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.025em;
+    text-wrap: balance;
+  }
+
+  .principle__text {
+    margin: 22px 0 0;
+    font-size: 18px;
+    line-height: 1.65;
+    color: var(--night-72);
+    max-width: 44ch;
+  }
+
+  .principle__mob-media {
+    display: none;
+    margin-top: 32px;
+    height: 220px;
+    border-radius: var(--radius);
+    position: relative;
+  }
+
+  .principle__mob-media .media-placeholder__label {
+    left: 16px;
+    bottom: 12px;
+  }
+
+  .mob-media--city {
+    background: linear-gradient(140deg, var(--color-night-mid) 0%, var(--color-night-soft) 55%, var(--color-moss-soft) 100%);
+  }
+
+  .mob-media--forest {
+    background: linear-gradient(140deg, var(--color-moss-soft) 0%, var(--color-forest-mid) 60%, var(--color-night-soft) 100%);
+  }
+
+  .mob-media--group {
+    background: linear-gradient(140deg, var(--color-sand) 0%, var(--color-sage) 55%, var(--color-moss-soft) 100%);
+  }
+
+  .mob-media--group .media-placeholder__label {
+    color: var(--night-65);
+  }
+
+  /* Termin-Leiste (sticky am unteren Rand der Sektion) */
+  .event-bar {
+    position: sticky;
+    bottom: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    background: var(--color-night);
+    color: var(--color-cream);
+    border-radius: var(--radius);
+    padding: 16px 22px;
+    margin-top: 24px;
+    flex-wrap: wrap;
+  }
+
+  .event-bar__info {
+    margin: 0;
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    flex-wrap: wrap;
+    min-width: 0;
+  }
+
+  .event-bar__date {
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-lime);
+    font-weight: 700;
+  }
+
+  .event-bar__title {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  .event-bar__meta {
+    font-size: 13px;
+    color: rgba(242, 238, 228, 0.6);
+  }
+
+  .event-bar__cta {
+    background: var(--color-lime);
+    color: var(--color-night);
+    padding: 12px 20px;
+    border-radius: var(--radius-sm);
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    transition: background 0.2s ease;
+  }
+
+  .event-bar__cta:hover {
+    background: var(--color-cream);
+  }
+
+  /* Sticky-Medienpanel rechts */
+  .club__panel-col {
+    position: relative;
+  }
+
+  .club__panel-sticky {
+    position: sticky;
+    top: 10vh;
+    height: 80vh;
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .panel {
+    position: absolute;
+    inset: 0;
+  }
+
+  .panel[data-panel='1'],
+  .panel[data-panel='2'] {
+    opacity: 0;
+  }
+
+  .panel--city {
+    background: linear-gradient(150deg, var(--color-night-mid) 0%, var(--color-night-soft) 50%, var(--color-forest) 100%);
+  }
+
+  .panel--forest {
+    background: linear-gradient(160deg, var(--color-forest-mid) 0%, var(--color-moss-soft) 45%, var(--color-night-soft) 100%);
+  }
+
+  .panel--group {
+    background: linear-gradient(35deg, var(--color-sage) 0%, var(--color-sand) 55%, var(--color-cream) 100%);
+  }
+
+  .panel__horizon {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 38%;
+    height: 1px;
+    background: rgba(219, 255, 62, 0.4);
+  }
+
+  .panel__label {
+    position: absolute;
+    left: 28px;
+    bottom: 24px;
+    font-size: 12px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--cream-65);
+  }
+
+  .panel--group .panel__label {
+    color: var(--night-65);
+  }
+
+  @media (max-width: 899px) {
+    .club {
+      display: block;
+      padding: 72px 24px 40px;
+    }
+
+    .principle {
+      min-height: 0;
+      padding: 48px 0 0;
+    }
+
+    .principle__mob-media {
+      display: block;
+    }
+
+    .event-bar {
+      position: static;
+      margin: 56px 0 0;
+    }
+
+    .club__panel-col {
+      display: none;
+    }
+  }
+</style>

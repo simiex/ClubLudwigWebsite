@@ -1,0 +1,167 @@
+---
+const offers = [
+  'Geführte Wanderungen, fast jedes Wochenende',
+  'Club-Events: Sunrise-Hikes & Saison-Abschluss',
+  'Partner-Vorteile & Club-Ludwig-Merch',
+];
+---
+
+<section id="community" class="community" aria-labelledby="community-heading">
+  <div class="community__inner">
+    <div class="community__grid">
+      <div>
+        <h2 id="community-heading" data-reveal>Du musst niemanden kennen, um&nbsp;mitzugehen.</h2>
+        <p class="community__lead" data-reveal>
+          Anmelden, am Treffpunkt auftauchen, loslaufen. Vor jeder Tour steht, wie lang und wie
+          anspruchsvoll sie wird – such dir die aus, die zu dir passt.
+        </p>
+        <ol class="community__offers" data-reveal>
+          {
+            offers.map((offer, i) => (
+              <li>
+                <span class="community__num">{String(i + 1).padStart(2, '0')}</span>
+                <span class="community__offer">{offer}</span>
+              </li>
+            ))
+          }
+        </ol>
+        <a class="btn btn--primary community__cta" data-reveal href="#touren">Mitwandern</a>
+      </div>
+      <div data-reveal>
+        <div
+          class="community__media"
+          role="img"
+          aria-label="Foto-Platzhalter: Club-Ludwig-Merch und Gruppenfoto mit Logo"
+        >
+          <span class="media-placeholder__label">Foto-Platzhalter · Club-Ludwig-Merch / Gruppenfoto mit Logo</span>
+        </div>
+        <div class="community__partners">
+          <p class="community__partners-label">Unterstützt von</p>
+          <ul>
+            <li>Urban Sports Club</li>
+            <li>Wellhub</li>
+            <li>Lokale Partner · Platzhalter</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .community {
+    background: var(--color-moss);
+    color: var(--color-cream);
+    padding: 128px var(--pad-x);
+  }
+
+  .community__inner {
+    max-width: var(--max-width-content);
+    margin: 0 auto;
+  }
+
+  .community__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+    gap: 96px;
+    align-items: start;
+  }
+
+  h2 {
+    margin: 0;
+    font-size: clamp(32px, 3.8vw, 60px);
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    line-height: 1.05;
+    text-wrap: balance;
+  }
+
+  .community__lead {
+    margin: 26px 0 0;
+    font-size: 18px;
+    line-height: 1.65;
+    color: rgba(242, 238, 228, 0.75);
+    max-width: 48ch;
+  }
+
+  .community__offers {
+    list-style: none;
+    margin: 48px 0 0;
+    padding: 0;
+    border-top: 1px solid var(--cream-line);
+  }
+
+  .community__offers li {
+    display: flex;
+    gap: 24px;
+    align-items: baseline;
+    padding: 22px 0;
+    border-bottom: 1px solid var(--cream-line);
+  }
+
+  .community__num {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--color-lime);
+    letter-spacing: 0.1em;
+  }
+
+  .community__offer {
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  .community__cta {
+    margin-top: 44px;
+    padding: 18px 40px;
+  }
+
+  .community__media {
+    position: relative;
+    height: 520px;
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: linear-gradient(150deg, var(--color-night-mid) 0%, var(--color-forest-mid) 50%, var(--color-sage) 100%);
+  }
+
+  .community__partners {
+    margin-top: 48px;
+  }
+
+  .community__partners-label {
+    margin: 0 0 20px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--cream-45);
+  }
+
+  .community__partners ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 32px;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--cream-55);
+  }
+
+  @media (max-width: 899px) {
+    .community {
+      padding: 72px 24px;
+    }
+
+    .community__grid {
+      grid-template-columns: 1fr;
+      gap: 48px;
+    }
+
+    .community__media {
+      height: 360px;
+    }
+  }
+</style>

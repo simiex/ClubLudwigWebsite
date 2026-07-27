@@ -1,0 +1,198 @@
+---
+const regions = [
+  {
+    id: 'tour-1',
+    title: 'Rhein & Drachenfels',
+    stats: 'Typisch: 10–14 km · Moderat',
+    text: 'Der Klassiker über dem Rhein – Serpentinen, weite Blicke und unten wartet das Wasser.',
+    label: 'Foto-Platzhalter · Rhein & Drachenfels',
+    mediaClass: 'region__media--drachenfels',
+  },
+  {
+    id: 'tour-2',
+    title: 'Ennert',
+    stats: 'Typisch: 8–10 km · Leicht',
+    text: 'Stille Waldpfade direkt hinter Beuel – unsere liebste Feierabendrunde.',
+    label: 'Foto-Platzhalter · Ennert-Waldpfad',
+    mediaClass: 'region__media--ennert',
+  },
+  {
+    id: 'tour-3',
+    title: 'Waldau & Kottenforst',
+    stats: 'Typisch: 10–12 km · Leicht',
+    text: 'Alte Alleen, offene Lichtungen und viel Raum für Gespräche – perfekt für die erste Tour mit uns.',
+    label: 'Foto-Platzhalter · Waldau & Kottenforst',
+    mediaClass: 'region__media--waldau',
+  },
+];
+---
+
+<section id="regionen" class="regions" aria-labelledby="regions-heading">
+  <div class="regions__inner">
+    <h2 id="regions-heading" data-reveal>Wo wir unterwegs sind</h2>
+    <p class="regions__lead" data-reveal>
+      Unser Clubgebiet zwischen Rhein, Wald und Siebengebirge. Unterschiedliche Touren für
+      unterschiedliche Erfahrungslevel – im Kalender steht immer, was dich erwartet.
+    </p>
+    <div class="regions__grid">
+      {
+        regions.map((r) => (
+          <article class="region" id={r.id} data-reveal>
+            <div class="region__media-wrap">
+              <div class:list={['region__media', r.mediaClass]} data-parallax role="img" aria-label={r.label}>
+                <span class="media-placeholder__label">{r.label}</span>
+              </div>
+            </div>
+            <div class="region__head">
+              <h3>{r.title}</h3>
+              <p class="region__stats">{r.stats}</p>
+            </div>
+            <p class="region__text">{r.text}</p>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .regions {
+    background: var(--color-cream);
+    color: var(--color-night);
+    padding: 128px var(--pad-x) 96px;
+  }
+
+  .regions__inner {
+    max-width: var(--max-width-content);
+    margin: 0 auto;
+  }
+
+  h2 {
+    margin: 0;
+    font-size: clamp(32px, 3.6vw, 56px);
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    line-height: 1.05;
+    max-width: 16ch;
+    text-wrap: balance;
+  }
+
+  .regions__lead {
+    margin: 24px 0 0;
+    font-size: 17px;
+    line-height: 1.6;
+    color: var(--night-65);
+    max-width: 52ch;
+  }
+
+  .regions__grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 0 32px;
+    margin-top: 72px;
+  }
+
+  #tour-1 {
+    grid-column: 1 / span 7;
+  }
+
+  #tour-1 .region__media-wrap {
+    height: 560px;
+  }
+
+  #tour-2 {
+    grid-column: 9 / span 4;
+    margin-top: 160px;
+  }
+
+  #tour-2 .region__media-wrap {
+    height: 420px;
+  }
+
+  #tour-3 {
+    grid-column: 3 / span 8;
+    margin-top: 120px;
+  }
+
+  #tour-3 .region__media-wrap {
+    height: 440px;
+  }
+
+  .region__media-wrap {
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .region__media {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+
+  .region__media--drachenfels {
+    background: linear-gradient(160deg, var(--color-night-mid) 0%, var(--color-moss-soft) 55%, var(--color-sand) 100%);
+  }
+
+  .region__media--ennert {
+    background: linear-gradient(150deg, var(--color-forest-mid) 0%, var(--color-moss-soft) 50%, var(--color-night-soft) 100%);
+  }
+
+  .region__media--waldau {
+    background: linear-gradient(140deg, var(--color-moss-soft) 0%, var(--color-sage) 55%, var(--color-sand) 100%);
+  }
+
+  .region__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 24px;
+    margin-top: 24px;
+    flex-wrap: wrap;
+  }
+
+  h3 {
+    margin: 0;
+    font-size: clamp(26px, 2.4vw, 38px);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+
+  .region__stats {
+    margin: 0;
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--night-55);
+    font-weight: 600;
+  }
+
+  .region__text {
+    margin: 12px 0 0;
+    font-size: 16px;
+    line-height: 1.6;
+    color: rgba(10, 20, 31, 0.7);
+    max-width: 52ch;
+  }
+
+  @media (max-width: 899px) {
+    .regions {
+      padding: 72px 24px 56px;
+    }
+
+    .regions__grid {
+      display: block;
+    }
+
+    #tour-1,
+    #tour-2,
+    #tour-3 {
+      margin: 0 0 56px;
+    }
+
+    #tour-1 .region__media-wrap,
+    #tour-2 .region__media-wrap,
+    #tour-3 .region__media-wrap {
+      height: 300px;
+    }
+  }
+</style>

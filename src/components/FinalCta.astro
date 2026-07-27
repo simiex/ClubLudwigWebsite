@@ -1,0 +1,78 @@
+---
+---
+
+<section class="cta-final" aria-labelledby="cta-heading">
+  <div class="cta-final__inner">
+    <img data-reveal src="/assets/logo-white.png" alt="" width="660" height="136" loading="lazy" />
+    <h2 id="cta-heading" data-reveal>Komm mit auf die nächste&nbsp;Tour.</h2>
+    <p class="cta-final__lead" data-reveal>Keine Mitgliedschaft, kein Leistungsdruck. Einfach anmelden und mitgehen.</p>
+    <div class="cta-final__btns" data-reveal>
+      <a class="btn btn--primary" href="#touren">Kostenlos anmelden</a>
+      <a class="btn btn--ghost" href="https://www.strava.com" target="_blank" rel="noopener">Club Ludwig auf Strava</a>
+    </div>
+    <p class="cta-final__note" data-reveal>Neue Termine zuerst auf Strava &amp; Instagram.</p>
+  </div>
+</section>
+
+<style>
+  .cta-final {
+    background: var(--color-night);
+    color: var(--color-cream);
+    padding: 176px var(--pad-x);
+    text-align: center;
+  }
+
+  .cta-final__inner {
+    max-width: 820px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .cta-final__inner > img {
+    height: 26px;
+    width: auto;
+  }
+
+  h2 {
+    margin: 36px 0 0;
+    font-size: clamp(36px, 4.2vw, 68px);
+    font-weight: 800;
+    letter-spacing: -0.028em;
+    line-height: 1.02;
+    text-wrap: balance;
+  }
+
+  .cta-final__lead {
+    margin: 24px 0 0;
+    font-size: 18px;
+    line-height: 1.65;
+    color: rgba(242, 238, 228, 0.7);
+  }
+
+  .cta-final__btns {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 48px;
+  }
+
+  .cta-final__note {
+    margin: 28px 0 0;
+    font-size: 14px;
+    color: rgba(242, 238, 228, 0.5);
+  }
+
+  @media (max-width: 899px) {
+    .cta-final {
+      padding: 88px 24px;
+    }
+
+    .cta-final__btns {
+      flex-direction: column;
+      align-items: stretch;
+      width: 100%;
+    }
+  }
+</style>
