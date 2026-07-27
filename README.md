@@ -81,10 +81,23 @@ Implementiert in `src/scripts/home-animations.ts` mit `gsap.matchMedia()`:
 - **Mobil:** kein Pinning, kein Morph, kein Parallax – der Hero ist ein normaler Screen.
 - **`prefers-reduced-motion: reduce`:** keinerlei Scroll-Animationen.
 
-## Deployment auf Cloudflare Pages
+## Deployment auf Cloudflare
 
-1. Repository in Cloudflare Pages verbinden: **Workers & Pages → Create → Pages →
-   Connect to Git**.
+Zwei gleichwertige Wege – je nachdem, welchen Flow das Cloudflare-Dashboard anbietet:
+
+**Workers-Flow (neuer Standard-Flow, nutzt `wrangler.jsonc`):**
+
+1. **Workers & Pages → Create → Import a repository** und das Repo verbinden.
+2. Einstellungen:
+   - **Build command:** `npm run build`
+   - **Deploy command:** `npx wrangler deploy`
+   - „Builds for non-production branches“ aktiviert lassen → jeder PR bekommt
+     automatisch eine Preview-URL.
+3. Deployen. Die statische Auslieferung aus `dist/` ist in `wrangler.jsonc` konfiguriert.
+
+**Klassischer Pages-Flow:**
+
+1. **Workers & Pages → Create → Pages → Connect to Git**.
 2. Build-Einstellungen:
    - **Framework preset:** Astro
    - **Build command:** `npm run build`

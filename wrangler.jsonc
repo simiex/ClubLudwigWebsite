@@ -1,0 +1,11 @@
+// Cloudflare-Konfiguration: statische Auslieferung des Astro-Builds
+// (für den Workers-Git-Flow mit "npx wrangler deploy")
+{
+  "name": "clubludwigwebsite",
+  "compatibility_date": "2026-07-01",
+  "assets": {
+    "directory": "./dist",
+    // 404.html für unbekannte Pfade ausliefern
+    "not_found_handling": "404-page"
+  }
+}
