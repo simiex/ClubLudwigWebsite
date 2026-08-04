@@ -1,22 +1,26 @@
 /* ============================================================
    Club Ludwig – globale Styles & Design-Tokens
-   Farbwelt und Typografie stammen aus dem Design-Prototyp.
+   Dunkle Farbwelt mit Neon-Akzenten.
    ============================================================ */
 
 :root {
-  /* Farben */
-  --color-night: #0a141f;        /* dunkles Blau – Hintergrund */
-  --color-night-deep: #070e16;   /* Footer */
-  --color-night-soft: #0e1c2b;
-  --color-night-mid: #17293b;
-  --color-cream: #f2eee4;        /* helles Beige – Text auf dunkel / helle Flächen */
-  --color-lime: #dbff3e;         /* Akzent */
-  --color-moss: #313d2f;         /* Community-Sektion */
-  --color-moss-soft: #3d4a3a;
-  --color-forest: #25321f;
-  --color-forest-mid: #2a3828;
-  --color-sand: #d8cdb4;
-  --color-sage: #8c8f7f;
+  /* Basisflächen – durchgehend dunkel */
+  --color-night: #060d16;        /* Standard-Hintergrund */
+  --color-night-deep: #03070c;   /* Footer */
+  --color-night-soft: #0a1420;
+  --color-night-mid: #101f2e;
+  --color-surface: #080f19;      /* Club-/Regionen-Sektion */
+  --color-surface-2: #0c1522;    /* Karten & Panels */
+  --color-forest: #071310;       /* Community */
+  --color-forest-mid: #0b1b16;
+
+  /* Text */
+  --color-cream: #f2eee4;
+
+  /* Neon-Akzente */
+  --color-lime: #dbff3e;         /* Primärakzent */
+  --color-neon: #3ef0cf;         /* Sekundärakzent (Teal) */
+  --color-ember: #ff9d4d;        /* Wärme-Akzent */
 
   /* Abgeleitete Töne */
   --cream-80: rgba(242, 238, 228, 0.8);
@@ -24,10 +28,10 @@
   --cream-65: rgba(242, 238, 228, 0.65);
   --cream-55: rgba(242, 238, 228, 0.55);
   --cream-45: rgba(242, 238, 228, 0.45);
-  --cream-line: rgba(242, 238, 228, 0.18);
-  --night-72: rgba(10, 20, 31, 0.72);
-  --night-65: rgba(10, 20, 31, 0.65);
-  --night-55: rgba(10, 20, 31, 0.55);
+  --cream-line: rgba(242, 238, 228, 0.14);
+  --lime-line: rgba(219, 255, 62, 0.22);
+  --lime-glow: 0 0 24px rgba(219, 255, 62, 0.35);
+  --neon-glow: 0 0 22px rgba(62, 240, 207, 0.28);
 
   /* Typografie */
   --font-sans: 'Archivo Variable', 'Archivo', system-ui, sans-serif;
@@ -43,12 +47,23 @@
 html {
   scroll-behavior: smooth;
   box-sizing: border-box;
+  background: var(--color-night);
 }
 
 *,
 *::before,
 *::after {
   box-sizing: inherit;
+}
+
+/*
+ * overflow-x auch auf html: Browser übertragen `clip` nicht vom body auf den
+ * Viewport, sonst lässt sich die Seite seitlich schieben, sobald irgendwo ein
+ * breites Element steht (z. B. die Tabellen im Mitgliederbereich).
+ * `clip` statt `hidden`, damit position: sticky im Header weiter funktioniert.
+ */
+html {
+  overflow-x: clip;
 }
 
 body {
@@ -58,6 +73,39 @@ body {
   font-family: var(--font-sans);
   overflow-x: clip;
   -webkit-font-smoothing: antialiased;
+}
+
+/* iOS Safari gibt Datums-Feldern eine eigene intrinsische Mindestbreite und
+   ignoriert dabei width: 100%. Das Feld schiebt sich dann aus seiner Karte
+   heraus und zieht die Seite mit. Erst appearance: none macht das Feld
+   wieder normal formatierbar. */
+input[type='date'],
+input[type='datetime-local'],
+input[type='month'],
+input[type='time'] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  text-align: left;
+}
+
+/* Deutsche Komposita ("Wintersonnenwende", "Veranstaltungsort") sind laenger
+   als so manche Grid-Spalte auf schmalen Displays. Ohne Umbruchmoeglichkeit
+   schiebt so ein Wort die ganze Seite auf und laesst sie herauszoomen. */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+li,
+dd,
+dt,
+figcaption {
+  overflow-wrap: break-word;
 }
 
 img {
@@ -86,23 +134,12 @@ button:focus-visible {
 
 /* Wiederkehrende Bausteine ---------------------------------- */
 
-/* Kicker: kleine Overline mit Strich, z. B. "Der Club" */
+/*
+ * Kicker-Basis. Das Markup liefert Kicker.astro – die Sonne ersetzt den
+ * früheren generischen Strich.
+ */
 .kicker {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-}
-
-.kicker::before {
-  content: '';
-  display: block;
-  width: 22px;
-  height: 2px;
-  background: currentColor;
+  margin: 0;
 }
 
 /* Buttons */
@@ -115,59 +152,75 @@ button:focus-visible {
   letter-spacing: 0.04em;
   text-transform: uppercase;
   text-align: center;
-  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease,
+    box-shadow 0.2s ease, transform 0.2s ease;
 }
 
 .btn--primary {
   background: var(--color-lime);
   color: var(--color-night);
+  box-shadow: var(--lime-glow);
 }
 
 .btn--primary:hover {
-  background: var(--color-cream);
+  background: #eaff7a;
   color: var(--color-night);
+  box-shadow: 0 0 34px rgba(219, 255, 62, 0.55);
 }
 
 .btn--ghost {
-  border: 1px solid rgba(242, 238, 228, 0.4);
+  border: 1px solid var(--lime-line);
   color: var(--color-cream);
   padding: 17px 34px;
   font-weight: 600;
 }
 
 .btn--ghost:hover {
-  border-color: var(--color-cream);
-  color: var(--color-cream);
+  border-color: var(--color-lime);
+  color: var(--color-lime);
+  box-shadow: var(--lime-glow);
 }
 
-/* Medien-Platzhalter (bis echte Fotos/Videos vorliegen) */
-.media-placeholder {
+/* Medienflächen */
+.media-frame {
   position: relative;
   width: 100%;
   height: 100%;
+  overflow: hidden;
+  background: var(--color-surface-2);
 }
 
-.media-placeholder__label {
-  position: absolute;
-  left: 24px;
-  bottom: 20px;
-  font-size: 11px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--cream-55);
-  pointer-events: none;
-}
-
-.media-placeholder--light .media-placeholder__label {
-  color: var(--night-65);
-}
-
-.media-placeholder > img {
+.media-frame > img {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
+}
+
+/* dezenter Neon-Rand auf Medienflächen */
+.media-frame::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--lime-line);
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+/* Nur für Screenreader */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
 }
 
 /* Text-Link mit Unterstrich */
@@ -201,4 +254,40 @@ button:focus-visible {
   :root {
     --pad-x: 24px;
   }
+}
+
+
+/* ---------------------------------------------------------------------------
+ * Himmelsstimmung
+ * Das Skript setzt data-sky auf <html> nach dem echten Sonnenstand über Bonn.
+ * Die Seite bleibt dunkel – nur der Akzentschimmer im Hero wandert mit dem Tag.
+ * ------------------------------------------------------------------------- */
+:root {
+  --sky-tint: rgba(219, 255, 62, 0.1);
+  --sky-tint-2: rgba(62, 240, 207, 0.07);
+}
+
+:root[data-sky='dawn'] {
+  --sky-tint: rgba(255, 157, 77, 0.16);
+  --sky-tint-2: rgba(167, 139, 250, 0.1);
+}
+
+:root[data-sky='golden'] {
+  --sky-tint: rgba(255, 190, 92, 0.2);
+  --sky-tint-2: rgba(219, 255, 62, 0.12);
+}
+
+:root[data-sky='day'] {
+  --sky-tint: rgba(219, 255, 62, 0.16);
+  --sky-tint-2: rgba(62, 240, 207, 0.1);
+}
+
+:root[data-sky='dusk'] {
+  --sky-tint: rgba(255, 122, 92, 0.15);
+  --sky-tint-2: rgba(109, 92, 255, 0.14);
+}
+
+:root[data-sky='night'] {
+  --sky-tint: rgba(62, 240, 207, 0.08);
+  --sky-tint-2: rgba(109, 92, 255, 0.1);
 }
