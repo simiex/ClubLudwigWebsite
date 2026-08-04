@@ -53,6 +53,13 @@ const ogImage = new URL('/assets/og-image.png', Astro.site);
       <slot />
     </main>
     <Footer />
+
+    <script is:inline>
+      if (window.location.pathname === '/standorte/hofgarten/' || window.location.pathname === '/standorte/hofgarten') {
+        const route = 'M330 88 C360 122 356 165 330 198 C298 238 270 260 250 300 C228 344 220 386 250 414 C282 444 332 438 382 410 C430 384 468 390 498 420 C524 446 546 468 575 458 C602 448 615 420 598 398 C580 375 548 366 526 344 C505 323 506 300 526 281 C550 258 586 251 608 228 C630 205 627 177 607 158 C586 138 558 128 535 112 C510 95 486 80 458 72 C420 62 374 67 330 88';
+        document.querySelectorAll('.route-stage__route path').forEach((path) => path.setAttribute('d', route));
+      }
+    </script>
   </body>
 </html>
 
@@ -71,5 +78,9 @@ const ogImage = new URL('/assets/og-image.png', Astro.site);
 
   .skip-link:focus-visible {
     top: 16px;
+  }
+
+  :global(.route-stage .kicker .kicker__sun) {
+    color: var(--color-lime) !important;
   }
 </style>
