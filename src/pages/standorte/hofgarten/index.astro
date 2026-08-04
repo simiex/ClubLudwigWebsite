@@ -1,0 +1,540 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import Media from '../../../components/Media.astro';
+import Kicker from '../../../components/Kicker.astro';
+import SunMark from '../../../components/SunMark.astro';
+import { requireVenue } from '../../../data/venues';
+
+const venue = requireVenue('hofgarten');
+---
+
+<BaseLayout
+  title="Hofgarten – Club Ludwig Standort Bonn"
+  description="Club Ludwig im Bonner Hofgarten: der zentrale Startpunkt für Urban Hikes, Community Walks und entspannte Feierabendtouren am Rhein."
+>
+  <section class="venue-hero">
+    <div class="venue-hero__media" aria-hidden="true">
+      <Media name={venue.media} alt="" eager />
+      <div class="venue-hero__veil"></div>
+      <div class="venue-hero__grid"></div>
+    </div>
+
+    <div class="venue-hero__inner">
+      <div class="venue-hero__copy">
+        <Kicker>Standort · Bonn</Kicker>
+        <p class="venue-hero__index">01 / Hofgarten</p>
+        <h1>Mitten in Bonn.<br /><span>Direkt ins Draußen.</span></h1>
+        <p class="venue-hero__lead">
+          Unser urbanster Startpunkt: zentral, unkompliziert und gemacht für die ersten gemeinsamen
+          Kilometer nach Feierabend.
+        </p>
+        <div class="venue-hero__actions">
+          <a class="btn btn--primary" href={venue.uscUrl} target="_blank" rel="noopener">
+            Bei Urban Sports Club ansehen <span aria-hidden="true">↗</span>
+          </a>
+          <a class="venue-hero__textlink" href="#entdecken">Standort entdecken ↓</a>
+        </div>
+      </div>
+
+      <div class="venue-hero__seal" aria-hidden="true">
+        <SunMark size={42} motion="breathe" />
+        <span>Club Ludwig</span>
+        <strong>Bonn</strong>
+      </div>
+    </div>
+
+    <div class="venue-hero__ticker" aria-hidden="true">
+      <div>
+        HOF​​GARTEN · RHEIN · COMMUNITY · URBAN HIKE · BONN · HOF​​GARTEN · RHEIN · COMMUNITY · URBAN HIKE · BONN ·
+      </div>
+    </div>
+  </section>
+
+  <section id="entdecken" class="intro">
+    <div class="intro__inner">
+      <div class="intro__eyebrow">
+        <span>50.733° N</span>
+        <span>7.102° E</span>
+      </div>
+      <div class="intro__grid">
+        <h2>Der Treffpunkt, bevor Bonn zur Route wird.</h2>
+        <div class="intro__text">
+          <p>
+            Der Hofgarten ist unser Einstieg mitten in der Stadt. Von hier starten Urban Hikes,
+            Community Walks und entspannte Feierabendtouren entlang des Rheins.
+          </p>
+          <p>
+            Du kommst an, die Gruppe findet sich – und wenige Minuten später liegt der Alltag hinter
+            uns. Kein Vereinsheim, kein steifer Auftakt. Einfach treffen und losgehen.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="route-stage" aria-label="Vom Hofgarten an den Rhein">
+    <div class="route-stage__inner">
+      <div class="route-stage__visual">
+        <div class="route-stage__frame">
+          <Media name={venue.media} alt={venue.alt} />
+          <div class="route-stage__scan"></div>
+          <div class="route-stage__pin route-stage__pin--start">
+            <span></span>
+            <strong>START</strong>
+            <small>Hofgarten</small>
+          </div>
+          <div class="route-stage__pin route-stage__pin--rhein">
+            <span></span>
+            <strong>WEITER</strong>
+            <small>Richtung Rhein</small>
+          </div>
+          <svg class="route-stage__line" viewBox="0 0 800 560" aria-hidden="true">
+            <path d="M152 412 C260 348 266 244 390 236 S584 316 676 126" />
+          </svg>
+        </div>
+      </div>
+
+      <div class="route-stage__copy">
+        <Kicker>Urban Base</Kicker>
+        <h2>Stadtstart.<br />Trailgefühl.</h2>
+        <p>
+          Der Hofgarten ist kein festgelegter Rundkurs, sondern unser Ausgangspunkt für wechselnde
+          Touren. Strecke, Tempo und Dauer stehen jeweils beim konkreten Termin.
+        </p>
+        <dl>
+          <div><dt>Charakter</dt><dd>Urban &amp; entspannt</dd></div>
+          <div><dt>Umgebung</dt><dd>Innenstadt &amp; Rhein</dd></div>
+          <div><dt>Geeignet für</dt><dd>Erste Touren &amp; Feierabend</dd></div>
+          <div><dt>Buchung</dt><dd>Urban Sports Club</dd></div>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <section class="expect">
+    <div class="expect__inner">
+      <div class="expect__head">
+        <Kicker>Was dich erwartet</Kicker>
+        <h2>Nicht einfach spazieren.<br />Gemeinsam unterwegs.</h2>
+      </div>
+      <div class="expect__cards">
+        <article>
+          <span>01</span>
+          <h3>Entspannt ankommen</h3>
+          <p>Viele kommen allein. Am Treffpunkt wird aus einzelnen Leuten schnell eine Gruppe.</p>
+        </article>
+        <article>
+          <span>02</span>
+          <h3>Bonn neu sehen</h3>
+          <p>Bekannte Wege fühlen sich anders an, wenn man sie gemeinsam und mit offenem Blick läuft.</p>
+        </article>
+        <article>
+          <span>03</span>
+          <h3>Einfach losgehen</h3>
+          <p>Die konkreten Angaben zu Strecke, Tempo und Ausrüstung findest du immer beim Termin.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="venue-cta">
+    <div class="venue-cta__inner">
+      <SunMark size={32} motion="spin" />
+      <p>Dein nächster gemeinsamer Kilometer beginnt hier.</p>
+      <h2>Hofgarten<br /><span>wartet nicht.</span></h2>
+      <a class="btn btn--primary" href={venue.uscUrl} target="_blank" rel="noopener">
+        Standort bei Urban Sports Club öffnen <span aria-hidden="true">↗</span>
+      </a>
+      <a class="venue-cta__back" href="/#regionen">← Alle Standorte</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .venue-hero {
+    position: relative;
+    min-height: 100svh;
+    overflow: hidden;
+    background: var(--color-night-deep);
+  }
+
+  .venue-hero__media,
+  .venue-hero__media :global(.media) {
+    position: absolute;
+    inset: 0;
+  }
+
+  .venue-hero__media :global(img),
+  .venue-hero__media :global(svg) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .venue-hero__veil {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(90deg, rgba(3, 8, 14, 0.96) 0%, rgba(3, 8, 14, 0.76) 46%, rgba(3, 8, 14, 0.28) 100%),
+      linear-gradient(0deg, rgba(3, 8, 14, 0.9), transparent 55%);
+  }
+
+  .venue-hero__grid {
+    position: absolute;
+    inset: 0;
+    opacity: 0.13;
+    background-image:
+      linear-gradient(rgba(219, 255, 62, 0.35) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(219, 255, 62, 0.35) 1px, transparent 1px);
+    background-size: 72px 72px;
+    mask-image: linear-gradient(90deg, black, transparent 75%);
+  }
+
+  .venue-hero__inner {
+    position: relative;
+    z-index: 2;
+    min-height: 100svh;
+    max-width: var(--max-width-content);
+    margin: 0 auto;
+    padding: 180px var(--pad-x) 130px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 48px;
+  }
+
+  .venue-hero :global(.kicker) { color: var(--color-lime); }
+
+  .venue-hero__copy { max-width: 920px; }
+
+  .venue-hero__index {
+    margin: 34px 0 0;
+    color: var(--cream-55);
+    font-size: 12px;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+  }
+
+  h1 {
+    margin: 18px 0 0;
+    font-size: clamp(58px, 9.2vw, 150px);
+    line-height: 0.86;
+    letter-spacing: -0.055em;
+    text-wrap: balance;
+  }
+
+  h1 span { color: var(--color-lime); }
+
+  .venue-hero__lead {
+    max-width: 57ch;
+    margin: 34px 0 0;
+    color: var(--cream-80);
+    font-size: clamp(17px, 1.5vw, 21px);
+    line-height: 1.65;
+  }
+
+  .venue-hero__actions {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    margin-top: 38px;
+    flex-wrap: wrap;
+  }
+
+  .venue-hero__textlink {
+    color: var(--cream-72);
+    border-bottom: 1px solid var(--cream-line);
+    padding-bottom: 4px;
+  }
+
+  .venue-hero__seal {
+    flex: 0 0 auto;
+    width: 180px;
+    aspect-ratio: 1;
+    border: 1px solid rgba(219, 255, 62, 0.45);
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-lime);
+    box-shadow: 0 0 70px rgba(219, 255, 62, 0.12), inset 0 0 40px rgba(219, 255, 62, 0.06);
+    transform: rotate(7deg);
+  }
+
+  .venue-hero__seal span,
+  .venue-hero__seal strong {
+    margin-top: 8px;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  .venue-hero__seal strong { margin-top: 3px; color: var(--color-cream); }
+
+  .venue-hero__ticker {
+    position: absolute;
+    z-index: 3;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+    border-top: 1px solid rgba(219, 255, 62, 0.24);
+    background: rgba(3, 8, 14, 0.8);
+    color: var(--color-lime);
+  }
+
+  .venue-hero__ticker div {
+    width: max-content;
+    padding: 18px 0;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.24em;
+    animation: ticker 28s linear infinite;
+  }
+
+  @keyframes ticker { to { transform: translateX(-50%); } }
+
+  .intro {
+    padding: 140px var(--pad-x);
+    background: var(--color-cream);
+    color: var(--color-night);
+  }
+
+  .intro__inner,
+  .route-stage__inner,
+  .expect__inner,
+  .venue-cta__inner {
+    max-width: var(--max-width-content);
+    margin: 0 auto;
+  }
+
+  .intro__eyebrow {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid rgba(6, 13, 22, 0.22);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  .intro__grid {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 90px;
+    margin-top: 68px;
+  }
+
+  .intro h2,
+  .route-stage h2,
+  .expect h2,
+  .venue-cta h2 {
+    margin: 0;
+    font-size: clamp(44px, 6.5vw, 94px);
+    line-height: 0.96;
+    letter-spacing: -0.045em;
+  }
+
+  .intro__text p {
+    margin: 0;
+    font-size: 19px;
+    line-height: 1.75;
+  }
+
+  .intro__text p + p { margin-top: 26px; }
+
+  .route-stage {
+    padding: 130px var(--pad-x);
+    background: var(--color-night);
+  }
+
+  .route-stage__inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1.18fr) minmax(320px, 0.82fr);
+    gap: 86px;
+    align-items: center;
+  }
+
+  .route-stage__frame {
+    position: relative;
+    min-height: 650px;
+    overflow: hidden;
+    border: 1px solid var(--lime-line);
+    border-radius: var(--radius);
+    box-shadow: 0 28px 90px rgba(0, 0, 0, 0.38);
+  }
+
+  .route-stage__frame :global(.media),
+  .route-stage__frame :global(img),
+  .route-stage__frame :global(svg) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .route-stage__frame::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(3, 8, 14, 0.05), rgba(3, 8, 14, 0.7));
+  }
+
+  .route-stage__scan {
+    position: absolute;
+    z-index: 2;
+    inset: 0;
+    background: repeating-linear-gradient(0deg, transparent 0 5px, rgba(219,255,62,.025) 6px);
+  }
+
+  .route-stage__line {
+    position: absolute;
+    z-index: 3;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    fill: none;
+    stroke: var(--color-lime);
+    stroke-width: 3;
+    stroke-dasharray: 8 12;
+    filter: drop-shadow(0 0 8px rgba(219,255,62,.8));
+  }
+
+  .route-stage__pin {
+    position: absolute;
+    z-index: 4;
+    display: grid;
+    grid-template-columns: 16px auto;
+    column-gap: 10px;
+    color: var(--color-cream);
+  }
+
+  .route-stage__pin--start { left: 15%; bottom: 20%; }
+  .route-stage__pin--rhein { right: 8%; top: 15%; }
+
+  .route-stage__pin span {
+    grid-row: span 2;
+    width: 14px;
+    height: 14px;
+    margin-top: 2px;
+    border-radius: 50%;
+    background: var(--color-lime);
+    box-shadow: 0 0 0 7px rgba(219,255,62,.16), 0 0 26px var(--color-lime);
+  }
+
+  .route-stage__pin strong { font-size: 11px; letter-spacing: .18em; }
+  .route-stage__pin small { margin-top: 3px; color: var(--cream-72); }
+
+  .route-stage :global(.kicker),
+  .expect :global(.kicker) { color: var(--color-lime); }
+
+  .route-stage h2 { margin-top: 24px; }
+
+  .route-stage__copy > p {
+    margin: 28px 0 0;
+    color: var(--cream-72);
+    font-size: 17px;
+    line-height: 1.75;
+  }
+
+  .route-stage dl { margin: 42px 0 0; }
+  .route-stage dl div {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    gap: 20px;
+    padding: 18px 0;
+    border-top: 1px solid var(--cream-line);
+  }
+  .route-stage dl div:last-child { border-bottom: 1px solid var(--cream-line); }
+  .route-stage dt { color: var(--cream-45); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; }
+  .route-stage dd { margin: 0; font-weight: 700; }
+
+  .expect {
+    padding: 130px var(--pad-x);
+    background: var(--color-surface);
+  }
+
+  .expect__head {
+    display: grid;
+    grid-template-columns: .6fr 1.4fr;
+    gap: 60px;
+    align-items: start;
+  }
+
+  .expect__cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    margin-top: 80px;
+    background: var(--lime-line);
+    border: 1px solid var(--lime-line);
+  }
+
+  .expect__cards article {
+    min-height: 330px;
+    padding: 36px;
+    background: var(--color-surface);
+    transition: background .25s ease, transform .25s ease;
+  }
+
+  .expect__cards article:hover {
+    background: var(--color-surface-2);
+    transform: translateY(-8px);
+  }
+
+  .expect__cards span { color: var(--color-lime); font-size: 12px; letter-spacing: .18em; }
+  .expect__cards h3 { margin: 110px 0 0; font-size: 26px; line-height: 1.1; }
+  .expect__cards p { margin: 18px 0 0; color: var(--cream-65); line-height: 1.7; }
+
+  .venue-cta {
+    position: relative;
+    overflow: hidden;
+    padding: 150px var(--pad-x);
+    background: var(--color-lime);
+    color: var(--color-night);
+    text-align: center;
+  }
+
+  .venue-cta::before {
+    content: 'BONN';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(6,13,22,.12);
+    font-size: clamp(170px, 32vw, 520px);
+    font-weight: 900;
+    letter-spacing: -.08em;
+    pointer-events: none;
+  }
+
+  .venue-cta__inner { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; }
+  .venue-cta__inner > p { margin: 24px 0 0; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+  .venue-cta h2 { margin-top: 24px; font-size: clamp(62px, 10vw, 148px); }
+  .venue-cta h2 span { color: rgba(6,13,22,.46); }
+  .venue-cta .btn { margin-top: 46px; background: var(--color-night); color: var(--color-cream); }
+  .venue-cta__back { margin-top: 30px; color: rgba(6,13,22,.72); font-weight: 700; }
+
+  @media (max-width: 899px) {
+    .venue-hero__inner { padding: 144px 24px 116px; align-items: flex-end; }
+    .venue-hero__seal { display: none; }
+    .venue-hero__veil { background: linear-gradient(0deg, rgba(3,8,14,.97), rgba(3,8,14,.28)); }
+    h1 { font-size: clamp(52px, 16vw, 82px); }
+    .intro, .route-stage, .expect, .venue-cta { padding: 88px 24px; }
+    .intro__grid, .route-stage__inner, .expect__head { grid-template-columns: 1fr; gap: 40px; }
+    .route-stage__frame { min-height: 470px; }
+    .expect__cards { grid-template-columns: 1fr; }
+    .expect__cards article { min-height: 260px; }
+    .expect__cards h3 { margin-top: 70px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .venue-hero__ticker div { animation: none; }
+    .expect__cards article:hover { transform: none; }
+  }
+</style>
