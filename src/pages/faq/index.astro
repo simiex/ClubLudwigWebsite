@@ -1,0 +1,237 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Kicker from '../../components/Kicker.astro';
+
+const faqs = [
+  {
+    question: 'Kann ich allein zu einer Tour kommen?',
+    answer:
+      'Ja. Viele kommen bei ihrer ersten Tour allein. Vor Ort entsteht die Gruppe ganz entspannt – du musst vorher niemanden kennen.',
+  },
+  {
+    question: 'Muss ich Mitglied in einem Verein sein?',
+    answer:
+      'Nein. Club Ludwig ist ein offener Hiking Club. Für die Teilnahme ist kein klassischer Vereinsbeitritt erforderlich.',
+  },
+  {
+    question: 'Wie melde ich mich an?',
+    answer:
+      'Die Anmeldung läuft über den jeweiligen Toureneintrag. Dort findest du den aktuellen Status und – sofern verfügbar – den direkten Anmeldelink, zum Beispiel über Urban Sports Club.',
+  },
+  {
+    question: 'Welches Fitnesslevel brauche ich?',
+    answer:
+      'Das hängt von der jeweiligen Tour ab. Distanz, Höhenmeter, Dauer und Schwierigkeitsgrad stehen immer in der Tourbeschreibung. Lies diese Angaben bitte vor der Anmeldung vollständig durch.',
+  },
+  {
+    question: 'Wie schnell wird gewandert?',
+    answer:
+      'Tempo und Anspruch richten sich nach der ausgeschriebenen Tour. Entscheidend sind die Angaben im jeweiligen Toureneintrag – besonders Distanz, Dauer, Höhenmeter und Fitness-Hinweis.',
+  },
+  {
+    question: 'Was muss ich mitbringen?',
+    answer:
+      'Feste, zur Strecke passende Schuhe, ausreichend Wasser und wettergerechte Kleidung gehören immer dazu. Zusätzliche Hinweise findest du in der Beschreibung der jeweiligen Tour.',
+  },
+  {
+    question: 'Was passiert bei schlechtem Wetter?',
+    answer:
+      'Touren finden nicht automatisch bei jedem Wetter statt. Bei relevanten Änderungen oder einer Absage wird der Status der Tour aktualisiert.',
+  },
+  {
+    question: 'Darf mein Hund mit?',
+    answer:
+      'Das wird für jede Tour separat angegeben. Bitte orientiere dich ausschließlich am Hinweis „Hund erlaubt“ im jeweiligen Toureneintrag.',
+  },
+  {
+    question: 'Kostet die Teilnahme etwas?',
+    answer:
+      'Die Kosten oder Teilnahmebedingungen stehen direkt bei der jeweiligen Tour. Dort siehst du auch, ob eine Anmeldung über einen Partner wie Urban Sports Club vorgesehen ist.',
+  },
+  {
+    question: 'Wo finde ich die nächsten Termine?',
+    answer:
+      'Die nächste Tour wird auf der Startseite hervorgehoben. Weitere Termine findest du im Tourenbereich und im Marschkalender.',
+  },
+];
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map((item) => ({
+    '@type': 'Question',
+    name: item.question,
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: item.answer,
+    },
+  })),
+};
+---
+
+<BaseLayout
+  title="FAQ – Club Ludwig"
+  description="Antworten auf häufige Fragen zu Touren, Anmeldung, Fitnesslevel, Ausrüstung, Wetter und Hunden bei Club Ludwig."
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)}></script>
+
+  <section class="faq-hero">
+    <div class="faq-hero__inner">
+      <Kicker>Gut zu wissen</Kicker>
+      <h1>Häufige Fragen</h1>
+      <p>
+        Alles Wichtige für deine erste Tour mit Club Ludwig – ohne Kleingedrucktes und ohne
+        Wanderlatein.
+      </p>
+    </div>
+  </section>
+
+  <section class="faq" aria-label="Häufig gestellte Fragen">
+    <div class="faq__inner">
+      {faqs.map((item, index) => (
+        <details class="faq__item" open={index === 0}>
+          <summary>{item.question}</summary>
+          <p>{item.answer}</p>
+        </details>
+      ))}
+    </div>
+  </section>
+
+  <section class="faq-contact">
+    <div class="faq-contact__inner">
+      <p>Noch etwas unklar?</p>
+      <a class="btn btn--ghost" href="/#kontakt">Kontakt aufnehmen</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .faq-hero {
+    padding: 176px var(--pad-x) 88px;
+    background:
+      radial-gradient(60% 70% at 15% 20%, rgba(219, 255, 62, 0.1), transparent 65%),
+      var(--color-night);
+    border-bottom: 1px solid var(--lime-line);
+  }
+
+  .faq-hero__inner,
+  .faq__inner,
+  .faq-contact__inner {
+    max-width: 980px;
+    margin: 0 auto;
+  }
+
+  .faq-hero :global(.kicker) {
+    color: var(--color-lime);
+  }
+
+  h1 {
+    margin: 22px 0 0;
+    font-size: clamp(52px, 8vw, 112px);
+    line-height: 0.95;
+    letter-spacing: -0.04em;
+  }
+
+  .faq-hero p {
+    max-width: 58ch;
+    margin: 28px 0 0;
+    color: var(--cream-72);
+    font-size: 18px;
+    line-height: 1.7;
+  }
+
+  .faq {
+    padding: 88px var(--pad-x);
+    background: var(--color-surface);
+  }
+
+  .faq__item {
+    border-top: 1px solid var(--cream-line);
+  }
+
+  .faq__item:last-child {
+    border-bottom: 1px solid var(--cream-line);
+  }
+
+  .faq__item summary {
+    position: relative;
+    padding: 28px 56px 28px 0;
+    cursor: pointer;
+    list-style: none;
+    font-size: clamp(20px, 2.4vw, 30px);
+    font-weight: 700;
+    line-height: 1.25;
+  }
+
+  .faq__item summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .faq__item summary::after {
+    content: '+';
+    position: absolute;
+    right: 4px;
+    top: 50%;
+    color: var(--color-lime);
+    font-size: 30px;
+    font-weight: 400;
+    transform: translateY(-50%);
+  }
+
+  .faq__item[open] summary::after {
+    content: '–';
+  }
+
+  .faq__item p {
+    max-width: 72ch;
+    margin: -6px 0 30px;
+    color: var(--cream-72);
+    font-size: 17px;
+    line-height: 1.75;
+  }
+
+  .faq-contact {
+    padding: 72px var(--pad-x) 96px;
+    background: var(--color-night);
+  }
+
+  .faq-contact__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 28px;
+    padding-top: 36px;
+    border-top: 1px solid var(--lime-line);
+  }
+
+  .faq-contact p {
+    margin: 0;
+    font-size: clamp(26px, 4vw, 44px);
+    font-weight: 750;
+    letter-spacing: -0.03em;
+  }
+
+  @media (max-width: 699px) {
+    .faq-hero {
+      padding: 132px 24px 64px;
+    }
+
+    .faq {
+      padding: 56px 24px;
+    }
+
+    .faq__item summary {
+      padding-top: 24px;
+      padding-bottom: 24px;
+    }
+
+    .faq-contact {
+      padding: 56px 24px 72px;
+    }
+
+    .faq-contact__inner {
+      align-items: stretch;
+      flex-direction: column;
+    }
+  }
+</style>

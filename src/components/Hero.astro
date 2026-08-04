@@ -33,6 +33,7 @@ const statItems = [
       />
       <div class="hero__scrim" data-hero-scrim></div>
     </div>
+
     <div class="hero__content" data-hero-content>
       <Kicker class="hero__kicker" animated>Hiking Club · Bonn</Kicker>
       <h1>From Beethoven&rsquo;s City to the&nbsp;Trails</h1>
@@ -40,11 +41,14 @@ const statItems = [
         Der offene Hiking Club aus Bonn. Gemeinsam wandern, neue Leute kennenlernen und Wege rund
         um Rhein und Siebengebirge entdecken.
       </p>
+
       <div class="hero__ctas">
         <a class="btn btn--primary" href="#touren">Nächste Tour ansehen</a>
         <a class="btn btn--ghost" href="#regionen">Wo wir laufen</a>
       </div>
+
       <SunArc />
+
       {
         statItems.length > 0 && (
           <dl class="hero__stats">
@@ -58,9 +62,10 @@ const statItems = [
         )
       }
     </div>
-    <SunArc />
-      <div class="hero__hint" data-hero-hint aria-hidden="true">
-      <span>Scroll</span><span class="hero__hint-line"></span>
+
+    <div class="hero__hint" data-hero-hint aria-hidden="true">
+      <span>Scroll</span>
+      <span class="hero__hint-line"></span>
     </div>
   </div>
 </section>
@@ -84,11 +89,7 @@ const statItems = [
     overflow: hidden;
   }
 
-  .hero__media {
-    position: absolute;
-    inset: 0;
-  }
-
+  .hero__media,
   .hero__media-img {
     position: absolute;
     inset: 0;
@@ -97,10 +98,6 @@ const statItems = [
   .hero__scrim {
     position: absolute;
     inset: 0;
-    /*
-     * Unter dem Abdunkler liegt ein Schimmer, dessen Farbe dem echten
-     * Sonnenstand über Bonn folgt (--sky-tint, gesetzt über data-sky).
-     */
     background:
       radial-gradient(70% 55% at 50% 88%, var(--sky-tint) 0%, transparent 70%),
       radial-gradient(50% 40% at 85% 15%, var(--sky-tint-2) 0%, transparent 70%),
@@ -132,20 +129,20 @@ const statItems = [
 
   h1 {
     margin: 20px 0 0;
+    max-width: 14ch;
     font-size: clamp(48px, 8.2vw, 142px);
     font-weight: 800;
     line-height: 0.95;
     letter-spacing: -0.03em;
-    max-width: 14ch;
     text-wrap: balance;
   }
 
   .hero__lead {
     margin: 24px 0 0;
+    max-width: 52ch;
     font-size: clamp(16px, 1.3vw, 19px);
     line-height: 1.6;
     color: var(--cream-80);
-    max-width: 52ch;
   }
 
   .hero__ctas {
@@ -158,12 +155,12 @@ const statItems = [
 
   .hero__stats {
     display: flex;
+    flex-wrap: wrap;
     gap: 36px;
+    max-width: 560px;
     margin: 44px 0 0;
     padding-top: 24px;
     border-top: 1px solid var(--cream-line);
-    max-width: 560px;
-    flex-wrap: wrap;
   }
 
   .hero__stats dd {
@@ -175,36 +172,18 @@ const statItems = [
   }
 
   .hero__stats dt {
+    margin-top: 4px;
     font-size: 12px;
     letter-spacing: 0.14em;
     text-transform: uppercase;
     color: var(--cream-55);
-    margin-top: 4px;
   }
 
-  /*
-   * Schmale Viewports: der Bogen läuft im Textfluss unter den Buttons mit.
-   * Ab 1100px hat die rechte Hälfte Platz – dort steht er frei, ohne die
-   * Textspalte oder die Buttons zu berühren.
-   */
   .hero__content :global(.arc) {
     margin-top: 40px;
     pointer-events: auto;
   }
 
-  @media (min-width: 1100px) {
-    .hero__content :global(.arc) {
-      position: absolute;
-      right: var(--pad-x);
-      bottom: 40px;
-      margin-top: 0;
-    }
-  }
-
-  /*
-   * Der Scroll-Hinweis stand rechts unten – dort sitzt jetzt der Sonnenbogen.
-   * Ab 1100px wandert er deshalb nach links (siehe unten).
-   */
   .hero__hint {
     position: absolute;
     right: 48px;
@@ -226,11 +205,14 @@ const statItems = [
     background: rgba(242, 238, 228, 0.4);
   }
 
-  /*
-   * Muss NACH der Basisregel stehen: gleiche Spezifität, die spätere gewinnt.
-   * Ab 1100px belegt der Sonnenbogen die rechte untere Ecke.
-   */
   @media (min-width: 1100px) {
+    .hero__content :global(.arc) {
+      position: absolute;
+      right: var(--pad-x);
+      bottom: 40px;
+      margin-top: 0;
+    }
+
     .hero__hint {
       right: auto;
       left: 48px;
@@ -247,26 +229,7 @@ const statItems = [
     }
 
     .hero__stats,
-    /*
-   * Schmale Viewports: der Bogen läuft im Textfluss unter den Buttons mit.
-   * Ab 1100px hat die rechte Hälfte Platz – dort steht er frei, ohne die
-   * Textspalte oder die Buttons zu berühren.
-   */
-  .hero__content :global(.arc) {
-    margin-top: 40px;
-    pointer-events: auto;
-  }
-
-  @media (min-width: 1100px) {
-    .hero__content :global(.arc) {
-      position: absolute;
-      right: var(--pad-x);
-      bottom: 40px;
-      margin-top: 0;
-    }
-  }
-
-  .hero__hint {
+    .hero__hint {
       display: none;
     }
 
@@ -275,10 +238,6 @@ const statItems = [
     }
   }
 
-  /*
-   * Reduced Motion: Ohne GSAP gibt es kein Pinning – die 170vh wären dann
-   * reine Leerstrecke. Der Hero wird deshalb ein normaler Screen.
-   */
   @media (prefers-reduced-motion: reduce) {
     .hero {
       height: auto;
@@ -289,31 +248,11 @@ const statItems = [
       height: 100svh;
     }
 
-    /*
-   * Schmale Viewports: der Bogen läuft im Textfluss unter den Buttons mit.
-   * Ab 1100px hat die rechte Hälfte Platz – dort steht er frei, ohne die
-   * Textspalte oder die Buttons zu berühren.
-   */
-  .hero__content :global(.arc) {
-    margin-top: 40px;
-    pointer-events: auto;
-  }
-
-  @media (min-width: 1100px) {
-    .hero__content :global(.arc) {
-      position: absolute;
-      right: var(--pad-x);
-      bottom: 40px;
-      margin-top: 0;
-    }
-  }
-
-  .hero__hint {
+    .hero__hint {
       display: none;
     }
   }
 
-  /* Mobil: keine lange Pinning-Strecke, Hero ist ein normaler Screen */
   @media (max-width: 899px) {
     .hero {
       height: auto;
@@ -337,26 +276,7 @@ const statItems = [
       align-items: stretch;
     }
 
-    /*
-   * Schmale Viewports: der Bogen läuft im Textfluss unter den Buttons mit.
-   * Ab 1100px hat die rechte Hälfte Platz – dort steht er frei, ohne die
-   * Textspalte oder die Buttons zu berühren.
-   */
-  .hero__content :global(.arc) {
-    margin-top: 40px;
-    pointer-events: auto;
-  }
-
-  @media (min-width: 1100px) {
-    .hero__content :global(.arc) {
-      position: absolute;
-      right: var(--pad-x);
-      bottom: 40px;
-      margin-top: 0;
-    }
-  }
-
-  .hero__hint {
+    .hero__hint {
       display: none;
     }
   }
