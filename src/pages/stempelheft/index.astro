@@ -1,0 +1,625 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Kicker from '../../components/Kicker.astro';
+import SunMark from '../../components/SunMark.astro';
+import { STAMP_GOAL, STAMP_GOAL_WORD, reward } from '../../config/stempelheft';
+import { social, urbanSports } from '../../config/site';
+import { requireVenue } from '../../data/venues';
+
+const uscUrl = requireVenue(urbanSports.primaryVenueId).uscUrl;
+const slots = Array.from({ length: STAMP_GOAL }, (_, i) => i);
+
+const steps = [
+  { n: '01', text: 'Mitwandern. Jede Club-Ludwig-Tour zählt – genau wie Shop-Bestellungen und Empfehlungen.' },
+  { n: '02', text: 'Am Ende der Tour nennen wir den Tourcode.' },
+  { n: '03', text: 'Code in „Mein Bereich“ eintippen – Stempel ist drin.' },
+  { n: '04', text: `Bei ${STAMP_GOAL} Stempeln gibt es das ${reward.title} – wir sehen deinen Stand im System.` },
+];
+---
+
+<BaseLayout
+  title="Stempelheft – Club Ludwig"
+  description={`Sammle ${STAMP_GOAL} Stempel bei Club-Ludwig-Touren und hol dir dein Club-Shirt. Dein Fortschritt bleibt in deinem Browser.`}
+>
+  <section class="heft">
+    <div class="heft__inner">
+      <!-- ── Kopf ────────────────────────────────────────────────── -->
+      <header class="heft__head">
+        <Kicker class="heft__kicker" animated>Stempelheft</Kicker>
+        <h1>
+          {STAMP_GOAL_WORD} Stempel.<br />
+          <span class="heft__accent">Ein Shirt.</span>
+        </h1>
+        <p class="heft__lead">
+          Jede Tour bringt einen Stempel – und auch Bestellungen im Shop oder Käufe über deinen
+          Empfehlungscode zählen. Dein Heft hängt an deinem Club-Konto, nicht am Browser –
+          einmal registrieren, von überall dran.
+        </p>
+      </header>
+
+      <div class="heft__cta">
+        <a class="btn btn--primary" href="/mein-club/">Heft öffnen</a>
+        <a class="btn btn--ghost" href={uscUrl} target="_blank" rel="noopener">
+          Nächste Tour buchen<span class="visually-hidden"> (öffnet in neuem Tab)</span>
+        </a>
+      </div>
+
+      <!-- Beispielkarte: rein illustrativ, der echte Stand steht in „Mein Bereich“ -->
+      <ol class="card" aria-hidden="true">
+        {
+          slots.map((i) => (
+            <li class:list={['slot', { 'is-filled': i < 4 }]}>
+              <span class="slot__num">{String(i + 1).padStart(2, '0')}</span>
+              <span class="slot__mark">
+                <SunMark size={54} />
+              </span>
+            </li>
+          ))
+        }
+      </ol>
+
+      <!-- ── So geht's ───────────────────────────────────────────── -->
+      <section class="how" aria-labelledby="how-heading">
+        <h2 id="how-heading" class="how__heading">So funktioniert's</h2>
+        <ol class="how__list">
+          {
+            steps.map((s) => (
+              <li class="how__item">
+                <span class="how__num">{s.n}</span>
+                <p>{s.text}</p>
+              </li>
+            ))
+          }
+        </ol>
+        <p class="how__fineprint">
+          Dein Stand hängt an deinem Club-Ludwig-Konto, nicht am Gerät – du kommst also von
+          überall dran. Die Tourcodes prüfen wir auf dem Server; wer nicht dabei war, bekommt
+          keinen Stempel.
+        </p>
+      </section>
+
+      <div class="heft__foot">
+        <a class="link-underline" href="/touren/">Zum Tourenkalender</a>
+        <a class="link-underline" href={social.instagram} target="_blank" rel="noopener">
+          Instagram<span class="visually-hidden"> (öffnet in neuem Tab)</span>
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .heft {
+    position: relative;
+    background:
+      radial-gradient(70% 45% at 50% 0%, rgba(219, 255, 62, 0.1) 0%, transparent 62%),
+      radial-gradient(60% 40% at 85% 60%, rgba(62, 240, 207, 0.06) 0%, transparent 60%),
+      var(--color-night);
+    color: var(--color-cream);
+    padding: 200px var(--pad-x) 128px;
+    min-height: 100vh;
+    overflow: hidden;
+  }
+
+  .heft__inner {
+    max-width: 1080px;
+    margin: 0 auto;
+  }
+
+  /* ── Kopf ─────────────────────────────────────────────────────── */
+
+  .heft__head {
+    max-width: 34ch;
+  }
+
+  h1 {
+    margin: 20px 0 0;
+    font-size: clamp(44px, 6.4vw, 104px);
+    font-weight: 800;
+    line-height: 0.94;
+    letter-spacing: -0.035em;
+  }
+
+  .heft__accent {
+    color: var(--color-lime);
+    text-shadow: 0 0 60px rgba(219, 255, 62, 0.4);
+  }
+
+  .heft__lead {
+    margin: 28px 0 0;
+    font-size: 17px;
+    line-height: 1.65;
+    color: var(--cream-72);
+    max-width: 52ch;
+  }
+
+  .heft__cta {
+    display: flex;
+    gap: 14px;
+    margin-top: 44px;
+    flex-wrap: wrap;
+  }
+
+  /* ── Fortschritt ──────────────────────────────────────────────── */
+
+  .heft__progress {
+    margin-top: 72px;
+  }
+
+  .heft__progress-head {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+  }
+
+  .heft__counter {
+    margin: 0;
+    font-size: clamp(32px, 4vw, 52px);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: var(--color-lime);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .heft__progress-label {
+    margin: 0;
+    font-size: 12px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--cream-55);
+  }
+
+  .heft__bar {
+    --fill: 0%;
+    position: relative;
+    height: 3px;
+    margin-top: 18px;
+    background: rgba(242, 238, 228, 0.12);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .heft__bar::after {
+    content: '';
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: var(--fill);
+    background: linear-gradient(90deg, var(--color-neon), var(--color-lime));
+    box-shadow: 0 0 18px rgba(219, 255, 62, 0.6);
+    transition: width 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* ── Stempelkarte ─────────────────────────────────────────────── */
+
+  .card {
+    list-style: none;
+    margin: 44px 0 0;
+    padding: 36px;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 20px;
+    background:
+      repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 12px,
+        rgba(242, 238, 228, 0.014) 12px,
+        rgba(242, 238, 228, 0.014) 24px
+      ),
+      var(--color-surface-2);
+    border: 1px solid var(--lime-line);
+    border-radius: var(--radius);
+  }
+
+  .slot {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    aspect-ratio: 1;
+    padding: 10px;
+    border: 1px dashed rgba(242, 238, 228, 0.2);
+    border-radius: 50%;
+    text-align: center;
+    transition: border-color 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .slot__num {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: rgba(242, 238, 228, 0.28);
+    transition: opacity 0.3s ease;
+  }
+
+  .slot__mark {
+    display: block;
+    color: var(--color-lime);
+    opacity: 0;
+    transform: scale(0.4) rotate(-25deg);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+
+  .slot__label,
+  .slot__date {
+    font-size: 10px;
+    line-height: 1.25;
+    letter-spacing: 0.04em;
+    opacity: 0;
+    transition: opacity 0.3s ease 0.1s;
+  }
+
+  .slot__label {
+    font-weight: 700;
+    color: var(--color-cream);
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .slot__date {
+    color: var(--cream-45);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Gestempelt */
+  .slot.is-filled {
+    border-style: solid;
+    border-color: rgba(219, 255, 62, 0.45);
+    background: radial-gradient(circle at 50% 45%, rgba(219, 255, 62, 0.1), transparent 70%);
+    box-shadow: 0 0 26px rgba(219, 255, 62, 0.12);
+  }
+
+  .slot.is-filled .slot__num {
+    opacity: 0;
+  }
+
+  .slot.is-filled .slot__mark {
+    opacity: 1;
+    transform: scale(1) rotate(-8deg);
+  }
+
+  .slot.is-filled .slot__label,
+  .slot.is-filled .slot__date {
+    opacity: 1;
+  }
+
+  /* Einstempeln: kurz zu groß, dann einrasten – wie ein echter Stempel */
+  .slot.is-new .slot__mark {
+    animation: stamp-in 0.5s cubic-bezier(0.3, 1.6, 0.5, 1) both;
+  }
+
+  .slot.is-new::after {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    border-radius: 50%;
+    border: 2px solid var(--color-lime);
+    animation: stamp-ring 0.7s ease-out forwards;
+    pointer-events: none;
+  }
+
+  @keyframes stamp-in {
+    0% {
+      opacity: 0;
+      transform: scale(2.1) rotate(-40deg);
+    }
+    55% {
+      opacity: 1;
+      transform: scale(0.86) rotate(-2deg);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1) rotate(-8deg);
+    }
+  }
+
+  @keyframes stamp-ring {
+    0% {
+      opacity: 0.9;
+      transform: scale(0.75);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(1.5);
+    }
+  }
+
+  /* ── Code einlösen ────────────────────────────────────────────── */
+
+  .redeem {
+    margin-top: 48px;
+    max-width: 620px;
+  }
+
+  .redeem__label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--cream-55);
+  }
+
+  .redeem__row {
+    display: flex;
+    gap: 12px;
+    margin-top: 14px;
+  }
+
+  .redeem__input {
+    flex: 1;
+    min-width: 0;
+    padding: 18px 22px;
+    background: var(--color-surface-2);
+    border: 1px solid var(--cream-line);
+    border-radius: var(--radius-sm);
+    color: var(--color-cream);
+    font-family: inherit;
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .redeem__input::placeholder {
+    color: rgba(242, 238, 228, 0.3);
+    font-weight: 500;
+    letter-spacing: 0.06em;
+  }
+
+  .redeem__input:focus {
+    outline: none;
+    border-color: var(--color-lime);
+    box-shadow: 0 0 0 3px rgba(219, 255, 62, 0.18);
+  }
+
+  .redeem__btn {
+    padding: 18px 32px;
+    white-space: nowrap;
+  }
+
+  .redeem__hint {
+    margin: 14px 0 0;
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--cream-55);
+  }
+
+  .redeem__manual {
+    margin-top: 16px;
+    background: none;
+    border: 1px solid var(--cream-line);
+    border-radius: var(--radius-sm);
+    color: var(--cream-72);
+    padding: 10px 18px;
+    font-size: 13px;
+    cursor: pointer;
+  }
+
+  /* ── Feedback ─────────────────────────────────────────────────── */
+
+  .feedback {
+    margin: 20px 0 0;
+    min-height: 22px;
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  .feedback[data-tone='ok'] {
+    color: var(--color-lime);
+  }
+
+  .feedback[data-tone='error'] {
+    color: #ff7b7b;
+  }
+
+  .feedback[data-tone='info'] {
+    color: var(--cream-55);
+  }
+
+  /* ── Prämie ───────────────────────────────────────────────────── */
+
+  .reward {
+    margin-top: 56px;
+    padding: 56px 48px;
+    text-align: center;
+    background:
+      radial-gradient(70% 90% at 50% 0%, rgba(219, 255, 62, 0.14) 0%, transparent 70%),
+      var(--color-surface-2);
+    border: 1px solid rgba(219, 255, 62, 0.4);
+    border-radius: var(--radius);
+    box-shadow: 0 0 70px rgba(219, 255, 62, 0.14);
+  }
+
+  .reward[hidden] {
+    display: none;
+  }
+
+  .reward__sun {
+    display: flex;
+    justify-content: center;
+    color: var(--color-lime);
+  }
+
+  .reward__kicker {
+    margin: 20px 0 0;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--color-lime);
+  }
+
+  .reward h2 {
+    margin: 10px 0 0;
+    font-size: clamp(32px, 4.4vw, 60px);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+  }
+
+  .reward__text {
+    margin: 18px auto 0;
+    max-width: 46ch;
+    font-size: 16px;
+    line-height: 1.65;
+    color: var(--cream-72);
+  }
+
+  .reward__code-label {
+    margin: 36px 0 0;
+    font-size: 12px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--cream-55);
+  }
+
+  .reward__code {
+    margin: 10px 0 0;
+    font-size: clamp(30px, 4vw, 46px);
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    color: var(--color-lime);
+    font-variant-numeric: tabular-nums;
+    text-shadow: 0 0 34px rgba(219, 255, 62, 0.45);
+  }
+
+  .reward__btns {
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    margin-top: 36px;
+    flex-wrap: wrap;
+  }
+
+  /* ── So geht's ────────────────────────────────────────────────── */
+
+  .how {
+    margin-top: 112px;
+    padding-top: 56px;
+    border-top: 1px solid var(--cream-line);
+  }
+
+  .how__heading {
+    margin: 0;
+    font-size: clamp(24px, 2.6vw, 36px);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+
+  .how__list {
+    list-style: none;
+    margin: 36px 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 32px;
+  }
+
+  .how__item p {
+    margin: 12px 0 0;
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--cream-72);
+  }
+
+  .how__num {
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    color: var(--color-lime);
+  }
+
+  .how__fineprint {
+    margin: 48px 0 0;
+    max-width: 68ch;
+    font-size: 14px;
+    line-height: 1.65;
+    color: var(--cream-55);
+  }
+
+  .how__reset {
+    margin-top: 28px;
+    background: none;
+    border: 1px solid var(--cream-line);
+    border-radius: var(--radius-sm);
+    color: var(--cream-55);
+    padding: 12px 22px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color 0.2s ease, border-color 0.2s ease;
+  }
+
+  .how__reset:hover {
+    color: #ff7b7b;
+    border-color: rgba(255, 123, 123, 0.5);
+  }
+
+  .how__reset[hidden] {
+    display: none;
+  }
+
+  .heft__foot {
+    display: flex;
+    gap: 32px;
+    margin-top: 72px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--cream-72);
+    flex-wrap: wrap;
+  }
+
+  /* ── Mobil ────────────────────────────────────────────────────── */
+
+  @media (max-width: 899px) {
+    .heft {
+      padding: 140px 24px 72px;
+    }
+
+    .card {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      padding: 20px;
+    }
+
+    .slot__label,
+    .slot__date {
+      font-size: 9px;
+    }
+
+    .redeem__row {
+      flex-direction: column;
+    }
+
+    .redeem__btn {
+      width: 100%;
+    }
+
+    .reward {
+      padding: 40px 24px;
+    }
+
+    .reward__btns .btn {
+      width: 100%;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .heft__bar::after {
+      transition: none;
+    }
+
+    .slot.is-new::after {
+      display: none;
+    }
+  }
+</style>

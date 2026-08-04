@@ -1,0 +1,414 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Kicker from '../../components/Kicker.astro';
+import SunMark from '../../components/SunMark.astro';
+---
+
+<BaseLayout title="Prüfen – Club Ludwig" description="Interner Bereich." noindex>
+  <section class="ad" data-admin>
+    <div class="ad__inner">
+      <Kicker class="ad__kicker">Intern</Kicker>
+      <h1>Nachweise prüfen</h1>
+
+      <div class="state" data-view="loading">
+        <SunMark size={32} motion="spin" />
+      </div>
+
+      <div data-view="denied" hidden>
+        <p class="ad__denied">
+          Dieser Bereich ist der Clubleitung vorbehalten. Melde dich mit einem Admin-Konto an.
+        </p>
+        <a class="btn btn--ghost" href="/mein-club/">Zur Anmeldung</a>
+      </div>
+
+      <div data-view="app" hidden>
+        <!-- Challenge-Übersicht -->
+        <section class="ov" aria-labelledby="ov-heading">
+          <h2 id="ov-heading" class="ad__h2">Challenges</h2>
+          <div class="ov__list" data-overview></div>
+        </section>
+
+        <!-- Nachweise -->
+        <section class="rev" aria-labelledby="rev-heading">
+          <div class="rev__head">
+            <h2 id="rev-heading" class="ad__h2">Einträge</h2>
+            <label class="rev__toggle">
+              <input type="checkbox" data-show-all />
+              <span>Auch geprüfte anzeigen</span>
+            </label>
+          </div>
+          <p class="msg" data-msg data-tone="info" role="status" aria-live="polite"></p>
+          <div class="rev__list" data-logs></div>
+        </section>
+      </div>
+    </div>
+  </section>
+
+  <!-- Nachweis in groß -->
+  <div class="lightbox" data-lightbox hidden>
+    <button class="lightbox__close" type="button" data-lightbox-close aria-label="Schließen">×</button>
+    <img data-lightbox-img alt="Nachweis-Screenshot" />
+  </div>
+</BaseLayout>
+
+<script>
+  import { initAdmin } from '../../scripts/admin';
+
+  initAdmin();
+</script>
+
+<style>
+  .ad {
+    background: var(--color-night);
+    color: var(--color-cream);
+    padding: 180px var(--pad-x) 120px;
+    min-height: 100vh;
+  }
+
+  .ad__inner {
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  h1 {
+    margin: 18px 0 0;
+    font-size: clamp(32px, 4vw, 56px);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+  }
+
+  .ad__h2 {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-lime);
+  }
+
+  .state {
+    display: flex;
+    justify-content: center;
+    padding: 60px 0;
+    color: var(--color-lime);
+  }
+
+  .ad :global([hidden]) {
+    display: none !important;
+  }
+
+  .ad__denied {
+    margin: 32px 0 24px;
+    font-size: 16px;
+    color: var(--cream-72);
+  }
+
+  /* ── Übersicht ────────────────────────────────────────────────── */
+
+  .ov {
+    margin-top: 56px;
+  }
+
+  .ov__list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 20px;
+  }
+
+  .ov :global(.ovc) {
+    padding: 24px 28px;
+    background: var(--color-surface-2);
+    border: 1px solid var(--cream-line);
+    border-radius: var(--radius);
+  }
+
+  .ov :global(.ovc__top) {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .ov :global(.ovc h3) {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+
+  .ov :global(.ovc__period) {
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--cream-45);
+  }
+
+  .ov :global(.ovc__stats) {
+    display: flex;
+    gap: 32px;
+    margin-top: 18px;
+    flex-wrap: wrap;
+  }
+
+  .ov :global(.ovc__stat b) {
+    display: block;
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--color-lime);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .ov :global(.ovc__stat span) {
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--cream-45);
+  }
+
+  .ov :global(.ovc__code) {
+    margin-top: 18px;
+    padding: 12px 16px;
+    background: var(--color-night);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    color: var(--cream-72);
+  }
+
+  .ov :global(.ovc__code b) {
+    color: var(--color-lime);
+    letter-spacing: 0.06em;
+  }
+
+  .ov :global(.ovc__draw) {
+    margin-top: 18px;
+  }
+
+  .ov :global(.winners) {
+    list-style: none;
+    margin: 14px 0 0;
+    padding: 0;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .ov :global(.winners li) {
+    padding: 8px 14px;
+    border: 1px solid rgba(219, 255, 62, 0.4);
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--color-lime);
+  }
+
+  /* ── Nachweise ────────────────────────────────────────────────── */
+
+  .rev {
+    margin-top: 64px;
+  }
+
+  .rev__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .rev__toggle {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 13px;
+    color: var(--cream-55);
+    cursor: pointer;
+  }
+
+  .rev__list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 20px;
+  }
+
+  .rev :global(.row) {
+    display: grid;
+    grid-template-columns: 96px minmax(0, 1fr) auto;
+    gap: 20px;
+    align-items: center;
+    padding: 16px;
+    background: var(--color-surface-2);
+    border: 1px solid var(--cream-line);
+    border-radius: var(--radius);
+  }
+
+  .rev :global(.row.is-checked) {
+    opacity: 0.55;
+  }
+
+  .rev :global(.thumb) {
+    width: 96px;
+    height: 96px;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    background: var(--color-night);
+    border: none;
+    padding: 0;
+    cursor: zoom-in;
+  }
+
+  .rev :global(.thumb img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .rev :global(.row__who) {
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .rev :global(.row__what) {
+    margin-top: 4px;
+    font-size: 14px;
+    color: var(--cream-72);
+  }
+
+  .rev :global(.row__what b) {
+    color: var(--color-lime);
+  }
+
+  .rev :global(.row__note) {
+    margin-top: 4px;
+    font-size: 13px;
+    color: var(--cream-45);
+  }
+
+  .rev :global(.row__act) {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .rev :global(.ok) {
+    background: var(--color-lime);
+    color: var(--color-night);
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 11px 20px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .rev :global(.undo) {
+    background: none;
+    border: 1px solid var(--cream-line);
+    border-radius: var(--radius-sm);
+    color: var(--cream-72);
+    padding: 10px 18px;
+    font-family: inherit;
+    font-size: 13px;
+    cursor: pointer;
+  }
+
+  .rev :global(.no) {
+    background: none;
+    border: none;
+    color: var(--cream-45);
+    font-family: inherit;
+    font-size: 13px;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    cursor: pointer;
+  }
+
+  .rev :global(.no:hover) {
+    color: #ff7b7b;
+  }
+
+  .rev :global(.leer) {
+    padding: 32px;
+    border: 1px dashed var(--cream-line);
+    border-radius: var(--radius);
+    color: var(--cream-55);
+  }
+
+  .msg {
+    margin: 16px 0 0;
+    min-height: 20px;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .msg[data-tone='ok'] {
+    color: var(--color-lime);
+  }
+
+  .msg[data-tone='error'] {
+    color: #ff7b7b;
+  }
+
+  .msg[data-tone='info'] {
+    color: var(--cream-55);
+  }
+
+  /* ── Großansicht ──────────────────────────────────────────────── */
+
+  .lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    background: rgba(4, 9, 16, 0.94);
+  }
+
+  .lightbox[hidden] {
+    display: none;
+  }
+
+  .lightbox img {
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: var(--radius);
+  }
+
+  .lightbox__close {
+    position: absolute;
+    top: 24px;
+    right: 28px;
+    background: none;
+    border: none;
+    color: var(--color-cream);
+    font-size: 36px;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  @media (max-width: 899px) {
+    .ad {
+      padding: 130px 20px 72px;
+    }
+
+    .rev :global(.row) {
+      grid-template-columns: 72px minmax(0, 1fr);
+    }
+
+    .rev :global(.thumb) {
+      width: 72px;
+      height: 72px;
+    }
+
+    .rev :global(.row__act) {
+      grid-column: 1 / -1;
+      justify-content: flex-end;
+    }
+  }
+</style>

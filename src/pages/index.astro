@@ -1,15 +1,19 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Hero from '../components/Hero.astro';
-import Principles from '../components/Principles.astro';
 import FeaturedEvent from '../components/FeaturedEvent.astro';
 import Regions from '../components/Regions.astro';
-import Community from '../components/Community.astro';
+import StampTeaser from '../components/StampTeaser.astro';
+import CalendarTeaser from '../components/CalendarTeaser.astro';
 import Manifest from '../components/Manifest.astro';
-import FinalCta from '../components/FinalCta.astro';
-import { getNextEvent } from '../lib/events';
+import StructuredData from '../components/StructuredData.astro';
+import { buildEvents, nextFrom, toEventSchema } from '../lib/events';
+import { loadEvents } from '../lib/events-source';
+import { organizationSchema, venueListSchema } from '../lib/schema';
 
-const nextEvent = getNextEvent();
+/** Zur Build-Zeit aus Supabase geladen (Fallback: src/data/events.json). */
+const events = buildEvents(await loadEvents());
+const nextEvent = nextFrom(events);
 ---
 
 <BaseLayout
@@ -17,13 +21,21 @@ const nextEvent = getNextEvent();
   description="Der offene Hiking Club aus Bonn. Gemeinsam wandern, neue Leute kennenlernen und Wege rund um Rhein und Siebengebirge entdecken."
   transparentNav
 >
+  <StructuredData
+    slot="head"
+    schemas={[
+      organizationSchema(),
+      venueListSchema(),
+      nextEvent ? toEventSchema(nextEvent) : null,
+    ]}
+  />
+
   <Hero />
-  <Principles event={nextEvent} />
   <FeaturedEvent event={nextEvent} />
+  <CalendarTeaser />
   <Regions />
-  <Community />
+  <StampTeaser />
   <Manifest />
-  <FinalCta />
 </BaseLayout>
 
 <script>

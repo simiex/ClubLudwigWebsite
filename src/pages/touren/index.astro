@@ -1,57 +1,153 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { getUpcomingEvents, events, formatFullDate, formatWeekday, formatDay, formatMonth } from '../../lib/events';
+import StructuredData from '../../components/StructuredData.astro';
+import Kicker from '../../components/Kicker.astro';
+import {
+  buildEvents,
+  pastFrom,
+  upcomingFrom,
+  getEventMeta,
+  getRegistrationTarget,
+  isBookable,
+  formatDay,
+  formatFullDate,
+  formatMonth,
+  formatWeekday,
+  STATUS_LABELS,
+  STATUS_TONE,
+  toEventSchema,
+  type ClubEvent,
+} from '../../lib/events';
+import { loadEvents } from '../../lib/events-source';
 
-const upcoming = getUpcomingEvents();
-const list = upcoming.length > 0 ? upcoming : events;
+/** Chronologisch: kommende aufsteigend, vergangene absteigend. */
+const allEvents = buildEvents(await loadEvents());
+const upcoming = upcomingFrom(allEvents);
+const past = pastFrom(allEvents);
+
+function cardData(event: ClubEvent) {
+  return {
+    event,
+    meta: getEventMeta(event),
+    registration: getRegistrationTarget(event),
+    bookable: isBookable(event),
+  };
+}
+
+const upcomingCards = upcoming.map(cardData);
+const pastCards = past.map(cardData);
 ---
 
 <BaseLayout
   title="Touren – Club Ludwig"
   description="Alle kommenden Wanderungen des Club Ludwig aus Bonn – mit Distanz, Höhenmetern, Schwierigkeitsgrad und Anmeldung."
 >
+  <StructuredData slot="head" schemas={upcoming.map(toEventSchema)} />
+
   <section class="tours-page">
     <div class="tours-page__inner">
-      <p class="kicker tours-page__kicker">Tourenkalender</p>
+      <Kicker class="tours-page__kicker">Tourenkalender</Kicker>
       <h1>Kommende Wanderungen</h1>
       <p class="tours-page__lead">
         Alle geplanten Touren auf einen Blick. Vor jeder Tour steht, wie lang und wie anspruchsvoll
         sie wird – such dir die aus, die zu dir passt.
       </p>
 
-      <ol class="tour-list">
-        {
-          list.map((event) => (
-            <li class="tour-card">
-              <div class="tour-card__date">
-                <span class="tour-card__day">{formatDay(event)}</span>
-                <span class="tour-card__month">{formatMonth(event)}</span>
-              </div>
-              <div class="tour-card__body">
-                <p class="tour-card__when">
-                  {formatWeekday(event)}, {formatFullDate(event)} · {event.time} Uhr · {event.meetingPoint}
-                </p>
-                <h2>{event.title}</h2>
-                <p class="tour-card__desc">{event.description}</p>
-                <dl class="tour-card__meta">
-                  <div><dt>Distanz</dt><dd>{event.distance}</dd></div>
-                  <div><dt>Höhenmeter</dt><dd>{event.elevation}</dd></div>
-                  <div><dt>Dauer</dt><dd>{event.duration}</dd></div>
-                  <div><dt>Level</dt><dd>{event.difficulty}</dd></div>
-                  <div><dt>Gelände</dt><dd>{event.terrain}</dd></div>
-                  <div><dt>Fitness</dt><dd>{event.fitness}</dd></div>
-                  <div><dt>Hund erlaubt</dt><dd>{event.dogsAllowed}</dd></div>
-                  <div><dt>Kosten</dt><dd>{event.cost}</dd></div>
-                </dl>
-                <div class="tour-card__foot">
-                  <span class="tour-card__status">{event.registrationStatus}</span>
-                  <a class="btn btn--primary tour-card__cta" href={event.registrationLink}>Anmelden</a>
+      {
+        upcomingCards.length === 0 ? (
+          <p class="tours-page__empty">
+            Aktuell ist keine Tour ausgeschrieben. Neue Termine kündigen wir zuerst auf Instagram
+            und bei Urban Sports Club an.
+          </p>
+        ) : (
+          <ol class="tour-list">
+            {upcomingCards.map(({ event, meta, registration, bookable }) => (
+              <li class:list={['tour-card', { 'is-inactive': !bookable }]}>
+                <div class="tour-card__date">
+                  {event.hasDate ? (
+                    <>
+                      <span class="tour-card__day">{formatDay(event)}</span>
+                      <span class="tour-card__month">{formatMonth(event)}</span>
+                    </>
+                  ) : (
+                    <span class="tour-card__tbd">Termin folgt</span>
+                  )}
                 </div>
-              </div>
-            </li>
-          ))
-        }
-      </ol>
+                <div class="tour-card__body">
+                  <p class="tour-card__when">
+                    {event.hasDate ? (
+                      <>
+                        {formatWeekday(event)}, {formatFullDate(event)}
+                        {event.time && <> · {event.time} Uhr</>} ·{' '}
+                      </>
+                    ) : null}
+                    {event.meetingPoint}
+                  </p>
+                  <h2>{event.title}</h2>
+                  <p class="tour-card__desc">{event.description}</p>
+                  {meta.length > 0 && (
+                    <dl class="tour-card__meta">
+                      {meta.map((m) => (
+                        <div>
+                          <dt>{m.label}</dt>
+                          <dd>{m.value}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                  )}
+                  <div class="tour-card__foot">
+                    <span class:list={['tour-card__status', `is-${STATUS_TONE[event.effectiveStatus]}`]}>
+                      {STATUS_LABELS[event.effectiveStatus]}
+                    </span>
+                    {registration && bookable && (
+                      <a
+                        class="btn btn--primary tour-card__cta"
+                        href={registration.href}
+                        target={registration.external ? '_blank' : undefined}
+                        rel={registration.external ? 'noopener' : undefined}
+                      >
+                        {registration.kind === 'usc' ? 'Bei Urban Sports Club buchen' : 'Anmelden'}
+                        {registration.external && (
+                          <span class="visually-hidden"> (öffnet in neuem Tab)</span>
+                        )}
+                      </a>
+                    )}
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ol>
+        )
+      }
+
+      {
+        pastCards.length > 0 && (
+          <section class="tours-past" aria-labelledby="past-heading">
+            <h2 id="past-heading" class="tours-past__heading">
+              Vergangene Touren
+            </h2>
+            <ol class="tour-list tour-list--past">
+              {pastCards.map(({ event }) => (
+                <li class="tour-card tour-card--past">
+                  <div class="tour-card__date">
+                    <span class="tour-card__day">{formatDay(event)}</span>
+                    <span class="tour-card__month">{formatMonth(event)}</span>
+                  </div>
+                  <div class="tour-card__body">
+                    <p class="tour-card__when">
+                      {formatWeekday(event)}, {formatFullDate(event)} · {event.meetingPoint}
+                    </p>
+                    <h3>{event.title}</h3>
+                    <span class:list={['tour-card__status', `is-${STATUS_TONE[event.effectiveStatus]}`]}>
+                      {STATUS_LABELS[event.effectiveStatus]}
+                    </span>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </section>
+        )
+      }
 
       <a class="link-underline tours-page__back" href="/">Zurück zur Startseite</a>
     </div>
@@ -60,7 +156,9 @@ const list = upcoming.length > 0 ? upcoming : events;
 
 <style>
   .tours-page {
-    background: var(--color-night);
+    background:
+      radial-gradient(60% 40% at 15% 0%, rgba(219, 255, 62, 0.07) 0%, transparent 60%),
+      var(--color-night);
     color: var(--color-cream);
     padding: 200px var(--pad-x) 128px;
     min-height: 100vh;
@@ -92,6 +190,16 @@ const list = upcoming.length > 0 ? upcoming : events;
     max-width: 56ch;
   }
 
+  .tours-page__empty {
+    margin: 64px 0 0;
+    padding: 40px;
+    border: 1px dashed var(--cream-line);
+    border-radius: var(--radius);
+    font-size: 17px;
+    line-height: 1.6;
+    color: var(--cream-72);
+  }
+
   .tour-list {
     list-style: none;
     margin: 72px 0 0;
@@ -105,9 +213,21 @@ const list = upcoming.length > 0 ? upcoming : events;
     display: grid;
     grid-template-columns: 160px minmax(0, 1fr);
     gap: 40px;
+    background: var(--color-surface-2);
     border: 1px solid var(--cream-line);
     border-radius: var(--radius);
     padding: 40px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .tour-card:hover,
+  .tour-card:focus-within {
+    border-color: rgba(219, 255, 62, 0.4);
+    box-shadow: 0 0 46px rgba(219, 255, 62, 0.1);
+  }
+
+  .tour-card.is-inactive {
+    opacity: 0.72;
   }
 
   .tour-card__date {
@@ -116,6 +236,7 @@ const list = upcoming.length > 0 ? upcoming : events;
   }
 
   .tour-card__day {
+    color: var(--color-lime);
     font-size: 72px;
     font-weight: 800;
     line-height: 0.85;
@@ -129,6 +250,13 @@ const list = upcoming.length > 0 ? upcoming : events;
     color: var(--cream-55);
   }
 
+  .tour-card__tbd {
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--cream-45);
+  }
+
   .tour-card__when {
     margin: 0;
     font-size: 13px;
@@ -137,7 +265,8 @@ const list = upcoming.length > 0 ? upcoming : events;
     color: var(--cream-55);
   }
 
-  .tour-card h2 {
+  .tour-card h2,
+  .tour-card h3 {
     margin: 12px 0 0;
     font-size: clamp(28px, 3vw, 44px);
     font-weight: 800;
@@ -189,12 +318,62 @@ const list = upcoming.length > 0 ? upcoming : events;
     font-weight: 700;
     letter-spacing: 0.1em;
     text-transform: uppercase;
+  }
+
+  .tour-card__status.is-go {
     color: var(--color-lime);
+  }
+
+  .tour-card__status.is-warn {
+    color: var(--color-ember);
+  }
+
+  .tour-card__status.is-stop {
+    color: #ff6b6b;
+  }
+
+  .tour-card__status.is-muted {
+    color: var(--cream-45);
   }
 
   .tour-card__cta {
     padding: 14px 28px;
     font-size: 14px;
+  }
+
+  /* Vergangene Touren: reduziert */
+  .tours-past {
+    margin-top: 112px;
+    padding-top: 56px;
+    border-top: 1px solid var(--cream-line);
+  }
+
+  .tours-past__heading {
+    margin: 0;
+    font-size: clamp(24px, 2.4vw, 34px);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--cream-72);
+  }
+
+  .tour-list--past {
+    margin-top: 32px;
+    gap: 20px;
+  }
+
+  .tour-card--past {
+    padding: 24px 28px;
+    opacity: 0.65;
+  }
+
+  .tour-card--past .tour-card__day {
+    font-size: 40px;
+    color: var(--cream-55);
+  }
+
+  .tour-card--past h3 {
+    font-size: 22px;
+    margin-bottom: 10px;
   }
 
   .tours-page__back {
@@ -224,6 +403,15 @@ const list = upcoming.length > 0 ? upcoming : events;
 
     .tour-card__day {
       font-size: 48px;
+    }
+
+    .tour-card__foot {
+      align-items: stretch;
+      flex-direction: column;
+    }
+
+    .tour-card__cta {
+      width: 100%;
     }
   }
 </style>

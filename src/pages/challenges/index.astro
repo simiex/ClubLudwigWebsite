@@ -1,0 +1,392 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Kicker from '../../components/Kicker.astro';
+import SunMark from '../../components/SunMark.astro';
+import {
+  loadChallenges,
+  formatPeriod,
+  formatAmount,
+  phase,
+  daysLeft,
+  METRIC_LABEL,
+} from '../../lib/challenges';
+
+const all = await loadChallenges();
+const laufend = all.filter((c) => phase(c) === 'laufend');
+const kommend = all.filter((c) => phase(c) === 'kommend');
+const vorbei = all.filter((c) => phase(c) === 'vorbei').reverse();
+---
+
+<BaseLayout
+  title="Challenges – Club Ludwig"
+  description="Virtuelle Challenges vom Club Ludwig: Sammle Kilometer oder Höhenmeter, wo du willst – und hol dir einen Stempel fürs Heft."
+>
+  <section class="ch">
+    <div class="ch__inner">
+      <header class="ch__head">
+        <Kicker class="ch__kicker" animated>Challenges</Kicker>
+        <h1>Dein Weg zählt.<br /><span>Egal wo.</span></h1>
+        <p class="ch__lead">
+          Nicht jeder kann samstags in Bonn am Hofgarten stehen. Bei unseren Challenges sammelst
+          du Kilometer und Höhenmeter dort, wo du sowieso unterwegs bist – Feierabendrunde,
+          Wochenendtour, Weg zur Arbeit. Wer sein Ziel erreicht, bekommt einen Stempel fürs Heft.
+        </p>
+      </header>
+
+      {
+        all.length === 0 ? (
+          <p class="ch__empty">
+            Gerade läuft keine Challenge. Die nächste kündigen wir hier und auf Instagram an.
+          </p>
+        ) : (
+          <>
+            {laufend.length > 0 && (
+              <section class="block">
+                <h2 class="block__head">
+                  <SunMark size={14} motion="breathe" />
+                  <span>Läuft gerade</span>
+                </h2>
+                <ol class="list">
+                  {laufend.map((c) => (
+                    <li class="card card--live">
+                      <div class="card__body">
+                        <p class="card__meta">
+                          <span class="tag tag--live">Noch {daysLeft(c)} Tage</span>
+                          <span>{formatPeriod(c)}</span>
+                        </p>
+                        <h3>{c.title}</h3>
+                        {c.subtitle && <p class="card__sub">{c.subtitle}</p>}
+                        <p class="card__desc">{c.description}</p>
+                      </div>
+                      <div class="card__side">
+                        <p class="card__goal">{formatAmount(c.goal, c.metric)}</p>
+                        <p class="card__goal-label">{METRIC_LABEL[c.metric]} als Ziel</p>
+                        <a class="btn btn--primary card__cta" href="/mein-club/#challenges">
+                          Mitmachen
+                        </a>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              </section>
+            )}
+
+            {kommend.length > 0 && (
+              <section class="block">
+                <h2 class="block__head">
+                  <SunMark size={14} />
+                  <span>Kommt bald</span>
+                </h2>
+                <ol class="list">
+                  {kommend.map((c) => (
+                    <li class="card">
+                      <div class="card__body">
+                        <p class="card__meta">
+                          <span class="tag">Ab {formatPeriod(c).split('–')[0]!.trim()}</span>
+                          <span>{formatPeriod(c)}</span>
+                        </p>
+                        <h3>{c.title}</h3>
+                        {c.subtitle && <p class="card__sub">{c.subtitle}</p>}
+                        <p class="card__desc">{c.description}</p>
+                      </div>
+                      <div class="card__side">
+                        <p class="card__goal">{formatAmount(c.goal, c.metric)}</p>
+                        <p class="card__goal-label">{METRIC_LABEL[c.metric]} als Ziel</p>
+                        <a class="btn btn--ghost card__cta" href={`/challenges/${c.slug}/`}>
+                          Ansehen
+                        </a>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              </section>
+            )}
+
+            {vorbei.length > 0 && (
+              <section class="block">
+                <h2 class="block__head">
+                  <SunMark size={14} />
+                  <span>Vorbei</span>
+                </h2>
+                <ol class="list">
+                  {vorbei.map((c) => (
+                    <li class="card card--past">
+                      <div class="card__body">
+                        <p class="card__meta">
+                          <span>{formatPeriod(c)}</span>
+                        </p>
+                        <h3>{c.title}</h3>
+                      </div>
+                      <div class="card__side">
+                        <p class="card__goal">{formatAmount(c.goal, c.metric)}</p>
+                        <a class="link-underline card__cta" href={`/challenges/${c.slug}/`}>
+                          Ergebnis
+                        </a>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              </section>
+            )}
+          </>
+        )
+      }
+
+      <section class="how" aria-labelledby="how-heading">
+        <h2 id="how-heading">So läuft's</h2>
+        <ol class="how__list">
+          <li><span class="how__num">01</span><p>Anmelden und bei einer Challenge mitmachen.</p></li>
+          <li><span class="how__num">02</span><p>Unterwegs sein – wo und wann du willst.</p></li>
+          <li><span class="how__num">03</span><p>Kilometer eintragen, so oft du magst.</p></li>
+          <li><span class="how__num">04</span><p>Ziel erreicht? Stempel landet automatisch im Heft.</p></li>
+        </ol>
+        <p class="how__note">
+          Wir prüfen deine Einträge nicht nach – das hier ist kein Wettkampf, sondern ein
+          gemeinsames Ziel. Trag ein, was du wirklich gegangen bist.
+        </p>
+      </section>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .ch {
+    background:
+      radial-gradient(60% 40% at 25% 0%, rgba(62, 240, 207, 0.08) 0%, transparent 60%),
+      var(--color-night);
+    color: var(--color-cream);
+    padding: 200px var(--pad-x) 128px;
+    min-height: 100vh;
+  }
+
+  .ch__inner {
+    max-width: 1080px;
+    margin: 0 auto;
+  }
+
+  h1 {
+    margin: 20px 0 0;
+    font-size: clamp(40px, 5.6vw, 92px);
+    font-weight: 800;
+    line-height: 0.96;
+    letter-spacing: -0.035em;
+  }
+
+  h1 span {
+    color: var(--color-neon);
+    text-shadow: 0 0 55px rgba(62, 240, 207, 0.35);
+  }
+
+  .ch__lead {
+    margin: 28px 0 0;
+    max-width: 58ch;
+    font-size: 17px;
+    line-height: 1.65;
+    color: var(--cream-72);
+  }
+
+  .ch__empty {
+    margin: 64px 0 0;
+    padding: 40px;
+    border: 1px dashed var(--cream-line);
+    border-radius: var(--radius);
+    color: var(--cream-72);
+  }
+
+  .block {
+    margin-top: 64px;
+  }
+
+  .block__head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0 0 20px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-neon);
+  }
+
+  .list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 220px;
+    gap: 40px;
+    padding: 32px;
+    background: var(--color-surface-2);
+    border: 1px solid var(--cream-line);
+    border-radius: var(--radius);
+    transition: border-color 0.25s ease;
+  }
+
+  .card--live {
+    border-color: rgba(62, 240, 207, 0.35);
+    box-shadow: 0 0 50px rgba(62, 240, 207, 0.08);
+  }
+
+  .card--past {
+    opacity: 0.65;
+  }
+
+  .card:hover {
+    border-color: rgba(62, 240, 207, 0.5);
+  }
+
+  .card__meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0;
+    font-size: 13px;
+    color: var(--cream-55);
+    flex-wrap: wrap;
+  }
+
+  .tag {
+    padding: 4px 11px;
+    border-radius: 999px;
+    border: 1px solid var(--cream-line);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--cream-72);
+  }
+
+  .tag--live {
+    color: var(--color-neon);
+    border-color: rgba(62, 240, 207, 0.4);
+  }
+
+  .card h3 {
+    margin: 12px 0 0;
+    font-size: clamp(24px, 2.6vw, 34px);
+    font-weight: 800;
+    letter-spacing: -0.025em;
+  }
+
+  .card__sub {
+    margin: 6px 0 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-neon);
+  }
+
+  .card__desc {
+    margin: 16px 0 0;
+    font-size: 15px;
+    line-height: 1.65;
+    color: var(--cream-72);
+    max-width: 56ch;
+  }
+
+  .card__side {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    border-left: 1px solid var(--cream-line);
+    padding-left: 32px;
+  }
+
+  .card__goal {
+    margin: 0;
+    font-size: clamp(28px, 3vw, 40px);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: var(--color-neon);
+    white-space: nowrap;
+  }
+
+  .card__goal-label {
+    margin: 4px 0 0;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--cream-45);
+  }
+
+  .card__cta {
+    margin-top: 20px;
+  }
+
+  /* ── So läuft's ───────────────────────────────────────────────── */
+
+  .how {
+    margin-top: 112px;
+    padding-top: 48px;
+    border-top: 1px solid var(--cream-line);
+  }
+
+  .how h2 {
+    margin: 0;
+    font-size: clamp(22px, 2.4vw, 32px);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+
+  .how__list {
+    list-style: none;
+    margin: 32px 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 28px;
+  }
+
+  .how__num {
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    color: var(--color-neon);
+  }
+
+  .how__list p {
+    margin: 10px 0 0;
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--cream-72);
+  }
+
+  .how__note {
+    margin: 40px 0 0;
+    max-width: 62ch;
+    font-size: 14px;
+    line-height: 1.65;
+    color: var(--cream-55);
+  }
+
+  @media (max-width: 899px) {
+    .ch {
+      padding: 140px 24px 72px;
+    }
+
+    .card {
+      grid-template-columns: 1fr;
+      gap: 24px;
+      padding: 24px;
+    }
+
+    .card__side {
+      border-left: none;
+      border-top: 1px solid var(--cream-line);
+      padding-left: 0;
+      padding-top: 20px;
+    }
+
+    .card__cta {
+      width: 100%;
+      text-align: center;
+    }
+  }
+</style>

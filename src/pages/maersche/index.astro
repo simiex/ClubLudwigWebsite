@@ -1,0 +1,907 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Kicker from '../../components/Kicker.astro';
+import SunMark from '../../components/SunMark.astro';
+import { social } from '../../config/site';
+import {
+  loadMarches,
+  FORMAT_LABEL,
+  buckets,
+  formatDateRange,
+  formatDistances,
+  statusLabel,
+  monthKey,
+  monthLabel,
+  type March,
+} from '../../lib/marches';
+import { buildEvents } from '../../lib/events';
+import { loadEvents } from '../../lib/events-source';
+
+const fremde = await loadMarches();
+
+/*
+ * Eigene Club-Ludwig-Touren laufen im selben Kalender mit – sonst wirkt es,
+ * als hätten wir mit dem Thema nichts zu tun. Sie werden als eigener
+ * "Veranstalter" geführt und deutlich hervorgehoben.
+ */
+const eigene: March[] = buildEvents(await loadEvents())
+  .filter((e) => !e.isPast && e.hasDate && e.effectiveStatus !== 'abgesagt')
+  .map((e) => ({
+    slug: `club-ludwig-${e.id}`,
+    title: e.title,
+    organizer: 'Club Ludwig',
+    organizer_url: '/touren/',
+    format: 'wanderung' as const,
+    start_date: e.date!,
+    end_date: null,
+    city: e.venue.area,
+    region: 'Nordrhein-Westfalen',
+    country: 'DE',
+    distances_km: e.distanceKm != null ? [e.distanceKm] : [],
+    time_limit_hours: null,
+    price_from: null,
+    event_url: '/touren/',
+    note: 'Unsere eigene Tour – Anmeldung über Urban Sports Club',
+    verified_at: null,
+    status: e.effectiveStatus === 'ausgebucht' ? 'ausgebucht' : 'geplant',
+  }));
+
+const marches = [...eigene, ...fremde].sort((a, b) => a.start_date.localeCompare(b.start_date));
+
+/** Nach Monat gruppieren – so liest sich ein Kalender. */
+const grouped = marches.reduce<Record<string, March[]>>((acc, m) => {
+  (acc[monthKey(m)] ??= []).push(m);
+  return acc;
+}, {});
+const months = Object.keys(grouped).sort();
+
+/** Häufigkeit zählen – Filter nach Relevanz statt nach Alphabet. */
+function tally<T extends string>(werte: (T | null)[]): Array<{ wert: T; anzahl: number }> {
+  const map = new Map<T, number>();
+  for (const w of werte) {
+    if (!w) continue;
+    map.set(w, (map.get(w) ?? 0) + 1);
+  }
+  return [...map.entries()]
+    .map(([wert, anzahl]) => ({ wert, anzahl }))
+    .sort((a, b) => b.anzahl - a.anzahl || a.wert.localeCompare(b.wert, 'de'));
+}
+
+const formats = tally(marches.map((m) => m.format));
+const regions = tally(marches.map((m) => m.region));
+const organizers = tally(marches.map((m) => m.organizer));
+
+/** Ab hier wird die Regionsliste eingeklappt – die lange Liste erschlägt sonst. */
+const REGION_SICHTBAR = 6;
+
+/** Sprungziele: Monat mit Anzahl. */
+const monthNav = months.map((key) => ({ key, label: monthLabel(key), anzahl: grouped[key]!.length }));
+
+const DISTANCE_FILTERS = [
+  { key: 'kurz', label: 'unter 30 km' },
+  { key: 'mittel', label: '30–60 km' },
+  { key: 'lang', label: '60–100 km' },
+  { key: 'ultra', label: 'ab 100 km' },
+];
+---
+
+<BaseLayout
+  title="Marschkalender – alle Märsche und Ultrawanderungen | Club Ludwig"
+  description="Kuratierter Kalender der Märsche, 24-Stunden-Wanderungen und Ultrawanderungen im deutschsprachigen Raum. Termine, Distanzen, Zeitlimits – gepflegt von Club Ludwig."
+>
+  <section class="cal">
+    <div class="cal__inner">
+      <header class="cal__head">
+        <Kicker class="cal__kicker" animated>Marschkalender</Kicker>
+        <h1>Jeder Marsch.<br /><span>Ein Kalender.</span></h1>
+        <p class="cal__lead">
+          Megamarsch, Mammutmarsch, 24-Stunden-Wanderungen, Ultramärsche – im
+          deutschsprachigen Raum verteilt sich das auf ein Dutzend Webseiten. Wir sammeln die
+          Termine an einem Ort. Kein Veranstalter, keine Anmeldung über uns: Der Link führt
+          immer direkt zum Original.
+        </p>
+      </header>
+
+      {
+        marches.length === 0 ? (
+          <p class="cal__empty">
+            Gerade sind keine Termine hinterlegt. Schau später nochmal vorbei.
+          </p>
+        ) : (
+          <>
+            <!-- Sprungleiste über die Monate -->
+            <nav class="months" aria-label="Zu Monat springen">
+              {
+                monthNav.map((m) => (
+                  <a class="months__link" href={`#monat-${m.key}`} data-month-link={m.key}>
+                    {m.label.replace(' 20', ' ’')}
+                    <span class="months__count">{m.anzahl}</span>
+                  </a>
+                ))
+              }
+            </nav>
+
+            <!-- Filter: rein clientseitig über data-Attribute -->
+            <div class="filters" data-filters>
+              <button class="filters__toggle" type="button" data-filters-toggle aria-expanded="false" aria-controls="filter-body">
+                <span class="filters__toggle-label">Filter</span>
+                <span class="filters__status" data-count aria-live="polite"></span>
+                <span class="filters__chev" aria-hidden="true">▾</span>
+              </button>
+
+              <div class="filters__body" id="filter-body" hidden>
+                <div class="filters__row">
+                  <span class="filters__label">Distanz</span>
+                  <div class="chips">
+                    {DISTANCE_FILTERS.map((f) => (
+                      <button class="chip" type="button" data-filter="bucket" data-value={f.key}>
+                        {f.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div class="filters__row">
+                  <span class="filters__label">Veranstalter</span>
+                  <div class="chips">
+                    {organizers.map((o) => (
+                      <button class="chip" type="button" data-filter="organizer" data-value={o.wert}>
+                        {o.wert}<span class="chip__count">{o.anzahl}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div class="filters__row">
+                  <span class="filters__label">Format</span>
+                  <div class="chips">
+                    {formats.map((f) => (
+                      <button class="chip" type="button" data-filter="format" data-value={f.wert}>
+                        {FORMAT_LABEL[f.wert]}<span class="chip__count">{f.anzahl}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {regions.length > 1 && (
+                  <div class="filters__row">
+                    <span class="filters__label">Region</span>
+                    <div class="chips" data-region-chips>
+                      {regions.map((r, i) => (
+                        <button
+                          class="chip"
+                          type="button"
+                          data-filter="region"
+                          data-value={r.wert}
+                          hidden={i >= REGION_SICHTBAR}
+                          data-region-extra={i >= REGION_SICHTBAR ? '' : null}
+                        >
+                          {r.wert}<span class="chip__count">{r.anzahl}</span>
+                        </button>
+                      ))}
+                      {regions.length > REGION_SICHTBAR && (
+                        <button class="chip chip--more" type="button" data-region-more>
+                          + {regions.length - REGION_SICHTBAR} weitere
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                <button class="filters__reset" type="button" data-filters-reset hidden>
+                  Alle Filter zurücksetzen
+                </button>
+              </div>
+            </div>
+
+            {months.map((key) => (
+              <section class="month" id={`monat-${key}`} data-month={key}>
+                <h2 class="month__head">
+                  <SunMark size={14} />
+                  <span>{monthLabel(key)}</span>
+                </h2>
+
+                <ol class="list">
+                  {grouped[key]!.map((m) => (
+                    <li
+                      class:list={[
+                        'march',
+                        {
+                          'is-full': m.status === 'ausgebucht' || m.status === 'abgesagt',
+                          'is-own': m.organizer === 'Club Ludwig',
+                        },
+                      ]}
+                      data-march
+                      data-format={m.format}
+                      data-organizer={m.organizer}
+                      data-until={m.end_date ?? m.start_date}
+                      data-region={m.region ?? ''}
+                      data-buckets={buckets(m).join(' ')}
+                    >
+                      <div class="march__date">
+                        <span class="march__day">{m.start_date.slice(8, 10)}</span>
+                        <span class="march__weekday">
+                          {new Date(`${m.start_date}T12:00:00`).toLocaleDateString('de-DE', {
+                            weekday: 'short',
+                          })}
+                        </span>
+                      </div>
+
+                      <div class="march__body">
+                        <p class="march__organizer">
+                          {m.organizer === 'Club Ludwig' ? (
+                            <span class="own-badge">
+                              <SunMark size={11} />Unsere Tour
+                            </span>
+                          ) : (
+                            m.organizer
+                          )}
+                        </p>
+                        <h3>{m.title}</h3>
+                        <p class="march__meta">
+                          <span class="tag">{FORMAT_LABEL[m.format]}</span>
+                          {statusLabel(m) && (
+                            <span class:list={['tag', `tag--${m.status}`]}>{statusLabel(m)}</span>
+                          )}
+                          <span>{m.city}{m.region ? ` · ${m.region}` : ''}</span>
+                        </p>
+                        {m.note && <p class="march__note">{m.note}</p>}
+                      </div>
+
+                      <div class="march__facts">
+                        <p class="march__dist">{formatDistances(m)}</p>
+                        <p class="march__sub">
+                          {formatDateRange(m)}
+                          {m.time_limit_hours && <> · {m.time_limit_hours} h Limit</>}
+                        </p>
+                        {m.event_url && (
+                          <a class="march__link" href={m.event_url} target="_blank" rel="noopener">
+                            Zum Veranstalter <span aria-hidden="true">↗</span>
+                            <span class="visually-hidden">(öffnet in neuem Tab)</span>
+                          </a>
+                        )}
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              </section>
+            ))}
+          </>
+        )
+      }
+
+      <section class="hint" aria-labelledby="hint-heading">
+        <h2 id="hint-heading">Termin fehlt?</h2>
+        <p>
+          Wir pflegen den Kalender von Hand und übernehmen keine Gewähr für Termine, Distanzen
+          oder Preise – prüf vor der Anmeldung immer beim Veranstalter. Fehlt ein Marsch oder
+          stimmt etwas nicht, schreib uns kurz.
+        </p>
+        <div class="hint__btns">
+          <a class="btn btn--primary" href={social.instagram} target="_blank" rel="noopener">
+            Über Instagram melden<span class="visually-hidden"> (öffnet in neuem Tab)</span>
+          </a>
+          <a class="link-underline" href="/touren/">Unsere eigenen Touren</a>
+        </div>
+      </section>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  /*
+   * Sicherung gegen veraltete Builds: Die Seite wird statisch erzeugt und
+   * filtert vergangene Termine zur Build-Zeit. Ohne Deploy bliebe ein Termin
+   * danach stehen. Deshalb hier nochmal im Browser prüfen – so verschwindet
+   * ein Marsch am Tag danach von selbst, auch ohne neuen Build.
+   */
+  (() => {
+    const heute = new Date().toISOString().slice(0, 10);
+    let entfernt = 0;
+    for (const el of document.querySelectorAll<HTMLElement>('[data-march]')) {
+      const bis = el.dataset.until ?? '';
+      if (bis && bis < heute) {
+        el.remove();
+        entfernt++;
+      }
+    }
+    if (entfernt > 0) {
+      // Monate ohne Einträge mit entfernen
+      for (const sec of document.querySelectorAll<HTMLElement>('[data-month]')) {
+        if (!sec.querySelector('[data-march]')) sec.remove();
+      }
+      console.info(`[maersche] ${entfernt} abgelaufene(r) Termin(e) ausgeblendet – Zeit für einen Deploy.`);
+    }
+  })();
+
+  // Filter: Mehrfachauswahl je Gruppe, Gruppen werden UND-verknüpft.
+  const root = document.querySelector<HTMLElement>('[data-filters]');
+  if (root) {
+    const chips = [...root.querySelectorAll<HTMLButtonElement>('.chip:not(.chip--more)')];
+    const items = [...document.querySelectorAll<HTMLElement>('[data-march]')];
+    const countEl = root.querySelector<HTMLElement>('[data-count]');
+    const resetBtn = root.querySelector<HTMLButtonElement>('[data-filters-reset]');
+    const toggleBtn = root.querySelector<HTMLButtonElement>('[data-filters-toggle]');
+    const body = root.querySelector<HTMLElement>('[data-filters-body], #filter-body');
+    const active: Record<string, Set<string>> = {};
+
+    /* Auf- und Zuklappen: zugeklappt steht der Inhalt vorn, die Werkzeuge dahinter. */
+    toggleBtn?.addEventListener('click', () => {
+      const offen = !body?.hasAttribute('hidden');
+      body?.toggleAttribute('hidden', offen);
+      toggleBtn.setAttribute('aria-expanded', String(!offen));
+      root.classList.toggle('is-open', !offen);
+    });
+
+    /* Lange Regionsliste erst auf Wunsch vollständig zeigen. */
+    const moreBtn = root.querySelector<HTMLButtonElement>('[data-region-more]');
+    moreBtn?.addEventListener('click', () => {
+      root.querySelectorAll<HTMLElement>('[data-region-extra]').forEach((c) => c.removeAttribute('hidden'));
+      moreBtn.remove();
+    });
+
+    function apply() {
+      let visible = 0;
+      for (const item of items) {
+        const ok = Object.entries(active).every(([group, values]) => {
+          if (values.size === 0) return true;
+          const raw = item.dataset[group === 'bucket' ? 'buckets' : group] ?? '';
+          const own = raw.split(' ').filter(Boolean);
+          return [...values].some((v) => own.includes(v) || raw === v);
+        });
+        item.hidden = !ok;
+        if (ok) visible++;
+      }
+
+      // Monate ohne sichtbare Einträge komplett ausblenden – samt Sprungziel
+      document.querySelectorAll<HTMLElement>('[data-month]').forEach((sec) => {
+        const leer = !sec.querySelector('[data-march]:not([hidden])');
+        sec.hidden = leer;
+        const link = document.querySelector<HTMLElement>(`[data-month-link="${sec.dataset.month}"]`);
+        link?.toggleAttribute('hidden', leer);
+      });
+
+      const gefiltert = Object.values(active).some((s) => s.size > 0);
+      resetBtn?.toggleAttribute('hidden', !gefiltert);
+      if (countEl) {
+        const total = items.length;
+        countEl.textContent =
+          visible === total ? `${total} Termine` : `${visible} von ${total} Terminen`;
+      }
+    }
+
+    for (const chip of chips) {
+      const group = chip.dataset.filter!;
+      const value = chip.dataset.value!;
+      active[group] ??= new Set();
+      chip.addEventListener('click', () => {
+        const set = active[group]!;
+        if (set.has(value)) set.delete(value);
+        else set.add(value);
+        chip.classList.toggle('is-active', set.has(value));
+        chip.setAttribute('aria-pressed', String(set.has(value)));
+        apply();
+      });
+      chip.setAttribute('aria-pressed', 'false');
+    }
+
+    resetBtn?.addEventListener('click', () => {
+      for (const set of Object.values(active)) set.clear();
+      for (const chip of chips) {
+        chip.classList.remove('is-active');
+        chip.setAttribute('aria-pressed', 'false');
+      }
+      apply();
+    });
+
+    apply();
+  }
+</script>
+
+<style>
+  .cal {
+    background:
+      radial-gradient(60% 40% at 20% 0%, rgba(219, 255, 62, 0.08) 0%, transparent 60%),
+      var(--color-night);
+    color: var(--color-cream);
+    padding: 200px var(--pad-x) 128px;
+    min-height: 100vh;
+  }
+
+  .cal__inner {
+    max-width: 1080px;
+    margin: 0 auto;
+  }
+
+  h1 {
+    margin: 20px 0 0;
+    font-size: clamp(40px, 5.6vw, 92px);
+    font-weight: 800;
+    line-height: 0.96;
+    letter-spacing: -0.035em;
+  }
+
+  h1 span {
+    color: var(--color-lime);
+    text-shadow: 0 0 55px rgba(219, 255, 62, 0.35);
+  }
+
+  .cal__lead {
+    margin: 28px 0 0;
+    max-width: 58ch;
+    font-size: 17px;
+    line-height: 1.65;
+    color: var(--cream-72);
+  }
+
+  .cal__empty {
+    margin: 64px 0 0;
+    padding: 40px;
+    border: 1px dashed var(--cream-line);
+    border-radius: var(--radius);
+    color: var(--cream-72);
+  }
+
+  /* ── Monats-Sprungleiste ──────────────────────────────────────── */
+
+  .months {
+    display: flex;
+    gap: 8px;
+    margin-top: 56px;
+    padding-bottom: 6px;
+    overflow-x: auto;
+    scrollbar-width: thin;
+  }
+
+  .months__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 9px 15px;
+    border: 1px solid var(--cream-line);
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--cream-72);
+    white-space: nowrap;
+    transition: color 0.2s ease, border-color 0.2s ease;
+  }
+
+  .months__link:hover,
+  .months__link:focus-visible {
+    color: var(--color-lime);
+    border-color: var(--color-lime);
+  }
+
+  .months__link[hidden] {
+    display: none;
+  }
+
+  .months__count {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--cream-45);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ── Filter ───────────────────────────────────────────────────── */
+
+  .filters {
+    margin-top: 20px;
+    background: var(--color-surface-2);
+    border: 1px solid var(--cream-line);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .filters__toggle {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+    padding: 18px 24px;
+    background: none;
+    border: none;
+    font-family: inherit;
+    color: var(--color-cream);
+    cursor: pointer;
+    text-align: left;
+  }
+
+  .filters__toggle-label {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .filters__chev {
+    margin-left: auto;
+    font-size: 13px;
+    color: var(--cream-55);
+    transition: transform 0.25s ease;
+  }
+
+  .filters.is-open .filters__chev {
+    transform: rotate(180deg);
+  }
+
+  .filters__body {
+    padding: 4px 24px 24px;
+  }
+
+  .filters__body[hidden] {
+    display: none;
+  }
+
+  .filters__row {
+    display: flex;
+    align-items: baseline;
+    gap: 18px;
+    flex-wrap: wrap;
+  }
+
+  .filters__row + .filters__row {
+    margin-top: 18px;
+    padding-top: 18px;
+    border-top: 1px solid rgba(242, 238, 228, 0.06);
+  }
+
+  .chip__count {
+    margin-left: 7px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--cream-45);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .chip.is-active .chip__count {
+    color: rgba(6, 13, 22, 0.55);
+  }
+
+  .chip--more {
+    border-style: dashed;
+    color: var(--cream-55);
+  }
+
+  .chip[hidden] {
+    display: none;
+  }
+
+  .filters__reset {
+    margin-top: 22px;
+    background: none;
+    border: none;
+    padding: 0;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--cream-55);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    cursor: pointer;
+  }
+
+  .filters__reset:hover {
+    color: var(--color-lime);
+  }
+
+  .filters__reset[hidden] {
+    display: none;
+  }
+
+  .filters__label {
+    min-width: 72px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--cream-55);
+  }
+
+  .chips {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .chip {
+    background: none;
+    border: 1px solid var(--cream-line);
+    border-radius: 999px;
+    color: var(--cream-72);
+    padding: 8px 16px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+  }
+
+  .chip:hover {
+    color: var(--color-cream);
+    border-color: rgba(242, 238, 228, 0.4);
+  }
+
+  .chip.is-active {
+    background: var(--color-lime);
+    border-color: var(--color-lime);
+    color: var(--color-night);
+  }
+
+  .filters__status {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-lime);
+  }
+
+  /* ── Monat ────────────────────────────────────────────────────── */
+
+  .month {
+    margin-top: 56px;
+    scroll-margin-top: 110px; /* fixer Header verdeckt sonst die Überschrift */
+  }
+
+  .month[hidden] {
+    display: none;
+  }
+
+  .month__head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0 0 20px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-lime);
+  }
+
+  .list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  /* ── Eintrag ──────────────────────────────────────────────────── */
+
+  .march {
+    display: grid;
+    grid-template-columns: 72px minmax(0, 1fr) auto;
+    gap: 28px;
+    align-items: center;
+    padding: 22px 26px;
+    background: var(--color-surface-2);
+    border: 1px solid var(--cream-line);
+    border-radius: var(--radius);
+    transition: border-color 0.25s ease, transform 0.25s ease;
+  }
+
+  .march[hidden] {
+    display: none;
+  }
+
+  .march:hover {
+    border-color: rgba(219, 255, 62, 0.4);
+    transform: translateY(-2px);
+  }
+
+  .march__date {
+    text-align: center;
+  }
+
+  .march__day {
+    display: block;
+    font-size: 34px;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    color: var(--color-lime);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .march__weekday {
+    display: block;
+    margin-top: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--cream-45);
+  }
+
+  .march.is-own {
+    border-color: rgba(219, 255, 62, 0.4);
+    background:
+      radial-gradient(90% 300% at 0% 50%, rgba(219, 255, 62, 0.06), transparent 55%),
+      var(--color-surface-2);
+  }
+
+  .own-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--color-lime);
+  }
+
+  .march__organizer {
+    margin: 0;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--cream-45);
+  }
+
+  .march h3 {
+    margin: 6px 0 0;
+    font-size: 21px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+
+  .march__meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 8px 0 0;
+    font-size: 13px;
+    color: var(--cream-55);
+    flex-wrap: wrap;
+  }
+
+  .tag {
+    padding: 3px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--lime-line);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-lime);
+  }
+
+  .tag--ausgebucht,
+  .tag--abgesagt {
+    color: #ff7b7b;
+    border-color: rgba(255, 123, 123, 0.4);
+  }
+
+  .march.is-full {
+    opacity: 0.72;
+  }
+
+  .march__note {
+    margin: 8px 0 0;
+    font-size: 13px;
+    color: var(--cream-55);
+  }
+
+  .march__facts {
+    text-align: right;
+  }
+
+  .march__dist {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+  }
+
+  .march__sub {
+    margin: 4px 0 0;
+    font-size: 12px;
+    color: var(--cream-55);
+    white-space: nowrap;
+  }
+
+  .march__link {
+    display: inline-block;
+    margin-top: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--color-lime);
+    border-bottom: 1px solid var(--lime-line);
+    padding-bottom: 2px;
+  }
+
+  .march__link:hover {
+    border-color: var(--color-lime);
+  }
+
+  /* ── Hinweis ──────────────────────────────────────────────────── */
+
+  .hint {
+    margin-top: 112px;
+    padding-top: 48px;
+    border-top: 1px solid var(--cream-line);
+  }
+
+  .hint h2 {
+    margin: 0;
+    font-size: clamp(22px, 2.4vw, 32px);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+
+  .hint p {
+    margin: 16px 0 0;
+    max-width: 62ch;
+    font-size: 15px;
+    line-height: 1.65;
+    color: var(--cream-55);
+  }
+
+  .hint__btns {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin-top: 28px;
+    flex-wrap: wrap;
+  }
+
+  /* ── Mobil ────────────────────────────────────────────────────── */
+
+  @media (max-width: 899px) {
+    .cal {
+      padding: 140px 24px 72px;
+    }
+
+    .filters__toggle {
+      padding: 16px 18px;
+    }
+
+    .filters__body {
+      padding: 4px 18px 20px;
+    }
+
+    .filters__row {
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .months {
+      margin-top: 40px;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .months::-webkit-scrollbar {
+      display: none;
+    }
+
+    .months__link {
+      flex: 0 0 auto;
+    }
+
+    .march {
+      grid-template-columns: 56px minmax(0, 1fr);
+      gap: 16px;
+      padding: 18px;
+    }
+
+    .march__body {
+      min-width: 0;
+    }
+
+    .march h3 {
+      hyphens: auto;
+    }
+
+    .march__facts {
+      grid-column: 1 / -1;
+      text-align: left;
+      padding-top: 14px;
+      border-top: 1px solid var(--cream-line);
+    }
+
+    .march__day {
+      font-size: 26px;
+    }
+  }
+</style>

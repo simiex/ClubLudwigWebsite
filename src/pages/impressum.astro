@@ -1,5 +1,23 @@
 ---
 import LegalLayout from '../layouts/LegalLayout.astro';
+import { contact, hosting, legal, resolve, site } from '../config/site';
+
+/**
+ * ============================================================================
+ * RECHTLICH PFLICHTANGABEN – Werte stehen in src/config/site.ts
+ * ============================================================================
+ * Fehlende Angaben werden hier sichtbar als [FEHLT: …] markiert UND blockieren
+ * den Production-Build (scripts/check-content.mjs).
+ * ============================================================================
+ */
+const providerName = resolve(legal.providerName);
+const street = resolve(legal.street);
+const postalCode = resolve(legal.postalCode);
+const city = resolve(legal.city);
+const responsibleName = resolve(legal.responsibleName);
+const email = resolve(contact.email);
+
+const MISSING = (field: string) => `[FEHLT: ${field} – siehe src/config/site.ts]`;
 ---
 
 <LegalLayout
@@ -7,30 +25,68 @@ import LegalLayout from '../layouts/LegalLayout.astro';
   description="Impressum des Club Ludwig, Hiking Club aus Bonn."
   heading="Impressum"
 >
-  <!-- TODO: Platzhalter durch echte Angaben ersetzen, bevor die Seite live geht. -->
   <h2>Angaben gemäß § 5 DDG</h2>
   <p>
-    [Vorname Nachname]<br />
-    [Straße Hausnummer]<br />
-    [PLZ] Bonn
+    {providerName ?? MISSING('legal.providerName')}<br />
+    {street ?? MISSING('legal.street')}<br />
+    {postalCode ?? MISSING('legal.postalCode')} {city ?? MISSING('legal.city')}
   </p>
 
   <h2>Kontakt</h2>
   <p>
-    E-Mail: <a href="mailto:hallo@clubludwig.de">hallo@clubludwig.de</a>
+    E-Mail: {email ? <a href={`mailto:${email}`}>{email}</a> : MISSING('contact.email')}
   </p>
 
   <h2>Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV</h2>
   <p>
-    [Vorname Nachname]<br />
-    [Straße Hausnummer]<br />
-    [PLZ] Bonn
+    {responsibleName ?? MISSING('legal.responsibleName')}<br />
+    {street ?? MISSING('legal.street')}<br />
+    {postalCode ?? MISSING('legal.postalCode')} {city ?? MISSING('legal.city')}
   </p>
 
-  <h2>Haftungshinweis</h2>
+  {legal.vatId && (
+    <>
+      <h2>Umsatzsteuer-Identifikationsnummer</h2>
+      <p>{legal.vatId}</p>
+    </>
+  )}
+
+  {legal.registerEntry && (
+    <>
+      <h2>Registereintrag</h2>
+      <p>{legal.registerEntry}</p>
+    </>
+  )}
+
+  <h2>Teilnahme an unseren Wanderungen</h2>
   <p>
-    Die Teilnahme an unseren Wanderungen erfolgt auf eigene Verantwortung. Trotz sorgfältiger
-    inhaltlicher Kontrolle übernehmen wir keine Haftung für die Inhalte externer Links. Für den
-    Inhalt der verlinkten Seiten sind ausschließlich deren Betreiber verantwortlich.
+    Die Teilnahme an den Touren des {site.name} erfolgt auf eigene Verantwortung. Die Touren
+    werden über Urban Sports Club gebucht; es gelten zusätzlich die Bedingungen des jeweiligen
+    Anbieters. Bitte schätze deine Kondition realistisch ein und wähle eine passende Tour.
   </p>
+
+  <h2>Haftung für Links</h2>
+  <p>
+    Trotz sorgfältiger inhaltlicher Kontrolle übernehmen wir keine Haftung für die Inhalte externer
+    Links. Für den Inhalt der verlinkten Seiten sind ausschließlich deren Betreiber verantwortlich.
+  </p>
+
+  {
+    legal.entityType === 'gewerbe' && (
+      <>
+        <h2>Streitbeilegung</h2>
+        <p>
+          Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung bereit:{' '}
+          <a href="https://ec.europa.eu/consumers/odr/" target="_blank" rel="noopener">
+            ec.europa.eu/consumers/odr
+          </a>
+          . Wir sind weder verpflichtet noch bereit, an einem Streitbeilegungsverfahren vor einer
+          Verbraucherschlichtungsstelle teilzunehmen.
+        </p>
+      </>
+    )
+  }
+
+  <h2>Hosting</h2>
+  <p>Diese Website wird über {hosting.provider} ausgeliefert.</p>
 </LegalLayout>

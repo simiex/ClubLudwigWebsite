@@ -1,0 +1,2106 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Kicker from '../../components/Kicker.astro';
+import SunMark from '../../components/SunMark.astro';
+import { SUN_PATH } from '../../lib/sun';
+import { STAMP_GOAL, reward } from '../../config/stempelheft';
+import { social } from '../../config/site';
+---
+
+<BaseLayout
+  title="Mein Bereich – Club Ludwig"
+  description="Dein persönlicher Bereich: Anmeldungen, vergangene Touren, virtuelle Events und dein Stempelheft."
+  noindex
+>
+  <!-- Sonnen-Symbol einmal definiert, von den Stempeln per <use> referenziert -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="cl-sun" viewBox="0 0 1200 1200"><path d={SUN_PATH} /></symbol>
+  </svg>
+
+  <section class="member" data-member>
+    <div class="member__inner">
+      <!-- ── Ladezustand ─────────────────────────────────────────── -->
+      <div data-view="loading" class="state">
+        <SunMark size={40} motion="spin" />
+        <p>Einen Moment …</p>
+      </div>
+
+      <!-- ── Login / Registrierung ───────────────────────────────── -->
+      <div data-view="login" class="login" hidden>
+        <Kicker class="member__kicker" animated>Mein Bereich</Kicker>
+        <h1>Dein Bereich<br /><span>im Club.</span></h1>
+        <p class="login__lead">
+          Anmeldungen, gelaufene Touren und dein Stempelheft – auf jedem Gerät, an deinem Konto.
+        </p>
+
+        <div class="auth">
+          <div class="auth__tabs" role="tablist" aria-label="Anmelden oder Registrieren">
+            <button
+              class="auth__tab is-active"
+              type="button"
+              role="tab"
+              id="tab-login"
+              aria-selected="true"
+              aria-controls="panel-login"
+              data-auth-tab="login"
+            >Anmelden</button>
+            <button
+              class="auth__tab"
+              type="button"
+              role="tab"
+              id="tab-signup"
+              aria-selected="false"
+              aria-controls="panel-signup"
+              data-auth-tab="signup"
+            >Registrieren</button>
+          </div>
+
+          <!-- Anmelden -->
+          <form class="auth__panel" id="panel-login" role="tabpanel" aria-labelledby="tab-login" data-login-form>
+            <label class="field">
+              <span class="field__label">E-Mail-Adresse</span>
+              <input class="field__input" type="email" name="email" autocomplete="email" required data-login-email />
+            </label>
+            <label class="field">
+              <span class="field__label">Passwort</span>
+              <input class="field__input" type="password" name="password" autocomplete="current-password" required minlength="8" data-login-password />
+            </label>
+            <button class="btn btn--primary auth__submit" type="submit">Anmelden</button>
+            <button class="auth__forgot" type="button" data-forgot>Passwort vergessen?</button>
+          </form>
+
+          <!-- Registrieren -->
+          <form class="auth__panel" id="panel-signup" role="tabpanel" aria-labelledby="tab-signup" data-signup-form hidden>
+            <label class="field">
+              <span class="field__label">Name <span class="field__opt">(so nennen wir dich)</span></span>
+              <input class="field__input" type="text" name="name" autocomplete="name" maxlength="60" data-signup-name />
+            </label>
+            <label class="field">
+              <span class="field__label">E-Mail-Adresse</span>
+              <input class="field__input" type="email" name="email" autocomplete="email" required data-signup-email />
+            </label>
+            <label class="field">
+              <span class="field__label">Passwort <span class="field__opt">(mind. 8 Zeichen)</span></span>
+              <input class="field__input" type="password" name="password" autocomplete="new-password" required minlength="8" data-signup-password />
+            </label>
+            <button class="btn btn--primary auth__submit" type="submit">Konto erstellen</button>
+            <p class="auth__legal">
+              Mit der Registrierung akzeptierst du unsere
+              <a class="link-underline" href="/datenschutz/">Datenschutzerklärung</a>.
+            </p>
+          </form>
+        </div>
+
+        <p class="msg" data-login-msg data-tone="info" role="status" aria-live="polite"></p>
+        <p class="login__note">
+          Wir speichern nur deine E-Mail-Adresse, deinen Namen und woran du teilgenommen hast.
+          Keine Werbung, keine Weitergabe.
+        </p>
+      </div>
+
+      <!-- ── Mitgliederbereich ───────────────────────────────────── -->
+      <div data-view="area" class="area" hidden>
+        <header class="area__head">
+          <p class="hi" data-greeting></p>
+          <div class="area__actions">
+            <a class="area__admin" href="/admin/" data-admin-link hidden>Prüfen</a>
+            <button class="area__logout" type="button" data-logout>Abmelden</button>
+          </div>
+        </header>
+
+        <!-- Profil -->
+        <section class="profile" aria-labelledby="profile-heading">
+          <div class="profile__row">
+            <div class="avatar" data-avatar-wrap>
+              <img class="avatar__img" data-avatar alt="" hidden />
+              <span class="avatar__fallback" data-avatar-initials aria-hidden="true"></span>
+            </div>
+            <div class="profile__meta">
+              <h2 id="profile-heading">Dein Profil</h2>
+              <p class="profile__hint">
+                Name und Bild sehen andere Mitglieder, wenn wir später Gruppenfunktionen
+                dazunehmen. Alles freiwillig.
+              </p>
+              <div class="profile__btns">
+                <label class="profile__upload">
+                  <input type="file" accept="image/jpeg,image/png,image/webp" data-avatar-input />
+                  <span>Bild wählen</span>
+                </label>
+                <button class="profile__remove" type="button" data-avatar-remove hidden>
+                  Bild entfernen
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <form class="profile__form" data-profile-form>
+            <label class="field">
+              <span class="field__label">Anzeigename</span>
+              <input class="field__input" type="text" maxlength="60" autocomplete="name" data-profile-name />
+            </label>
+            <label class="field">
+              <span class="field__label">
+                Benutzername <span class="field__opt">(3–30 Zeichen, klein, ohne Leerzeichen)</span>
+              </span>
+              <input
+                class="field__input"
+                type="text"
+                maxlength="30"
+                autocapitalize="none"
+                spellcheck="false"
+                pattern="[a-zA-Z0-9_.\-]{3,30}"
+                data-profile-username
+              />
+            </label>
+            <button class="btn btn--primary profile__save" type="submit">Speichern</button>
+          </form>
+          <p class="msg" data-profile-msg data-tone="info" role="status" aria-live="polite"></p>
+        </section>
+
+        <!-- Empfehlungs-Box: Stempel über Shop & Weiterempfehlung -->
+        <aside class="promo" aria-labelledby="promo-heading">
+          <div class="promo__text">
+            <h2 id="promo-heading">Empfiehl uns weiter<br />&amp; sammle Stempel.</h2>
+            <p>
+              Stempel gibt's nicht nur fürs Mitwandern: Auch <strong>Bestellungen im Shop</strong>
+              und <strong>Käufe über deinen Empfehlungscode</strong> bringen dich dem Shirt näher.
+              Gib deinen Code einfach bei der Bestellung oder deinen Freund:innen weiter.
+            </p>
+            <div class="promo__ref">
+              <span class="promo__ref-label">Dein Code</span>
+              <span class="promo__ref-code" data-ref-code>––––––</span>
+              <button class="promo__ref-copy" type="button" data-ref-copy>Code kopieren</button>
+            </div>
+          </div>
+          <div class="promo__actions">
+            <a class="btn btn--dark" href={social.shop} target="_blank" rel="noopener">
+              Zum Shop<span class="visually-hidden"> (öffnet in neuem Tab)</span>
+            </a>
+          </div>
+        </aside>
+
+        <!-- Stempelheft -->
+        <section class="block" aria-labelledby="stamps-heading">
+          <div class="block__head">
+            <h2 id="stamps-heading">Stempelheft</h2>
+            <p class="counter" data-counter aria-live="polite">0 / {STAMP_GOAL}</p>
+          </div>
+          <div class="bar" data-progress-bar role="presentation"></div>
+          <ol class="card" data-slots aria-label={`Stempelkarte mit ${STAMP_GOAL} Feldern`}></ol>
+
+          <form class="redeem" data-code-form>
+            <label class="field redeem__field">
+              <span class="field__label">Tourcode einlösen</span>
+              <input
+                class="field__input"
+                type="text"
+                autocomplete="off"
+                autocapitalize="characters"
+                spellcheck="false"
+                placeholder="Code von der Tour"
+                data-code-input
+              />
+            </label>
+            <button class="btn btn--primary redeem__btn" type="submit">Stempeln</button>
+          </form>
+          <p class="msg" data-code-msg data-tone="info" role="status" aria-live="polite"></p>
+
+          <div class="reward" data-reward hidden>
+            <SunMark size={64} motion="draw" />
+            <h3>{reward.title} freigeschaltet</h3>
+            <p>
+              {STAMP_GOAL} Stempel – stark. Sag beim nächsten Hike Bescheid, dann bekommst du dein
+              Shirt. Wir sehen deinen Stand hier im System.
+            </p>
+            <a class="btn btn--ghost" href={social.shop} target="_blank" rel="noopener">
+              Zum Shop<span class="visually-hidden"> (öffnet in neuem Tab)</span>
+            </a>
+          </div>
+        </section>
+
+        <!-- Ziele: Monatsliga und Challenges in einem Abschnitt. Vorher waren das
+             zwei Bloecke mit eigener Ueberschrift, eigenem Vorspann und praktisch
+             identischen Karten – doppelt so viel Geruest fuer dieselbe Sache.
+             Die alten Sprungmarken #schritte und #challenges bleiben erhalten,
+             sie werden aus Liga, Challenges und CalendarTeaser verlinkt. -->
+        <section class="block" aria-labelledby="goals-heading">
+          <div class="block__head">
+            <h2 id="goals-heading">Deine Ziele</h2>
+            <a class="link-underline block__more" href="/challenges/">Alle Challenges</a>
+          </div>
+          <p class="block__intro">
+            Monatsliga und laufende Challenges an einer Stelle. Eintragen funktioniert
+            überall gleich: Wert, Tag, Screenshot.
+          </p>
+          <div class="goals">
+            <div class="steps" id="schritte" data-steps></div>
+            <div class="challenges" id="challenges" data-challenges></div>
+          </div>
+        </section>
+
+        <!-- Kommende Events -->
+        <section class="block" aria-labelledby="upcoming-heading">
+          <div class="block__head">
+            <h2 id="upcoming-heading">Kommende Events</h2>
+            <a class="link-underline block__more" href="/touren/">Alle Termine</a>
+          </div>
+          <div class="table-wrap">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th scope="col">Event</th>
+                  <th scope="col">Datum</th>
+                  <th scope="col">Distanz</th>
+                  <th scope="col">Status</th>
+                  <th scope="col"><span class="visually-hidden">Aktionen</span></th>
+                </tr>
+              </thead>
+              <tbody data-upcoming></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Konto -->
+        <section class="block danger" aria-labelledby="account-heading">
+          <div class="block__head">
+            <h2 id="account-heading">Konto</h2>
+          </div>
+          <p class="danger__text">
+            Du kannst dein Konto jederzeit löschen. Damit verschwinden dein Profil, deine
+            Anmeldungen, deine Stempel und dein Empfehlungscode unwiderruflich. Das lässt sich
+            nicht rückgängig machen.
+          </p>
+          <button class="danger__btn" type="button" data-delete-account>Konto löschen</button>
+          <p class="msg" data-delete-msg data-tone="info" role="status" aria-live="polite"></p>
+        </section>
+
+        <!-- Vergangene Events -->
+        <section class="block" aria-labelledby="past-heading">
+          <div class="block__head">
+            <h2 id="past-heading">Vergangene Events</h2>
+          </div>
+          <button class="btn btn--dark block__toggle" type="button" data-past-toggle aria-expanded="false">
+            Events anzeigen
+          </button>
+          <div class="table-wrap" data-past-table hidden>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th scope="col">Event</th>
+                  <th scope="col">Datum</th>
+                  <th scope="col">Distanz</th>
+                  <th scope="col">Höhenmeter</th>
+                </tr>
+              </thead>
+              <tbody data-past></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  import { initMemberArea } from '../../scripts/member-area';
+
+  initMemberArea();
+</script>
+
+<style>
+  .member {
+    background:
+      radial-gradient(70% 45% at 50% 0%, rgba(219, 255, 62, 0.1) 0%, transparent 62%),
+      var(--color-night);
+    color: var(--color-cream);
+    padding: 200px var(--pad-x) 128px;
+    min-height: 100vh;
+  }
+
+  .member__inner {
+    max-width: 1000px;
+    margin: 0 auto;
+    min-width: 0;
+  }
+
+  .member {
+    overflow-x: clip;
+  }
+
+  /* hidden muss jede display-Regel schlagen – sonst bleibt die Ladeansicht stehen */
+  .member :global([hidden]) {
+    display: none !important;
+  }
+
+  .state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+    padding: 80px 0;
+    color: var(--color-lime);
+  }
+
+  .state p {
+    margin: 0;
+    color: var(--cream-55);
+    font-size: 15px;
+  }
+
+  h1 {
+    margin: 20px 0 0;
+    font-size: clamp(40px, 5.6vw, 88px);
+    font-weight: 800;
+    line-height: 0.96;
+    letter-spacing: -0.035em;
+  }
+
+  h1 span {
+    color: var(--color-lime);
+    text-shadow: 0 0 55px rgba(219, 255, 62, 0.38);
+  }
+
+  /* ── Login ────────────────────────────────────────────────────── */
+
+  .login__lead {
+    margin: 28px 0 0;
+    max-width: 52ch;
+    font-size: 17px;
+    line-height: 1.65;
+    color: var(--cream-72);
+  }
+
+  .auth {
+    margin-top: 40px;
+    max-width: 460px;
+  }
+
+  .auth__tabs {
+    display: flex;
+    gap: 8px;
+    border-bottom: 1px solid var(--cream-line);
+  }
+
+  .auth__tab {
+    background: none;
+    border: none;
+    padding: 14px 22px;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--cream-55);
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -1px;
+    transition: color 0.2s ease, border-color 0.2s ease;
+  }
+
+  .auth__tab:hover {
+    color: var(--color-cream);
+  }
+
+  .auth__tab.is-active {
+    color: var(--color-lime);
+    border-bottom-color: var(--color-lime);
+  }
+
+  .auth__panel {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding-top: 28px;
+  }
+
+  .auth__panel[hidden] {
+    display: none;
+  }
+
+  .field {
+    display: block;
+  }
+
+  .field__label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--cream-55);
+    margin-bottom: 10px;
+  }
+
+  .field__opt {
+    text-transform: none;
+    letter-spacing: 0.02em;
+    font-weight: 500;
+    color: var(--cream-45);
+  }
+
+  .field__input {
+    width: 100%;
+    padding: 16px 20px;
+    background: var(--color-surface-2);
+    border: 1px solid var(--cream-line);
+    border-radius: var(--radius-sm);
+    color: var(--color-cream);
+    font-family: inherit;
+    font-size: 16px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .field__input:focus {
+    outline: none;
+    border-color: var(--color-lime);
+    box-shadow: 0 0 0 3px rgba(219, 255, 62, 0.18);
+  }
+
+  .auth__submit {
+    margin-top: 4px;
+  }
+
+  .auth__forgot {
+    align-self: flex-start;
+    background: none;
+    border: none;
+    padding: 0;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--cream-55);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    cursor: pointer;
+  }
+
+  .auth__forgot:hover {
+    color: var(--color-lime);
+  }
+
+  .auth__legal {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--cream-55);
+  }
+
+  .login__note {
+    margin: 28px 0 0;
+    max-width: 56ch;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--cream-55);
+  }
+
+  .msg {
+    margin: 18px 0 0;
+    min-height: 22px;
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  .msg[data-tone='ok'] {
+    color: var(--color-lime);
+  }
+
+  .msg[data-tone='error'] {
+    color: #ff7b7b;
+  }
+
+  .msg[data-tone='info'] {
+    color: var(--cream-55);
+  }
+
+  /* ── Bereich ──────────────────────────────────────────────────── */
+
+  .area__head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+
+  .hi {
+    margin: 0;
+    font-size: clamp(30px, 4vw, 56px);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+    text-transform: uppercase;
+  }
+
+  .hi :global(.hi__name) {
+    color: var(--color-lime);
+    text-shadow: 0 0 45px rgba(219, 255, 62, 0.35);
+  }
+
+  .hi :global(.hi__sub) {
+    display: block;
+    margin-top: 6px;
+    font-size: clamp(18px, 2vw, 26px);
+    font-weight: 700;
+    color: var(--cream-45);
+  }
+
+  .area__actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .area__admin {
+    padding: 12px 22px;
+    border: 1px solid rgba(219, 255, 62, 0.45);
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--color-lime);
+  }
+
+  .area__admin[hidden] {
+    display: none;
+  }
+
+  .area__logout {
+    background: none;
+    border: 1px solid var(--cream-line);
+    border-radius: var(--radius-sm);
+    color: var(--cream-72);
+    padding: 12px 22px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color 0.2s ease, border-color 0.2s ease;
+  }
+
+  .area__logout:hover {
+    color: var(--color-lime);
+    border-color: var(--color-lime);
+  }
+
+  /* ── Profil ───────────────────────────────────────────────────── */
+
+  .profile {
+    margin-top: 48px;
+    padding: 36px;
+    background: var(--color-surface-2);
+    border: 1px solid var(--cream-line);
+    border-radius: var(--radius);
+  }
+
+  .profile__row {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    flex-wrap: wrap;
+  }
+
+  .avatar {
+    position: relative;
+    width: 96px;
+    height: 96px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    overflow: hidden;
+    background: radial-gradient(circle at 50% 35%, rgba(219, 255, 62, 0.22), transparent 70%),
+      var(--color-night);
+    border: 1px solid rgba(219, 255, 62, 0.35);
+    display: grid;
+    place-items: center;
+  }
+
+  .avatar__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .avatar__img[hidden] {
+    display: none;
+  }
+
+  .avatar__fallback {
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    color: var(--color-lime);
+  }
+
+  .avatar.is-busy {
+    opacity: 0.5;
+  }
+
+  .profile__meta {
+    flex: 1;
+    min-width: 240px;
+  }
+
+  .profile h2 {
+    margin: 0;
+    font-size: clamp(20px, 2.2vw, 28px);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+
+  .profile__hint {
+    margin: 8px 0 0;
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--cream-55);
+    max-width: 48ch;
+  }
+
+  .profile__btns {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+
+  /* Datei-Dialog über ein gestyltes Label statt des Systembuttons */
+  .profile__upload input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .profile__upload span {
+    display: inline-block;
+    padding: 11px 22px;
+    border: 1px solid var(--cream-line);
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--cream-72);
+    cursor: pointer;
+    transition: color 0.2s ease, border-color 0.2s ease;
+  }
+
+  .profile__upload span:hover,
+  .profile__upload input:focus-visible + span {
+    color: var(--color-lime);
+    border-color: var(--color-lime);
+  }
+
+  .profile__remove {
+    background: none;
+    border: none;
+    padding: 0;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--cream-55);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    cursor: pointer;
+  }
+
+  .profile__remove:hover {
+    color: #ff7b7b;
+  }
+
+  .profile__remove[hidden] {
+    display: none;
+  }
+
+  .profile__form {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    align-items: end;
+    gap: 16px;
+    margin-top: 32px;
+    padding-top: 28px;
+    border-top: 1px solid var(--cream-line);
+  }
+
+  .profile__save {
+    height: 51px;
+    padding: 0 30px;
+  }
+
+  /* ── Empfehlungs-Box (die "gelbe Box") ────────────────────────── */
+
+  .promo {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 32px;
+    margin-top: 48px;
+    padding: 44px;
+    background: var(--color-lime);
+    color: var(--color-night);
+    border-radius: var(--radius);
+    box-shadow: 0 0 60px rgba(219, 255, 62, 0.22);
+    flex-wrap: wrap;
+  }
+
+  .promo h2 {
+    margin: 0;
+    font-size: clamp(26px, 3vw, 42px);
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    line-height: 1.02;
+    text-transform: uppercase;
+  }
+
+  .promo p {
+    margin: 16px 0 0;
+    max-width: 52ch;
+    font-size: 16px;
+    line-height: 1.6;
+    color: rgba(6, 13, 22, 0.78);
+  }
+
+  .promo strong {
+    color: var(--color-night);
+  }
+
+  .promo__ref {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 24px;
+    flex-wrap: wrap;
+  }
+
+  .promo__ref-label {
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(6, 13, 22, 0.6);
+  }
+
+  .promo__ref-code {
+    padding: 10px 18px;
+    background: var(--color-night);
+    color: var(--color-lime);
+    border-radius: var(--radius-sm);
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .promo__ref-copy {
+    background: none;
+    border: none;
+    padding: 0;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--color-night);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    cursor: pointer;
+  }
+
+  .btn--dark {
+    background: var(--color-night);
+    color: var(--color-cream);
+  }
+
+  .btn--dark:hover {
+    background: #101f2e;
+    color: var(--color-lime);
+  }
+
+  /* ── Tabellen ─────────────────────────────────────────────────── */
+
+  .table-wrap {
+    margin-top: 24px;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid var(--cream-line);
+    border-radius: var(--radius);
+    background: var(--color-surface-2);
+  }
+
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 15px;
+    min-width: 640px;
+  }
+
+  .table th {
+    padding: 16px 20px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--cream-55);
+    border-bottom: 1px solid var(--cream-line);
+  }
+
+  .table :global(td) {
+    padding: 18px 20px;
+    border-bottom: 1px solid rgba(242, 238, 228, 0.07);
+    vertical-align: top;
+  }
+
+  .table :global(tr:last-child td) {
+    border-bottom: none;
+  }
+
+  .table :global(.table__title) {
+    font-weight: 700;
+    font-size: 16px;
+  }
+
+  .table :global(.table__sub) {
+    font-size: 13px;
+    color: var(--cream-55);
+  }
+
+  .table :global(.table__empty) {
+    padding: 32px 20px;
+    text-align: center;
+    color: var(--cream-55);
+    font-style: italic;
+  }
+
+  .table :global(.tag) {
+    display: inline-block;
+    margin-top: 6px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--lime-line);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-lime);
+  }
+
+  .table :global(.tag--virtual) {
+    color: var(--color-neon);
+    border-color: rgba(62, 240, 207, 0.35);
+  }
+
+  .table :global(.tag--challenge) {
+    color: var(--color-ember);
+    border-color: rgba(255, 157, 77, 0.35);
+  }
+
+  .table :global(.status) {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .table :global(.status.is-go) {
+    color: var(--color-lime);
+  }
+
+  .table :global(.status.is-warn) {
+    color: var(--color-ember);
+  }
+
+  .table :global(.table__actions) {
+    white-space: nowrap;
+    text-align: right;
+  }
+
+  .table :global(.table__link) {
+    font-weight: 700;
+    color: var(--color-lime);
+    margin-right: 16px;
+  }
+
+  .table :global(.table__cancel) {
+    background: none;
+    border: none;
+    padding: 0;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--cream-55);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    cursor: pointer;
+  }
+
+  .table :global(.table__cancel:hover) {
+    color: #ff7b7b;
+  }
+
+  .block__toggle {
+    margin-top: 20px;
+    padding: 14px 28px;
+    font-size: 13px;
+    border: none;
+    cursor: pointer;
+  }
+
+  /* ── Stempelkarte ─────────────────────────────────────────────── */
+
+  .card {
+    list-style: none;
+    margin: 28px 0 0;
+    padding: 28px;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+    background: var(--color-surface-2);
+    border: 1px solid var(--lime-line);
+    border-radius: var(--radius);
+  }
+
+  .card :global(.slot) {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 1;
+    border: 1px dashed rgba(242, 238, 228, 0.2);
+    border-radius: 50%;
+    color: var(--color-lime);
+  }
+
+  .card :global(.slot__num) {
+    position: absolute;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: rgba(242, 238, 228, 0.28);
+  }
+
+  .card :global(.slot__label) {
+    position: absolute;
+    bottom: 12%;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--cream-55);
+  }
+
+  .card :global(.slot__sun) {
+    width: 40%;
+    height: 40%;
+    fill: currentColor;
+    opacity: 0;
+    transform: scale(0.4) rotate(-25deg);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+
+  .card :global(.slot.is-filled) {
+    border-style: solid;
+    border-color: rgba(219, 255, 62, 0.45);
+    background: radial-gradient(circle at 50% 45%, rgba(219, 255, 62, 0.1), transparent 70%);
+    box-shadow: 0 0 26px rgba(219, 255, 62, 0.12);
+  }
+
+  .card :global(.slot.is-filled .slot__num) {
+    opacity: 0;
+  }
+
+  .card :global(.slot.is-filled .slot__sun) {
+    opacity: 1;
+    transform: scale(1) rotate(-8deg);
+  }
+
+  .card :global(.slot.is-new .slot__sun) {
+    animation: stamp-in 0.5s cubic-bezier(0.3, 1.6, 0.5, 1) both;
+  }
+
+  @keyframes stamp-in {
+    0% {
+      opacity: 0;
+      transform: scale(2.1) rotate(-40deg);
+    }
+    55% {
+      opacity: 1;
+      transform: scale(0.86) rotate(-2deg);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1) rotate(-8deg);
+    }
+  }
+
+  .redeem {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    margin-top: 32px;
+    max-width: 520px;
+    flex-wrap: wrap;
+  }
+
+  .redeem__field {
+    flex: 1;
+    min-width: 220px;
+  }
+
+  /* Höhe des Felds spiegeln, damit Feld und Button auf einer Linie sitzen */
+  .redeem__btn {
+    height: 51px;
+    padding: 0 30px;
+    white-space: nowrap;
+  }
+
+  .reward {
+    margin-top: 36px;
+    padding: 40px;
+    text-align: center;
+    background:
+      radial-gradient(70% 90% at 50% 0%, rgba(219, 255, 62, 0.14) 0%, transparent 70%),
+      var(--color-surface-2);
+    border: 1px solid rgba(219, 255, 62, 0.4);
+    border-radius: var(--radius);
+    color: var(--color-lime);
+  }
+
+  .reward[hidden] {
+    display: none;
+  }
+
+  .reward h3 {
+    margin: 18px 0 0;
+    font-size: clamp(24px, 3vw, 38px);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--color-cream);
+  }
+
+  .reward p {
+    margin: 14px auto 24px;
+    max-width: 46ch;
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--cream-72);
+  }
+
+  /* ── Challenges ───────────────────────────────────────────────── */
+
+  .block__intro {
+    margin: 14px 0 0;
+    max-width: 56ch;
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--cream-55);
+  }
+
+  .challenges {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 24px;
+  }
+
+  .goals :global(.chal-card) {
+    padding: 28px;
+    background: var(--color-surface-2);
+    border: 1px solid var(--cream-line);
+    border-radius: var(--radius);
+  }
+
+  .goals :global(.chal-card.is-in) {
+    border-color: rgba(219, 255, 62, 0.35);
+  }
+
+  .goals :global(.chal-card__head) {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .goals :global(.chal-card h3) {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+
+  .goals :global(.chal-card__sub) {
+    margin: 6px 0 0;
+    font-size: 14px;
+    color: var(--cream-55);
+  }
+
+  .goals :global(.chal-card__period) {
+    margin: 0;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--cream-45);
+    white-space: nowrap;
+  }
+
+  .goals :global(.chal-progress) {
+    margin-top: 22px;
+  }
+
+  .goals :global(.chal-progress__top) {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .goals :global(.chal-progress__now) {
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--color-lime);
+  }
+
+  .goals :global(.chal-progress__goal) {
+    font-size: 13px;
+    color: var(--cream-55);
+  }
+
+  .goals :global(.chal-bar) {
+    position: relative;
+    height: 5px;
+    margin-top: 12px;
+    background: rgba(242, 238, 228, 0.1);
+    border-radius: 5px;
+    overflow: hidden;
+  }
+
+  .goals :global(.chal-bar i) {
+    position: absolute;
+    inset: 0 auto 0 0;
+    background: linear-gradient(90deg, var(--color-neon), var(--color-lime));
+    box-shadow: 0 0 18px rgba(219, 255, 62, 0.5);
+    transition: width 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .goals :global(.chal-card__done) {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 16px;
+    padding: 8px 16px;
+    border-radius: 999px;
+    border: 1px solid rgba(219, 255, 62, 0.4);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--color-lime);
+  }
+
+  .goals :global(.chal-reward) {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 14px 0 0;
+    padding: 14px 18px;
+    background: var(--color-night);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    color: var(--cream-72);
+    flex-wrap: wrap;
+  }
+
+  .goals :global(.chal-reward b) {
+    padding: 5px 12px;
+    background: var(--color-lime);
+    color: var(--color-night);
+    border-radius: var(--radius-sm);
+    font-weight: 800;
+    letter-spacing: 0.04em;
+  }
+
+  .goals :global(.chal-reward--win) {
+    border: 1px solid rgba(219, 255, 62, 0.45);
+    color: var(--color-lime);
+    font-weight: 700;
+  }
+
+  .goals :global(.chal-copy) {
+    background: none;
+    border: none;
+    padding: 0;
+    font-family: inherit;
+    font-size: 13px;
+    color: var(--cream-55);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    cursor: pointer;
+  }
+
+  .goals :global(.chal-hint) {
+    margin: 14px 0 0;
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--cream-55);
+  }
+
+  .goals :global(.chal-size) {
+    display: block;
+    margin-top: 16px;
+    max-width: 320px;
+  }
+
+  .goals :global(.chal-size select) {
+    width: 100%;
+    padding: 13px 16px;
+    background: var(--color-night);
+    border: 1px solid var(--cream-line);
+    border-radius: var(--radius-sm);
+    color: var(--color-cream);
+    font-family: inherit;
+    font-size: 15px;
+  }
+
+  .goals :global(.chal-card__actions) {
+    margin-top: 22px;
+  }
+
+  /* Eingabeformular: klar getrennte Zeilen statt gequetschter Spalten */
+  .goals :global(.chal-form) {
+    margin-top: 22px;
+    padding-top: 22px;
+    border-top: 1px solid var(--cream-line);
+  }
+
+  .goals :global(.chal-form__grid) {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+  }
+
+  .goals :global(.chal-form__full) {
+    grid-column: 1 / -1;
+  }
+
+  .goals :global(.chal-form label) {
+    display: block;
+  }
+
+  /* Gleiche Optik wie die Felder in Anmeldung und Profil */
+  .goals :global(.chal-form .lbl),
+  .goals :global(.chal-form .lbl) {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--cream-55);
+  }
+
+  .goals :global(.chal-form .lbl em) {
+    font-style: normal;
+    text-transform: none;
+    letter-spacing: 0.02em;
+    font-weight: 500;
+    color: var(--cream-45);
+  }
+
+  .goals :global(.chal-form input[type='number']),
+  .goals :global(.chal-form input[type='date']),
+  .goals :global(.chal-form input[type='text']),
+  .goals :global(.chal-form input[type='number']),
+  .goals :global(.chal-form input[type='date']),
+  .goals :global(.chal-form input[type='text']) {
+    width: 100%;
+    padding: 16px 20px;
+    background: var(--color-surface-2);
+    border: 1px solid var(--cream-line);
+    border-radius: var(--radius-sm);
+    color: var(--color-cream);
+    font-family: inherit;
+    font-size: 16px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .goals :global(.chal-form input:focus),
+  .goals :global(.chal-form input:focus) {
+    outline: none;
+    border-color: var(--color-lime);
+    box-shadow: 0 0 0 3px rgba(219, 255, 62, 0.18);
+  }
+
+  /* Kalender- und Zahlenknöpfe sind sonst schwarz auf dunkel */
+  .goals :global(.chal-form input[type='date']),
+  .goals :global(.chal-form input[type='date']) {
+    color-scheme: dark;
+  }
+
+  /* Datei-Auswahl als Fläche zum Antippen */
+  .goals :global(.drop) {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 18px;
+    border: 1px dashed rgba(242, 238, 228, 0.28);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: border-color 0.2s ease, color 0.2s ease;
+  }
+
+  .goals :global(.drop:hover),
+  .goals :global(.drop.has-file) {
+    border-color: var(--color-lime);
+  }
+
+  .goals :global(.drop input) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+  }
+
+  .goals :global(.drop__icon) {
+    font-size: 20px;
+    color: var(--color-lime);
+  }
+
+  .goals :global(.drop__text) {
+    font-size: 14px;
+    line-height: 1.45;
+    color: var(--cream-72);
+  }
+
+  .goals :global(.drop__hint) {
+    display: block;
+    font-size: 12px;
+    color: var(--cream-45);
+  }
+
+  .goals :global(.chal-form__submit) {
+    margin-top: 20px;
+    width: 100%;
+  }
+
+  .goals :global(.chal-msg) {
+    margin: 14px 0 0;
+    font-size: 14px;
+    font-weight: 600;
+    min-height: 18px;
+  }
+
+  .goals :global(.chal-msg[data-tone='ok']) {
+    color: var(--color-lime);
+  }
+
+  .goals :global(.chal-msg[data-tone='error']) {
+    color: #ff7b7b;
+  }
+
+  .goals :global(.chal-msg[data-tone='info']) {
+    color: var(--cream-55);
+  }
+
+  .goals :global(.chal-logs) {
+    margin-top: 18px;
+  }
+
+  .goals :global(.chal-logs summary) {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--cream-55);
+    cursor: pointer;
+  }
+
+  .goals :global(.chal-logs ul) {
+    list-style: none;
+    margin: 14px 0 0;
+    padding: 0;
+  }
+
+  .goals :global(.chal-logs li) {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 9px 0;
+    border-bottom: 1px solid rgba(242, 238, 228, 0.06);
+    font-size: 14px;
+  }
+
+  .goals :global(.chal-logs .d) {
+    color: var(--cream-55);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .goals :global(.chal-logs .a) {
+    font-weight: 700;
+    color: var(--color-lime);
+    white-space: nowrap;
+  }
+
+  .goals :global(.chal-logs .n) {
+    flex: 1;
+    min-width: 0;
+    color: var(--cream-55);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .goals :global(.chal-logs .p) {
+    font-size: 12px;
+    color: var(--color-neon);
+  }
+
+  /* ── Schritte ─────────────────────────────────────────────────── */
+
+  .goals :global(.steps-card) {
+    margin-top: 24px;
+    padding: 32px;
+    background: var(--color-surface-2);
+    border: 1px solid var(--cream-line);
+    border-radius: var(--radius);
+  }
+
+  .goals :global(.drop) {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 20px;
+    border: 1px dashed rgba(242, 238, 228, 0.28);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+  }
+
+  .goals :global(.drop:hover),
+  .goals :global(.drop.has-file) {
+    border-color: var(--color-lime);
+  }
+
+  .goals :global(.drop input) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+  }
+
+  .goals :global(.drop__icon) {
+    font-size: 20px;
+    color: var(--color-lime);
+  }
+
+  .goals :global(.drop__text) {
+    font-size: 14px;
+    line-height: 1.45;
+    color: var(--cream-72);
+  }
+
+  .goals :global(.drop__hint) {
+    display: block;
+    font-size: 12px;
+    color: var(--cream-45);
+  }
+
+  .goals :global(.chal-form__submit) {
+    margin-top: 22px;
+    width: 100%;
+  }
+
+  .goals :global(.chal-msg) {
+    margin: 14px 0 0;
+    min-height: 18px;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .goals :global(.chal-msg[data-tone='ok']) {
+    color: var(--color-lime);
+  }
+
+  .goals :global(.chal-msg[data-tone='error']) {
+    color: #ff7b7b;
+  }
+
+  .goals :global(.chal-msg[data-tone='info']) {
+    color: var(--cream-55);
+  }
+
+  .goals :global(.chal-form .lbl em) {
+    font-style: normal;
+    text-transform: none;
+    letter-spacing: 0.02em;
+    font-weight: 500;
+    color: var(--cream-45);
+  }
+
+  .goals :global(.steps-stat) {
+    display: flex;
+    gap: 40px;
+    flex-wrap: wrap;
+  }
+
+  .goals :global(.steps-stat b) {
+    display: block;
+    font-size: 30px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: var(--color-lime);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .goals :global(.steps-stat span) {
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--cream-45);
+  }
+
+  .goals :global(.steps-form) {
+    margin-top: 24px;
+    padding-top: 22px;
+    border-top: 1px solid var(--cream-line);
+  }
+
+  .goals :global(.steps-form .chal-form__grid) {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+  }
+
+  /* ── Konto löschen ────────────────────────────────────────────── */
+
+  .danger__text {
+    margin: 20px 0 0;
+    max-width: 60ch;
+    font-size: 15px;
+    line-height: 1.65;
+    color: var(--cream-55);
+  }
+
+  .danger__btn {
+    margin-top: 20px;
+    background: none;
+    border: 1px solid rgba(255, 123, 123, 0.45);
+    border-radius: var(--radius-sm);
+    color: #ff7b7b;
+    padding: 13px 26px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+
+  .danger__btn:hover {
+    background: rgba(255, 123, 123, 0.12);
+  }
+
+  .danger__btn:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+
+  /* ── Listen ───────────────────────────────────────────────────── */
+
+
+  /* ── Sektionen ────────────────────────────────────────────────────
+     .block, .block__head, .block__more, .counter und .bar hatten bisher
+     ausschliesslich Mobile-Overrides und eine Reduced-Motion-Regel, aber
+     nirgends eine Basis-Definition. Ergebnis: Ueberschriften und Zaehler
+     standen unformatiert im Raum und der Fortschrittsbalken war unsichtbar,
+     obwohl das Skript --fill korrekt setzt. */
+
+  .block {
+    margin-top: 72px;
+    padding-top: 52px;
+    border-top: 1px solid var(--cream-line);
+  }
+
+  .block__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .block__head h2 {
+    margin: 0;
+    font-size: clamp(24px, 3vw, 38px);
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    line-height: 1.05;
+  }
+
+  .block__more {
+    flex: 0 0 auto;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--cream-72);
+  }
+
+  .counter {
+    flex: 0 0 auto;
+    margin: 0;
+    font-size: clamp(22px, 3vw, 30px);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--color-lime);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .bar {
+    --fill: 0%;
+    position: relative;
+    height: 3px;
+    margin-top: 20px;
+    background: rgba(242, 238, 228, 0.12);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .bar::after {
+    content: '';
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: var(--fill);
+    background: linear-gradient(90deg, var(--color-neon), var(--color-lime));
+    box-shadow: 0 0 18px rgba(219, 255, 62, 0.6);
+    transition: width 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .danger {
+    border-top-color: rgba(255, 123, 123, 0.25);
+  }
+
+  /* Datumsfelder bringen eine UA-Mindestbreite mit und sprengen sonst ihre Spalte. */
+  .goals :global(.chal-form input),
+  .goals :global(.chal-form input),
+  .goals :global(.chal-size select) {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .member :global(.empty) {
+    margin: 28px 0 0;
+    padding: 32px;
+    border: 1px dashed var(--cream-line);
+    border-radius: var(--radius);
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--cream-72);
+  }
+
+  /* ── Zielkarten ───────────────────────────────────────────────────
+     Monatsliga und Challenges nutzen dieselbe Anatomie: Kopf mit Zeitraum,
+     Fortschritt mit Balken, ein Umschalter, darunter das Formular. Die
+     Formulare sind zugeklappt, weil sonst drei Bildschirmlaengen Eingabe-
+     felder zwischen den Karten stehen. */
+
+  .goals {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 26px;
+  }
+
+  .goals > div {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  /* Damit die Sprungmarken nicht unter der festen Kopfleiste landen. */
+  .goals > div[id] {
+    scroll-margin-top: 110px;
+  }
+
+  .goals :global(.goal-card) {
+    padding: 26px;
+    background: var(--color-surface-2);
+    border: 1px solid var(--cream-line);
+    border-radius: var(--radius);
+    transition: border-color 0.25s ease;
+  }
+
+  .goals :global(.goal-card.is-in),
+  .goals :global(.goal-card.is-open) {
+    border-color: rgba(219, 255, 62, 0.35);
+  }
+
+  .goals :global(.goal-card h3) {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+
+  .goals :global(.goal__meta) {
+    margin: 14px 0 0;
+    font-size: 13px;
+    color: var(--cream-45);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .goals :global(.goal__toggle) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    margin-top: 20px;
+    padding: 14px 18px;
+    background: none;
+    border: 1px solid var(--lime-line);
+    border-radius: var(--radius-sm);
+    color: var(--color-lime);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background 0.2s ease;
+  }
+
+  .goals :global(.goal__toggle:hover) {
+    border-color: var(--color-lime);
+    background: rgba(219, 255, 62, 0.06);
+  }
+
+  .goals :global(.goal__chev) {
+    width: 8px;
+    height: 8px;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: rotate(45deg) translateY(-2px);
+    transition: transform 0.25s ease;
+  }
+
+  .goals :global(.goal-card.is-open .goal__chev) {
+    transform: rotate(225deg) translateY(1px);
+  }
+
+  .goals :global(.goal__body) {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--cream-line);
+  }
+
+  .goals :global(.goal__body[hidden]) {
+    display: none;
+  }
+
+  @media (max-width: 899px) {
+    .member {
+      padding: 124px 20px 72px;
+    }
+
+    .block {
+      margin-top: 52px;
+      padding-top: 36px;
+    }
+
+    /* Das Schritte-Formular blieb zweispaltig, weil .steps .steps-form
+       .chal-form__grid spezifischer ist als der Override unten. Das
+       date-Feld ist dadurch aus der Karte gelaufen. */
+    .goals :global(.chal-form__grid),
+    .goals :global(.chal-form__grid),
+    .goals :global(.steps-form .chal-form__grid) {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .goals :global(.steps-card) {
+      padding: 20px;
+    }
+
+    .goals :global(.steps-stat) {
+      gap: 18px 26px;
+    }
+
+    .goals :global(.steps-stat b) {
+      font-size: 26px;
+    }
+
+    .redeem,
+    .profile__form {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .profile {
+      padding: 20px;
+    }
+
+    .profile__row {
+      gap: 18px;
+    }
+
+    .profile__meta {
+      min-width: 0;
+    }
+
+    .profile__form {
+      margin-top: 24px;
+      padding-top: 22px;
+      gap: 18px;
+    }
+
+    .avatar {
+      width: 76px;
+      height: 76px;
+    }
+
+    .avatar__fallback {
+      font-size: 26px;
+    }
+
+    .profile__save {
+      width: 100%;
+    }
+
+    .redeem__btn {
+      width: 100%;
+    }
+
+    .area__head {
+      gap: 18px;
+    }
+
+    .area__actions {
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .promo {
+      margin-top: 36px;
+      padding: 26px 20px;
+      gap: 22px;
+    }
+
+    .promo__ref {
+      gap: 12px;
+    }
+
+    .promo__ref-code {
+      padding: 9px 14px;
+      font-size: 17px;
+      letter-spacing: 0.08em;
+      word-break: break-all;
+    }
+
+    .promo__actions,
+    .promo__actions :global(.btn) {
+      display: block;
+      width: 100%;
+    }
+
+    .card {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 22px;
+      padding: 16px;
+    }
+
+    .reward {
+      margin-top: 28px;
+      padding: 28px 20px;
+    }
+
+    .reward :global(.btn) {
+      width: 100%;
+    }
+
+    .goals :global(.goal-card),
+    .goals :global(.chal-card) {
+      padding: 20px;
+    }
+
+    .goals :global(.goal__toggle) {
+      padding: 13px 16px;
+    }
+
+    .goals :global(.chal-card__head) {
+      gap: 10px;
+    }
+
+    .goals :global(.chal-card__period) {
+      white-space: normal;
+    }
+
+    .goals :global(.chal-reward) {
+      padding: 12px 14px;
+      gap: 10px;
+    }
+
+    .goals :global(.chal-logs li) {
+      flex-wrap: wrap;
+      gap: 6px 12px;
+    }
+
+    .goals :global(.chal-logs .n) {
+      order: 3;
+      flex: 1 1 100%;
+      white-space: normal;
+    }
+
+    .goals :global(.chal-size) {
+      max-width: 100%;
+    }
+
+    /* Tabellen: statt 640px Querscroll gestapelte Karten. Der Querscroll
+       wurde bisher nur von overflow-x: clip kaschiert – auf iOS liess sich
+       die Seite dadurch trotzdem beliebig herauszoomen. */
+    .table-wrap {
+      margin-top: 20px;
+      overflow: visible;
+      background: none;
+      border: none;
+      border-radius: 0;
+    }
+
+    .table {
+      display: block;
+      width: 100%;
+      min-width: 0;
+      font-size: 15px;
+    }
+
+    .table thead {
+      display: none;
+    }
+
+    .table :global(tbody) {
+      display: block;
+    }
+
+    .table :global(tr) {
+      display: block;
+      margin-top: 12px;
+      padding: 18px 18px 14px;
+      background: var(--color-surface-2);
+      border: 1px solid var(--cream-line);
+      border-radius: var(--radius);
+    }
+
+    .table :global(tbody tr:first-child) {
+      margin-top: 0;
+    }
+
+    .table :global(td) {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 16px;
+      min-width: 0;
+      padding: 7px 0;
+      border-bottom: none;
+      text-align: right;
+    }
+
+    .table :global(td::before) {
+      flex: 0 0 auto;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--cream-45);
+      text-align: left;
+    }
+
+    /* Erste Zelle ist die Kartenüberschrift und braucht kein Label. */
+    .table :global(tbody td:first-child) {
+      display: block;
+      margin-bottom: 8px;
+      padding: 0 0 12px;
+      border-bottom: 1px solid rgba(242, 238, 228, 0.09);
+      text-align: left;
+    }
+
+    .table :global(tbody td:first-child::before) {
+      content: none;
+    }
+
+    .table :global(.table__title) {
+      display: block;
+      font-size: 17px;
+      line-height: 1.3;
+    }
+
+    .table :global(.table__empty) {
+      display: block;
+      padding: 24px 12px;
+      border-bottom: none;
+      text-align: center;
+    }
+
+    .table :global(.table__actions) {
+      display: flex;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+      gap: 18px;
+      margin-top: 6px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(242, 238, 228, 0.09);
+      white-space: normal;
+    }
+
+    .table :global(.table__link) {
+      margin-right: 0;
+    }
+
+    .table :global(.status) {
+      white-space: normal;
+    }
+
+    /* Spaltenbeschriftungen, weil thead ausgeblendet ist. */
+    .table :global([data-upcoming] td:nth-child(2)::before) {
+      content: 'Datum';
+    }
+
+    .table :global([data-upcoming] td:nth-child(3)::before) {
+      content: 'Distanz';
+    }
+
+    .table :global([data-upcoming] td:nth-child(4)::before) {
+      content: 'Status';
+    }
+
+    .table :global([data-past] td:nth-child(2)::before) {
+      content: 'Datum';
+    }
+
+    .table :global([data-past] td:nth-child(3)::before) {
+      content: 'Distanz';
+    }
+
+    .table :global([data-past] td:nth-child(4)::before) {
+      content: 'Höhenmeter';
+    }
+
+    .member :global(.empty) {
+      padding: 22px;
+    }
+
+    .danger__btn {
+      width: 100%;
+    }
+  }
+
+  @media (max-width: 380px) {
+    .card {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bar::after {
+      transition: none;
+    }
+
+    .card :global(.slot.is-new .slot__sun) {
+      animation: none;
+    }
+  }
+</style>

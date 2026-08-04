@@ -1,5 +1,40 @@
 ---
 import LegalLayout from '../layouts/LegalLayout.astro';
+import { contact, hosting, legal, resolve, social } from '../config/site';
+
+/**
+ * ============================================================================
+ * DATENSCHUTZERKLÄRUNG
+ * ============================================================================
+ * Beschreibt den tatsächlichen technischen Stand:
+ *   - statische Website über Cloudflare Pages
+ *   - Nutzerkonten über Supabase (E-Mail + Passwort)
+ *   - Speicherung von Teilnahmen, Anmeldungen, Stempeln, Profilbild
+ *   - kein Tracking, keine Cookies zu Werbezwecken, keine Embeds
+ *
+ * WICHTIG: Das ist eine sorgfältige Beschreibung der Verarbeitung, aber keine
+ * Rechtsberatung. Vor dem Livegang von einer Anwältin oder einem Anwalt
+ * prüfen lassen.
+ *
+ * OFFEN: Mit Supabase und Cloudflare ist noch KEIN Vertrag zur
+ * Auftragsverarbeitung (Art. 28 DSGVO) geschlossen. Der Text behauptet das
+ * deshalb auch nicht. Sobald die AVV vorliegen, gehört hier ein Satz hin wie:
+ *   "Ein Vertrag zur Auftragsverarbeitung nach Art. 28 DSGVO liegt vor. Für
+ *    Übermittlungen in Drittländer gelten die Standardvertragsklauseln der
+ *    EU-Kommission."
+ * Beide Verträge sind im jeweiligen Dashboard in wenigen Minuten abschließbar.
+ *
+ * Ändert sich die Technik (Formulare, Analytics, Karten, Social-Embeds,
+ * Push-Nachrichten), muss dieser Text mitwachsen.
+ * ============================================================================
+ */
+const providerName = resolve(legal.providerName);
+const street = resolve(legal.street);
+const postalCode = resolve(legal.postalCode);
+const city = resolve(legal.city);
+const email = resolve(contact.email);
+
+const MISSING = (field: string) => `[FEHLT: ${field} – siehe src/config/site.ts]`;
 ---
 
 <LegalLayout
@@ -7,40 +42,121 @@ import LegalLayout from '../layouts/LegalLayout.astro';
   description="Datenschutzerklärung des Club Ludwig, Hiking Club aus Bonn."
   heading="Datenschutz"
 >
-  <!-- TODO: Platzhalter-Erklärung – vor Livegang rechtlich prüfen und vervollständigen. -->
-  <h2>Allgemeine Hinweise</h2>
+  <h2>Verantwortliche Stelle</h2>
   <p>
-    Diese Website wird statisch ausgeliefert und verwendet weder Cookies noch Tracking- oder
-    Analyse-Dienste. Es werden keine personenbezogenen Daten durch die Website selbst erhoben oder
-    gespeichert.
+    {providerName ?? MISSING('legal.providerName')}<br />
+    {street ?? MISSING('legal.street')}<br />
+    {postalCode ?? MISSING('legal.postalCode')} {city ?? MISSING('legal.city')}<br />
+    {email ? <a href={`mailto:${email}`}>{email}</a> : MISSING('contact.email')}
   </p>
 
-  <h2>Hosting</h2>
+  <h2>Überblick</h2>
   <p>
-    Diese Website wird über Cloudflare Pages gehostet (Cloudflare, Inc.). Beim Aufruf der Seite
-    verarbeitet Cloudflare technisch notwendige Verbindungsdaten (z.&nbsp;B. IP-Adresse) zur
-    Auslieferung und Absicherung der Inhalte. Details finden sich in der
-    <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener">Datenschutzerklärung von Cloudflare</a>.
+    Diese Website lässt sich vollständig ohne Konto nutzen. Dabei setzen wir keine Cookies, binden
+    keine Analyse- oder Tracking-Dienste ein und laden keine Inhalte von Drittanbietern nach.
+    Schriften und Grafiken liegen auf demselben Server wie die Seite.
+  </p>
+  <p>
+    Personenbezogene Daten verarbeiten wir erst, wenn du dir freiwillig ein Konto anlegst. Was
+    dabei passiert, steht unten im Einzelnen.
+  </p>
+
+  <h2>Hosting und Server-Logfiles</h2>
+  <p>
+    Die Auslieferung erfolgt über {hosting.provider}. Beim Aufruf verarbeitet der Anbieter
+    technisch notwendige Verbindungsdaten (unter anderem IP-Adresse, Zeitpunkt, abgerufene Datei,
+    Browsertyp), um die Seite auszuliefern und gegen Angriffe abzusichern. Rechtsgrundlage ist
+    Art.&nbsp;6 Abs.&nbsp;1 lit.&nbsp;f DSGVO – unser berechtigtes Interesse an einem sicheren und
+    stabilen Betrieb. Näheres in der
+    <a href={hosting.privacyUrl} target="_blank" rel="noopener">Datenschutzerklärung des Anbieters</a>.
+  </p>
+
+  <h2>Mitgliederkonto</h2>
+  <p>
+    Für den Bereich „Mein Bereich“ kannst du ein Konto anlegen. Verarbeitet werden dabei:
+  </p>
+  <ul>
+    <li><strong>E-Mail-Adresse</strong> – zur Anmeldung, für Bestätigungs- und Passwort-Mails</li>
+    <li><strong>Passwort</strong> – ausschließlich als kryptografischer Hash, nie im Klartext</li>
+    <li><strong>Anzeigename und Benutzername</strong> – freiwillig, jederzeit änderbar</li>
+    <li><strong>Profilbild</strong> – freiwillig, jederzeit änder- und löschbar</li>
+    <li><strong>Anmeldungen zu Touren</strong> – welche Termine du dir vorgemerkt hast</li>
+    <li><strong>Teilnahmen</strong> – an welchen Touren du warst, als Grundlage für das Stempelheft</li>
+    <li><strong>Stempel und Empfehlungscode</strong> – inklusive Bonus-Stempel aus Shop-Bestellungen und Empfehlungen</li>
+    <li><strong>Zeitpunkte</strong> von Registrierung, Anmeldung und Stempeleinlösung</li>
+  </ul>
+  <p>
+    Rechtsgrundlage ist Art.&nbsp;6 Abs.&nbsp;1 lit.&nbsp;b DSGVO, da diese Daten für die
+    Nutzung des Mitgliederbereichs und die Teilnahme am Stempelheft erforderlich sind. Die
+    Angabe von Name und Bild ist freiwillig (Art.&nbsp;6 Abs.&nbsp;1 lit.&nbsp;a DSGVO); eine
+    einmal erteilte Einwilligung kannst du jederzeit widerrufen, indem du die Angaben löschst.
+  </p>
+  <p>
+    Wir werten diese Daten nicht zu Werbezwecken aus, erstellen keine Profile und geben sie nicht
+    an Dritte weiter.
+  </p>
+
+  <h2>Technischer Dienstleister für Konten und Daten</h2>
+  <p>
+    Konten, Profildaten, Teilnahmen und Profilbilder liegen bei der Supabase Inc. Der Server
+    unseres Projekts steht in der Europäischen Union (Region Nordeuropa). Supabase verarbeitet
+    die Daten ausschließlich in unserem Auftrag und weisungsgebunden.
+  </p>
+
+  <h2>Cookies und vergleichbare Techniken</h2>
+  <p>
+    Wir setzen keine Cookies für Werbung, Reichweitenmessung oder Analyse. Meldest du dich an,
+    speichert die Website ein Anmeldemerkmal im lokalen Speicher deines Browsers, damit du
+    eingeloggt bleibst. Das ist technisch erforderlich (Art.&nbsp;6 Abs.&nbsp;1 lit.&nbsp;b DSGVO
+    bzw. §&nbsp;25 Abs.&nbsp;2 Nr.&nbsp;2 TDDDG) und daher nicht einwilligungspflichtig. Beim
+    Abmelden wird es entfernt.
+  </p>
+
+  <h2>Anmeldung zu Touren</h2>
+  <p>
+    Die verbindliche Buchung unserer Wanderungen läuft über Urban Sports Club. Klickst du auf
+    einen Buchungslink, verlässt du diese Website; es gelten dann die Datenschutzbestimmungen des
+    dortigen Anbieters. Beim bloßen Aufruf unserer Seite werden keine Daten dorthin übertragen.
+    Die Vormerkung im Mitgliederbereich ist davon unabhängig und bleibt bei uns.
   </p>
 
   <h2>Kontakt per E-Mail</h2>
   <p>
-    Wenn du uns per E-Mail kontaktierst (z.&nbsp;B. zur Anmeldung für eine Tour), verarbeiten wir
-    deine Angaben ausschließlich zur Bearbeitung der Anfrage und Organisation der Tour. Die Daten
-    werden nicht an Dritte weitergegeben und nach Zweckerfüllung gelöscht.
+    Wenn du uns per E-Mail schreibst, verarbeiten wir deine Angaben ausschließlich zur Bearbeitung
+    der Anfrage (Art.&nbsp;6 Abs.&nbsp;1 lit.&nbsp;b bzw. lit.&nbsp;f DSGVO). Die Daten werden
+    gelöscht, sobald der Zweck entfallen ist und keine Aufbewahrungspflichten entgegenstehen.
+  </p>
+
+  <h2>Speicherdauer</h2>
+  <p>
+    Kontodaten speichern wir, solange dein Konto besteht. Löschst du es, werden Profil,
+    Anmeldungen, Teilnahmen, Stempel, Empfehlungscode und Profilbild unmittelbar und
+    unwiderruflich entfernt. Server-Logfiles beim Hoster werden nach dessen Fristen gelöscht.
+  </p>
+
+  <h2>Konto löschen</h2>
+  <p>
+    Im Mitgliederbereich findest du unter „Konto“ eine Schaltfläche zum Löschen. Alternativ
+    genügt eine formlose E-Mail an die oben genannte Adresse.
   </p>
 
   <h2>Externe Links</h2>
   <p>
-    Diese Website verlinkt auf externe Plattformen wie Instagram und Strava. Beim Aufruf dieser
-    Links gelten die Datenschutzbestimmungen der jeweiligen Anbieter.
+    Diese Website verlinkt auf externe Plattformen, unter anderem Urban Sports Club, unseren Shop,
+    <a href={social.instagram} target="_blank" rel="noopener">Instagram</a> und
+    <a href={social.strava} target="_blank" rel="noopener">Strava</a>. Es handelt sich um reine
+    Textlinks – es werden keine Inhalte dieser Anbieter eingebettet und beim Aufruf unserer Seite
+    keine Daten dorthin übertragen. Erst beim Klick gelten die Bestimmungen des jeweiligen
+    Anbieters.
   </p>
 
-  <h2>Verantwortliche Stelle</h2>
+  <h2>Deine Rechte</h2>
   <p>
-    [Vorname Nachname]<br />
-    [Straße Hausnummer]<br />
-    [PLZ] Bonn<br />
-    E-Mail: <a href="mailto:hallo@clubludwig.de">hallo@clubludwig.de</a>
+    Du hast das Recht auf Auskunft (Art.&nbsp;15), Berichtigung (Art.&nbsp;16), Löschung
+    (Art.&nbsp;17), Einschränkung der Verarbeitung (Art.&nbsp;18), Datenübertragbarkeit
+    (Art.&nbsp;20) sowie Widerspruch gegen die Verarbeitung (Art.&nbsp;21 DSGVO). Wende dich dafür
+    an die oben genannte verantwortliche Stelle. Außerdem steht dir ein Beschwerderecht bei einer
+    Datenschutz-Aufsichtsbehörde zu; zuständig ist die Landesbeauftragte für Datenschutz und
+    Informationsfreiheit Nordrhein-Westfalen.
   </p>
 </LegalLayout>
