@@ -88,8 +88,8 @@ const faqSchema = {
 
   <section class="faq" aria-label="Häufig gestellte Fragen">
     <div class="faq__inner">
-      {faqs.map((item, index) => (
-        <details class="faq__item" open={index === 0}>
+      {faqs.map((item) => (
+        <details class="faq__item">
           <summary>{item.question}</summary>
           <p>{item.answer}</p>
         </details>
@@ -122,6 +122,10 @@ const faqSchema = {
   }
 
   .faq-hero :global(.kicker) {
+    color: var(--color-lime);
+  }
+
+  .faq-hero :global(.kicker__sun) {
     color: var(--color-lime);
   }
 
