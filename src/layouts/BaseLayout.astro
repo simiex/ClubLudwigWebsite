@@ -9,9 +9,11 @@ interface Props {
   description: string;
   /** true auf der Startseite: transparente Navigation über dem Hero */
   transparentNav?: boolean;
+  /** Persönliche Seiten gehören nicht in den Suchindex. */
+  noindex?: boolean;
 }
 
-const { title, description, transparentNav = false } = Astro.props;
+const { title, description, transparentNav = false, noindex = false } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const ogImage = new URL('/assets/og-image.png', Astro.site);
 ---
@@ -25,7 +27,9 @@ const ogImage = new URL('/assets/og-image.png', Astro.site);
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <meta name="theme-color" content="#0A141F" />
+    <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="theme-color" content="#060D16" />
     <meta name="generator" content={Astro.generator} />
 
     <!-- Open Graph -->
@@ -37,6 +41,10 @@ const ogImage = new URL('/assets/og-image.png', Astro.site);
     <meta property="og:image" content={ogImage} />
     <meta property="og:locale" content="de_DE" />
     <meta name="twitter:card" content="summary_large_image" />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+
+    <!-- Strukturierte Daten (schema.org) -->
+    <slot name="head" />
   </head>
   <body>
     <a class="skip-link" href="#main">Zum Inhalt springen</a>

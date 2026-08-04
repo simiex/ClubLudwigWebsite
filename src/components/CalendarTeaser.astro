@@ -1,0 +1,240 @@
+---
+/**
+ * Startseiten-Block für Marschkalender und Challenges.
+ * Beide Seiten waren bisher nur über die Kopfleiste erreichbar – hier holen
+ * wir die wichtigste Zahl (Anzahl Termine) nach vorn.
+ */
+import SunMark from './SunMark.astro';
+import Kicker from './Kicker.astro';
+import { loadMarches, formatDateRange, formatDistances, FORMAT_LABEL } from '../lib/marches';
+import { loadChallenges, phase, formatAmount } from '../lib/challenges';
+
+const marches = await loadMarches();
+const naechste = marches.slice(0, 3);
+const veranstalter = new Set(marches.map((m) => m.organizer)).size;
+
+const challenges = await loadChallenges();
+const aktiv = challenges.filter((c) => phase(c) !== 'vorbei').slice(0, 1);
+---
+
+<section class="teaser-cal" aria-labelledby="cal-heading">
+  <div class="teaser-cal__inner">
+    <div class="teaser-cal__head">
+      <div>
+        <Kicker class="teaser-cal__kicker">Marschkalender</Kicker>
+        <h2 id="cal-heading">
+          {marches.length} Märsche.<br /><span>Ein Kalender.</span>
+        </h2>
+        <p class="teaser-cal__lead">
+          Megamarsch, Mammutmarsch, 24-Stunden-Wanderungen – wir sammeln die Termine von
+          {veranstalter} Veranstaltern an einem Ort. Auch die, bei denen wir selbst nicht dabei sind.
+        </p>
+        <a class="btn btn--primary teaser-cal__cta" href="/maersche/">Zum Kalender</a>
+      </div>
+
+      {
+        naechste.length > 0 && (
+          <ol class="next">
+            {naechste.map((m) => (
+              <li class="next__item">
+                <span class="next__date">{formatDateRange(m).replace(/ \d{4}$/, '')}</span>
+                <span class="next__title">{m.title}</span>
+                <span class="next__meta">
+                  {FORMAT_LABEL[m.format]}
+                  {formatDistances(m) !== 'Distanzen folgen' && <> · {formatDistances(m)}</>}
+                </span>
+              </li>
+            ))}
+          </ol>
+        )
+      }
+    </div>
+
+    {
+      aktiv.length > 0 && (
+        <aside class="chal">
+          <div class="chal__text">
+            <p class="chal__kicker">
+              <SunMark size={13} motion="breathe" />
+              <span>Virtuelle Challenge</span>
+            </p>
+            <h3>{aktiv[0]!.title}</h3>
+            <p>
+              {aktiv[0]!.subtitle ?? ''} – mitmachen kannst du von überall.
+              Ziel erreicht, Stempel im Heft.
+            </p>
+          </div>
+          <div class="chal__side">
+            <p class="chal__goal">{formatAmount(aktiv[0]!.goal, aktiv[0]!.metric)}</p>
+            <a class="btn btn--ghost" href="/mein-club/#challenges">Mitmachen</a>
+          </div>
+        </aside>
+      )
+    }
+  </div>
+</section>
+
+<style>
+  .teaser-cal {
+    background: var(--color-surface);
+    color: var(--color-cream);
+    padding: 128px var(--pad-x);
+    border-top: 1px solid var(--cream-line);
+  }
+
+  .teaser-cal__inner {
+    max-width: var(--max-width-content);
+    margin: 0 auto;
+  }
+
+  .teaser-cal__head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr);
+    gap: 72px;
+    align-items: start;
+  }
+
+  h2 {
+    margin: 20px 0 0;
+    font-size: clamp(34px, 4.4vw, 68px);
+    font-weight: 800;
+    line-height: 0.98;
+    letter-spacing: -0.03em;
+  }
+
+  h2 span {
+    color: var(--color-lime);
+    text-shadow: 0 0 50px rgba(219, 255, 62, 0.3);
+  }
+
+  .teaser-cal__lead {
+    margin: 24px 0 0;
+    max-width: 46ch;
+    font-size: 17px;
+    line-height: 1.65;
+    color: var(--cream-72);
+  }
+
+  .teaser-cal__cta {
+    margin-top: 32px;
+  }
+
+  /* ── Die nächsten drei Termine ────────────────────────────────── */
+
+  .next {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--cream-line);
+  }
+
+  .next__item {
+    display: grid;
+    grid-template-columns: 112px minmax(0, 1fr);
+    gap: 8px 20px;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--cream-line);
+  }
+
+  .next__date {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--color-lime);
+    white-space: nowrap;
+  }
+
+  .next__title {
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  .next__meta {
+    grid-column: 2;
+    font-size: 13px;
+    color: var(--cream-55);
+  }
+
+  /* ── Challenge-Streifen ───────────────────────────────────────── */
+
+  .chal {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 40px;
+    margin-top: 56px;
+    padding: 32px 36px;
+    background: var(--color-surface-2);
+    border: 1px solid rgba(219, 255, 62, 0.32);
+    border-radius: var(--radius);
+    flex-wrap: wrap;
+  }
+
+  .chal__kicker {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-lime);
+  }
+
+  .chal h3 {
+    color: var(--color-lime);
+    margin: 12px 0 0;
+    font-size: clamp(22px, 2.4vw, 30px);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+
+  .chal p:not(.chal__kicker):not(.chal__goal) {
+    margin: 8px 0 0;
+    max-width: 52ch;
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--cream-72);
+  }
+
+  .chal__side {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+
+  .chal__goal {
+    margin: 0 !important;
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: var(--color-lime);
+    white-space: nowrap;
+  }
+
+  @media (max-width: 1099px) {
+    .teaser-cal__head {
+      grid-template-columns: 1fr;
+      gap: 48px;
+    }
+  }
+
+  @media (max-width: 899px) {
+    .teaser-cal {
+      padding: 72px 24px;
+    }
+
+    .chal {
+      padding: 24px;
+      gap: 24px;
+    }
+
+    .chal__side {
+      width: 100%;
+      justify-content: space-between;
+    }
+  }
+</style>

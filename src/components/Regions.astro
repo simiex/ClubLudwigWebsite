@@ -1,53 +1,37 @@
 ---
-const regions = [
-  {
-    id: 'tour-1',
-    title: 'Rhein & Drachenfels',
-    stats: 'Typisch: 10–14 km · Moderat',
-    text: 'Der Klassiker über dem Rhein – Serpentinen, weite Blicke und unten wartet das Wasser.',
-    label: 'Foto-Platzhalter · Rhein & Drachenfels',
-    mediaClass: 'region__media--drachenfels',
-  },
-  {
-    id: 'tour-2',
-    title: 'Ennert',
-    stats: 'Typisch: 8–10 km · Leicht',
-    text: 'Stille Waldpfade direkt hinter Beuel – unsere liebste Feierabendrunde.',
-    label: 'Foto-Platzhalter · Ennert-Waldpfad',
-    mediaClass: 'region__media--ennert',
-  },
-  {
-    id: 'tour-3',
-    title: 'Waldau & Kottenforst',
-    stats: 'Typisch: 10–12 km · Leicht',
-    text: 'Alte Alleen, offene Lichtungen und viel Raum für Gespräche – perfekt für die erste Tour mit uns.',
-    label: 'Foto-Platzhalter · Waldau & Kottenforst',
-    mediaClass: 'region__media--waldau',
-  },
-];
+import Media from './Media.astro';
+import { venues } from '../data/venues';
+
+/** Die Kacheln folgen einem 3er-Rhythmus (breit / schmal / mittig versetzt). */
+const rhythm = ['a', 'b', 'c'] as const;
 ---
 
 <section id="regionen" class="regions" aria-labelledby="regions-heading">
   <div class="regions__inner">
     <h2 id="regions-heading" data-reveal>Wo wir unterwegs sind</h2>
     <p class="regions__lead" data-reveal>
-      Unser Clubgebiet zwischen Rhein, Wald und Siebengebirge. Unterschiedliche Touren für
-      unterschiedliche Erfahrungslevel – im Kalender steht immer, was dich erwartet.
+      Unser Clubgebiet zwischen Rhein, Wald und Siebengebirge. Jeder Standort ist über
+      Urban Sports Club buchbar – im Kalender steht immer, was dich erwartet.
     </p>
     <div class="regions__grid">
       {
-        regions.map((r) => (
-          <article class="region" id={r.id} data-reveal>
+        venues.map((v, i) => (
+          <article class:list={['region', `region--${rhythm[i % 3]}`]} id={`standort-${v.id}`} data-reveal>
             <div class="region__media-wrap">
-              <div class:list={['region__media', r.mediaClass]} data-parallax role="img" aria-label={r.label}>
-                <span class="media-placeholder__label">{r.label}</span>
+              <div class="region__media" data-parallax>
+                <Media name={v.media} alt={v.alt} />
               </div>
             </div>
             <div class="region__head">
-              <h3>{r.title}</h3>
-              <p class="region__stats">{r.stats}</p>
+              <h3>{v.name}</h3>
+              <p class="region__area">{v.area}</p>
             </div>
-            <p class="region__text">{r.text}</p>
+            <p class="region__text">{v.text}</p>
+            <a class="region__link" href={v.uscUrl} target="_blank" rel="noopener">
+              Standort bei Urban Sports Club
+              <span aria-hidden="true">↗</span>
+              <span class="visually-hidden">(öffnet in neuem Tab)</span>
+            </a>
           </article>
         ))
       }
@@ -57,8 +41,8 @@ const regions = [
 
 <style>
   .regions {
-    background: var(--color-cream);
-    color: var(--color-night);
+    background: var(--color-surface);
+    color: var(--color-cream);
     padding: 128px var(--pad-x) 96px;
   }
 
@@ -81,64 +65,68 @@ const regions = [
     margin: 24px 0 0;
     font-size: 17px;
     line-height: 1.6;
-    color: var(--night-65);
+    color: var(--cream-65);
     max-width: 52ch;
   }
 
   .regions__grid {
     display: grid;
     grid-template-columns: repeat(12, 1fr);
-    gap: 0 32px;
+    /*
+     * Zeilenabstand gehört in den Grid-Gap, nicht in Einzel-Margins:
+     * sonst fehlt er bei der jeweils ersten Kachel eines Dreier-Zyklus.
+     */
+    gap: 128px 32px;
     margin-top: 72px;
   }
 
-  #tour-1 {
+  /* 3er-Rhythmus, wiederholt sich für weitere Standorte */
+  .region--a {
     grid-column: 1 / span 7;
   }
 
-  #tour-1 .region__media-wrap {
+  .region--a .region__media-wrap {
     height: 560px;
   }
 
-  #tour-2 {
+  .region--b {
     grid-column: 9 / span 4;
     margin-top: 160px;
   }
 
-  #tour-2 .region__media-wrap {
+  .region--b .region__media-wrap {
     height: 420px;
   }
 
-  #tour-3 {
+  /* Versetzt nur innerhalb der eigenen Zeile – nicht als Zeilenabstand */
+  .region--c {
     grid-column: 3 / span 8;
-    margin-top: 120px;
   }
 
-  #tour-3 .region__media-wrap {
+  .region--c .region__media-wrap {
     height: 440px;
   }
 
   .region__media-wrap {
+    position: relative;
     border-radius: var(--radius);
     overflow: hidden;
+    background: var(--color-surface-2);
+    border: 1px solid var(--lime-line);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
   }
 
   .region__media {
     position: relative;
     width: 100%;
-    height: 100%;
+    height: 110%;
+    top: -5%;
   }
 
-  .region__media--drachenfels {
-    background: linear-gradient(160deg, var(--color-night-mid) 0%, var(--color-moss-soft) 55%, var(--color-sand) 100%);
-  }
-
-  .region__media--ennert {
-    background: linear-gradient(150deg, var(--color-forest-mid) 0%, var(--color-moss-soft) 50%, var(--color-night-soft) 100%);
-  }
-
-  .region__media--waldau {
-    background: linear-gradient(140deg, var(--color-moss-soft) 0%, var(--color-sage) 55%, var(--color-sand) 100%);
+  .region:hover .region__media-wrap,
+  .region:focus-within .region__media-wrap {
+    border-color: rgba(219, 255, 62, 0.45);
+    box-shadow: 0 0 40px rgba(219, 255, 62, 0.12);
   }
 
   .region__head {
@@ -157,12 +145,12 @@ const regions = [
     letter-spacing: -0.02em;
   }
 
-  .region__stats {
+  .region__area {
     margin: 0;
     font-size: 13px;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: var(--night-55);
+    color: var(--color-lime);
     font-weight: 600;
   }
 
@@ -170,8 +158,27 @@ const regions = [
     margin: 12px 0 0;
     font-size: 16px;
     line-height: 1.6;
-    color: rgba(10, 20, 31, 0.7);
+    color: var(--cream-72);
     max-width: 52ch;
+  }
+
+  .region__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 16px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--cream-72);
+    border-bottom: 1px solid rgba(242, 238, 228, 0.25);
+    padding-bottom: 3px;
+    transition: color 0.2s ease, border-color 0.2s ease;
+  }
+
+  .region__link:hover,
+  .region__link:focus-visible {
+    color: var(--color-lime);
+    border-color: var(--color-lime);
   }
 
   @media (max-width: 899px) {
@@ -183,15 +190,15 @@ const regions = [
       display: block;
     }
 
-    #tour-1,
-    #tour-2,
-    #tour-3 {
+    .region--a,
+    .region--b,
+    .region--c {
       margin: 0 0 56px;
     }
 
-    #tour-1 .region__media-wrap,
-    #tour-2 .region__media-wrap,
-    #tour-3 .region__media-wrap {
+    .region--a .region__media-wrap,
+    .region--b .region__media-wrap,
+    .region--c .region__media-wrap {
       height: 300px;
     }
   }

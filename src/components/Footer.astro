@@ -1,5 +1,8 @@
 ---
+import { contact, partners, resolve, site, socialLinks } from '../config/site';
+
 const year = new Date().getFullYear();
+const email = resolve(contact.email);
 ---
 
 <footer id="kontakt" class="footer">
@@ -7,21 +10,43 @@ const year = new Date().getFullYear();
     <div class="footer__grid">
       <div>
         <img src="/assets/logo-white.png" alt="Club Ludwig" width="660" height="136" loading="lazy" />
-        <p class="footer__claim">Gemeinsam raus. Gemeinsam weiter.</p>
-        <p class="footer__location">Bonn, Germany</p>
+        <p class="footer__claim">{site.claim}</p>
+        <p class="footer__location">{site.city}, {site.country}</p>
       </div>
       <nav class="footer__col" aria-label="Club">
         <p class="footer__label">Club</p>
         <a href="/#touren">Touren</a>
-        <a href="/#club">Der Club</a>
-        <a href="/#community">Partner</a>
-        <a href="mailto:hallo@clubludwig.de">Kontakt</a>
+        <a href="/maersche/">Marschkalender</a>
+        <a href="/challenges/">Challenges</a>
+        <a href="/liga/">Monatsliga</a>
+        <a href="/#regionen">Standorte</a>
+        <a href="/mein-club/">Mein Bereich</a>
+        {email && <a href={`mailto:${email}`}>Kontakt</a>}
       </nav>
-      <nav class="footer__col" aria-label="Social Media">
-        <p class="footer__label">Social</p>
-        <a href="https://www.instagram.com" target="_blank" rel="noopener">Instagram</a>
-        <a href="https://www.strava.com" target="_blank" rel="noopener">Strava</a>
-      </nav>
+      {
+        partners.length > 0 && (
+          <div class="footer__col">
+            <p class="footer__label">Unterstützt von</p>
+            <ul class="footer__partners">
+              {partners.map((p) => <li>{p}</li>)}
+            </ul>
+          </div>
+        )
+      }
+
+      {
+        socialLinks.length > 0 && (
+          <nav class="footer__col" aria-label="Social Media">
+            <p class="footer__label">Social</p>
+            {socialLinks.map((l) => (
+              <a href={l.href} target="_blank" rel="noopener">
+                {l.label}
+                <span class="visually-hidden"> (öffnet in neuem Tab)</span>
+              </a>
+            ))}
+          </nav>
+        )
+      }
       <nav class="footer__col" aria-label="Rechtliches">
         <p class="footer__label">Rechtliches</p>
         <a href="/impressum/">Impressum</a>
@@ -29,17 +54,19 @@ const year = new Date().getFullYear();
       </nav>
     </div>
     <div class="footer__bottom">
-      <p>© {year} Club Ludwig</p>
-      <p class="footer__tagline">From Beethoven&rsquo;s City to the Trails</p>
+      <p>© {year} {site.name}</p>
+      <p class="footer__tagline">{site.tagline}</p>
     </div>
   </div>
 </footer>
 
 <style>
   .footer {
+    position: relative;
     background: var(--color-night-deep);
     color: var(--color-cream);
     padding: 96px var(--pad-x) 48px;
+    border-top: 1px solid var(--lime-line);
   }
 
   .footer__inner {
@@ -129,5 +156,16 @@ const year = new Date().getFullYear();
       grid-template-columns: 1fr;
       gap: 40px;
     }
+  }
+  .footer__partners {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .footer__partners li {
+    font-size: 15px;
+    line-height: 1.9;
+    color: var(--cream-72);
   }
 </style>

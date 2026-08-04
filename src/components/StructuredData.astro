@@ -1,0 +1,11 @@
+---
+/** Gibt beliebige schema.org-Objekte als JSON-LD aus. Leere Einträge entfallen. */
+interface Props {
+  schemas: Array<Record<string, unknown> | null>;
+}
+
+const { schemas } = Astro.props;
+const valid = schemas.filter((s): s is Record<string, unknown> => s !== null);
+---
+
+{valid.map((schema) => <script is:inline type="application/ld+json" set:html={JSON.stringify(schema)} />)}

@@ -1,0 +1,39 @@
+---
+import SunMark from './SunMark.astro';
+
+/**
+ * Overline-Label. Statt eines generischen Strichs steht die Club-Sonne davor –
+ * das Markenzeichen taucht dadurch in jeder Sektion auf.
+ */
+interface Props {
+  /** Die Sonne dreht sich langsam (nur für den Hero gedacht). */
+  animated?: boolean;
+  class?: string;
+  [key: string]: unknown;
+}
+
+const { animated = false, class: className, ...rest } = Astro.props;
+---
+
+<p class:list={['kicker', className]} {...rest}>
+  <SunMark size={15} motion={animated ? 'spin' : 'still'} class="kicker__sun" />
+  <span><slot /></span>
+</p>
+
+<style>
+  .kicker {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    margin: 0;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  .kicker :global(.kicker__sun) {
+    /* Optische Korrektur: die Zacken lassen die Sonne größer wirken */
+    margin-top: -1px;
+  }
+</style>

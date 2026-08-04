@@ -1,0 +1,50 @@
+---
+/**
+ * Bildfläche für alle Illustrationen/Fotos.
+ * Liefert heute die SVG, nach Eintrag in src/lib/media.ts automatisch AVIF/WebP.
+ */
+import { resolveMedia } from '../lib/media';
+
+interface Props {
+  /** Schlüssel aus src/lib/media.ts, z. B. "region-drachenfels" */
+  name: string;
+  alt: string;
+  /** Erstes sichtbares Bild (Hero) nicht lazy laden. */
+  eager?: boolean;
+  /** Objektposition beim Zuschnitt, z. B. "50% 76%" */
+  position?: string;
+  class?: string;
+}
+
+const { name, alt, eager = false, position, class: className } = Astro.props;
+const media = resolveMedia(name);
+const sizes = media.photo?.sizes;
+---
+
+<picture class:list={['media', className]}>
+  {media.photo?.avif && <source type="image/avif" srcset={media.photo.avif} sizes={sizes} />}
+  {media.photo?.webp && <source type="image/webp" srcset={media.photo.webp} sizes={sizes} />}
+  <img
+    src={media.photo?.fallback ?? media.svg}
+    alt={alt}
+    width={media.width}
+    height={media.height}
+    loading={eager ? 'eager' : 'lazy'}
+    decoding={eager ? 'sync' : 'async'}
+    fetchpriority={eager ? 'high' : undefined}
+    style={position ? `object-position: ${position}` : undefined}
+  />
+</picture>
+
+<style>
+  .media,
+  .media img {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .media img {
+    object-fit: cover;
+  }
+</style>

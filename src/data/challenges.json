@@ -1,0 +1,15 @@
+[
+  {
+    "id": "8a1f5c2e-0000-4000-8000-000000000001",
+    "slug": "rheinsteig-virtuell",
+    "title": "Der virtuelle Rheinsteig",
+    "subtitle": "320 km von Bonn nach Wiesbaden – wo auch immer du gehst",
+    "description": "Der echte Rheinsteig läuft 320 Kilometer von Bonn bis Wiesbaden, vorbei am Drachenfels, durch die Weinberge, hoch über dem Fluss. Die wenigsten haben am Stück Zeit dafür. Also gehen wir ihn anders: Jeder Kilometer, den du irgendwo läufst, bringt dich auf der Karte ein Stück weiter. Feierabendrunde in Hamburg? Zählt. Spaziergang mit dem Hund? Zählt auch. Wer in Wiesbaden ankommt, hat den Rheinsteig geschafft – ohne einmal umziehen zu müssen.\n\nAlle, die ankommen, bekommen einen Stempel fürs Heft und einen 20-Prozent-Gutschein für den Shop. Unter allen Finishern verlosen wir außerdem drei Club-Ludwig-Shirts.",
+    "metric": "km",
+    "goal": 320,
+    "starts_on": "2026-08-03",
+    "ends_on": "2026-09-30",
+    "awards_stamp": true,
+    "status": "laufend"
+  }
+]

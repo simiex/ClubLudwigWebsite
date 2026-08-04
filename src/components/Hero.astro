@@ -1,50 +1,65 @@
 ---
-interface Props {
-  memberCount?: number;
-  showStats?: boolean;
-}
+import Media from './Media.astro';
+import Kicker from './Kicker.astro';
+import SunArc from './SunArc.astro';
+import { stats } from '../config/site';
 
-const { memberCount = 240, showStats = true } = Astro.props;
+/**
+ * Kennzahlen werden nur gerendert, wenn echte Werte konfiguriert sind.
+ * Ist nichts hinterlegt, entfällt der Block komplett.
+ */
+const statItems = [
+  stats.memberCount != null
+    ? { value: `${stats.memberCount.toLocaleString('de-DE')}+`, label: 'Mitglieder' }
+    : null,
+  stats.kilometersTogether != null
+    ? {
+        value: `${stats.kilometersTogether.toLocaleString('de-DE')}\u00a0km`,
+        label: 'Gemeinsam gegangen',
+      }
+    : null,
+].filter((s): s is { value: string; label: string } => s !== null);
 ---
 
 <section id="hero" class="hero" aria-label="Intro">
   <span id="top" class="hero__anchor" aria-hidden="true"></span>
   <div class="hero__sticky">
     <div class="hero__media" data-hero-media>
-      <div class="hero__media-bg"></div>
-      <!-- TODO: Platzhalter durch echtes Hero-Video/-Foto ersetzen (assets/hero.*) -->
-      <p class="hero__media-note" aria-hidden="true">
-        Video-Platzhalter · Kamerafahrt<br />Bonn/Hofgarten → Rhein → Wald
-      </p>
+      <Media
+        class="hero__media-img"
+        name="hero"
+        alt="Bonner Skyline am Rhein vor dem Siebengebirge bei Nacht"
+        eager
+      />
       <div class="hero__scrim" data-hero-scrim></div>
     </div>
     <div class="hero__content" data-hero-content>
-      <p class="kicker hero__kicker">Hiking Club · Bonn</p>
+      <Kicker class="hero__kicker" animated>Hiking Club · Bonn</Kicker>
       <h1>From Beethoven&rsquo;s City to the&nbsp;Trails</h1>
       <p class="hero__lead">
         Der offene Hiking Club aus Bonn. Gemeinsam wandern, neue Leute kennenlernen und Wege rund
         um Rhein und Siebengebirge entdecken.
       </p>
       <div class="hero__ctas">
-        <a class="btn btn--primary" href="#touren">Tour ansehen</a>
-        <a class="btn btn--ghost" href="#club">Club entdecken</a>
+        <a class="btn btn--primary" href="#touren">Nächste Tour ansehen</a>
+        <a class="btn btn--ghost" href="#regionen">Wo wir laufen</a>
       </div>
+      <SunArc />
       {
-        showStats && (
+        statItems.length > 0 && (
           <dl class="hero__stats">
-            <div>
-              <dd>{memberCount}+</dd>
-              <dt>Mitglieder · Platzhalter</dt>
-            </div>
-            <div>
-              <dd>1.900&nbsp;km</dd>
-              <dt>Gemeinsam gegangen · Platzhalter</dt>
-            </div>
+            {statItems.map((s) => (
+              <div>
+                <dd>{s.value}</dd>
+                <dt>{s.label}</dt>
+              </div>
+            ))}
           </dl>
         )
       }
     </div>
-    <div class="hero__hint" data-hero-hint aria-hidden="true">
+    <SunArc />
+      <div class="hero__hint" data-hero-hint aria-hidden="true">
       <span>Scroll</span><span class="hero__hint-line"></span>
     </div>
   </div>
@@ -53,7 +68,7 @@ const { memberCount = 240, showStats = true } = Astro.props;
 <style>
   .hero {
     position: relative;
-    height: 220vh;
+    height: 170vh;
     background: var(--color-night);
   }
 
@@ -74,35 +89,29 @@ const { memberCount = 240, showStats = true } = Astro.props;
     inset: 0;
   }
 
-  .hero__media-bg {
+  .hero__media-img {
     position: absolute;
     inset: 0;
-    background: linear-gradient(105deg, var(--color-night-mid) 0%, var(--color-night-soft) 45%, var(--color-forest) 100%);
-  }
-
-  .hero__media-note {
-    position: absolute;
-    top: 96px;
-    right: 48px;
-    margin: 0;
-    font-size: 11px;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--cream-55);
-    pointer-events: none;
-    text-align: right;
   }
 
   .hero__scrim {
     position: absolute;
     inset: 0;
-    background: linear-gradient(
-      to top,
-      rgba(10, 20, 31, 0.82) 0%,
-      rgba(10, 20, 31, 0.25) 45%,
-      rgba(10, 20, 31, 0.35) 100%
-    );
+    /*
+     * Unter dem Abdunkler liegt ein Schimmer, dessen Farbe dem echten
+     * Sonnenstand über Bonn folgt (--sky-tint, gesetzt über data-sky).
+     */
+    background:
+      radial-gradient(70% 55% at 50% 88%, var(--sky-tint) 0%, transparent 70%),
+      radial-gradient(50% 40% at 85% 15%, var(--sky-tint-2) 0%, transparent 70%),
+      linear-gradient(
+        to top,
+        rgba(4, 9, 16, 0.9) 0%,
+        rgba(4, 9, 16, 0.35) 45%,
+        rgba(4, 9, 16, 0.55) 100%
+      );
     pointer-events: none;
+    transition: background 2s ease;
   }
 
   .hero__content {
@@ -159,6 +168,7 @@ const { memberCount = 240, showStats = true } = Astro.props;
 
   .hero__stats dd {
     margin: 0;
+    color: var(--color-lime);
     font-size: 26px;
     font-weight: 800;
     letter-spacing: -0.02em;
@@ -172,6 +182,29 @@ const { memberCount = 240, showStats = true } = Astro.props;
     margin-top: 4px;
   }
 
+  /*
+   * Schmale Viewports: der Bogen läuft im Textfluss unter den Buttons mit.
+   * Ab 1100px hat die rechte Hälfte Platz – dort steht er frei, ohne die
+   * Textspalte oder die Buttons zu berühren.
+   */
+  .hero__content :global(.arc) {
+    margin-top: 40px;
+    pointer-events: auto;
+  }
+
+  @media (min-width: 1100px) {
+    .hero__content :global(.arc) {
+      position: absolute;
+      right: var(--pad-x);
+      bottom: 40px;
+      margin-top: 0;
+    }
+  }
+
+  /*
+   * Der Scroll-Hinweis stand rechts unten – dort sitzt jetzt der Sonnenbogen.
+   * Ab 1100px wandert er deshalb nach links (siehe unten).
+   */
   .hero__hint {
     position: absolute;
     right: 48px;
@@ -193,6 +226,17 @@ const { memberCount = 240, showStats = true } = Astro.props;
     background: rgba(242, 238, 228, 0.4);
   }
 
+  /*
+   * Muss NACH der Basisregel stehen: gleiche Spezifität, die spätere gewinnt.
+   * Ab 1100px belegt der Sonnenbogen die rechte untere Ecke.
+   */
+  @media (min-width: 1100px) {
+    .hero__hint {
+      right: auto;
+      left: 48px;
+    }
+  }
+
   @media (max-height: 720px) {
     h1 {
       font-size: clamp(34px, 5.6vw, 60px);
@@ -203,12 +247,69 @@ const { memberCount = 240, showStats = true } = Astro.props;
     }
 
     .hero__stats,
-    .hero__hint {
+    /*
+   * Schmale Viewports: der Bogen läuft im Textfluss unter den Buttons mit.
+   * Ab 1100px hat die rechte Hälfte Platz – dort steht er frei, ohne die
+   * Textspalte oder die Buttons zu berühren.
+   */
+  .hero__content :global(.arc) {
+    margin-top: 40px;
+    pointer-events: auto;
+  }
+
+  @media (min-width: 1100px) {
+    .hero__content :global(.arc) {
+      position: absolute;
+      right: var(--pad-x);
+      bottom: 40px;
+      margin-top: 0;
+    }
+  }
+
+  .hero__hint {
       display: none;
     }
 
     .hero__ctas {
       margin-top: 22px;
+    }
+  }
+
+  /*
+   * Reduced Motion: Ohne GSAP gibt es kein Pinning – die 170vh wären dann
+   * reine Leerstrecke. Der Hero wird deshalb ein normaler Screen.
+   */
+  @media (prefers-reduced-motion: reduce) {
+    .hero {
+      height: auto;
+    }
+
+    .hero__sticky {
+      position: relative;
+      height: 100svh;
+    }
+
+    /*
+   * Schmale Viewports: der Bogen läuft im Textfluss unter den Buttons mit.
+   * Ab 1100px hat die rechte Hälfte Platz – dort steht er frei, ohne die
+   * Textspalte oder die Buttons zu berühren.
+   */
+  .hero__content :global(.arc) {
+    margin-top: 40px;
+    pointer-events: auto;
+  }
+
+  @media (min-width: 1100px) {
+    .hero__content :global(.arc) {
+      position: absolute;
+      right: var(--pad-x);
+      bottom: 40px;
+      margin-top: 0;
+    }
+  }
+
+  .hero__hint {
+      display: none;
     }
   }
 
@@ -236,7 +337,26 @@ const { memberCount = 240, showStats = true } = Astro.props;
       align-items: stretch;
     }
 
-    .hero__hint {
+    /*
+   * Schmale Viewports: der Bogen läuft im Textfluss unter den Buttons mit.
+   * Ab 1100px hat die rechte Hälfte Platz – dort steht er frei, ohne die
+   * Textspalte oder die Buttons zu berühren.
+   */
+  .hero__content :global(.arc) {
+    margin-top: 40px;
+    pointer-events: auto;
+  }
+
+  @media (min-width: 1100px) {
+    .hero__content :global(.arc) {
+      position: absolute;
+      right: var(--pad-x);
+      bottom: 40px;
+      margin-top: 0;
+    }
+  }
+
+  .hero__hint {
       display: none;
     }
   }

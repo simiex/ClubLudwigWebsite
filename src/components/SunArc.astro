@@ -1,0 +1,151 @@
+---
+/**
+ * Sonnenbogen – zeigt den Tagesverlauf der Sonne über Bonn in Echtzeit.
+ *
+ * Der Bogen spannt von Sonnenaufgang bis Sonnenuntergang, die Club-Sonne
+ * steht an ihrer tatsächlichen aktuellen Position. Darunter das Lichtfenster:
+ * wie lange es noch hell ist bzw. wann es wieder hell wird – für die Planung
+ * einer Feierabendrunde die einzige Zahl, die wirklich zählt.
+ *
+ * Alles wird im Browser gerechnet, ohne Netzwerkabfrage. Serverseitig
+ * gerendert wäre die Zeit beim Ausliefern eingefroren, deshalb startet die
+ * Komponente leer und füllt sich sofort per Skript.
+ */
+import { SUN_PATH } from '../lib/sun';
+---
+
+<figure class="arc" data-sun-arc hidden>
+  <figcaption class="arc__caption">
+    <span class="arc__phase" data-arc-phase></span>
+    <span class="arc__window" data-arc-window></span>
+  </figcaption>
+
+  <svg class="arc__svg" viewBox="0 0 260 100" role="img" aria-labelledby="arc-title">
+    <title id="arc-title" data-arc-title>Sonnenstand über Bonn</title>
+
+    <defs>
+      <linearGradient id="arc-grad" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="var(--color-ember)" stop-opacity="0.55" />
+        <stop offset="50%" stop-color="var(--color-lime)" stop-opacity="0.95" />
+        <stop offset="100%" stop-color="var(--color-ember)" stop-opacity="0.55" />
+      </linearGradient>
+      <clipPath id="arc-clip">
+        <rect x="0" y="0" width="260" height="74" />
+      </clipPath>
+    </defs>
+
+    <!-- Horizont -->
+    <line class="arc__horizon" x1="4" y1="74" x2="256" y2="74" />
+
+    <!-- Tagbogen: gestrichelt der ganze Tag, durchgezogen der bereits vergangene -->
+    <g clip-path="url(#arc-clip)">
+      <path class="arc__track" d="M 18 74 A 112 52 0 0 1 242 74" />
+      <path class="arc__done" d="M 18 74 A 112 52 0 0 1 242 74" data-arc-done />
+    </g>
+
+    <!-- Die Sonne an ihrer echten Position -->
+    <g data-arc-sun class="arc__sun">
+      <circle class="arc__halo" r="17" />
+      <g transform="translate(-9 -9) scale(0.015)">
+        <path d={SUN_PATH} />
+      </g>
+    </g>
+
+    <!-- Auf- und Untergang -->
+    <text class="arc__tick" x="18" y="93" text-anchor="middle" data-arc-rise></text>
+    <text class="arc__tick" x="242" y="93" text-anchor="middle" data-arc-set></text>
+  </svg>
+</figure>
+
+<style>
+  .arc {
+    margin: 0;
+    width: 260px;
+  }
+
+  .arc[hidden] {
+    display: none;
+  }
+
+  .arc__caption {
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  .arc__phase {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-lime);
+  }
+
+  .arc__window {
+    display: block;
+    margin-top: 3px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--cream-72);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .arc__svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  .arc__horizon {
+    stroke: rgba(242, 238, 228, 0.25);
+    stroke-width: 1;
+  }
+
+  .arc__track {
+    fill: none;
+    stroke: rgba(242, 238, 228, 0.18);
+    stroke-width: 1.5;
+    stroke-dasharray: 3 5;
+  }
+
+  .arc__done {
+    fill: none;
+    stroke: url(#arc-grad);
+    stroke-width: 2;
+    stroke-linecap: round;
+    /* Länge wird per Skript gesetzt */
+    transition: stroke-dashoffset 1s linear;
+  }
+
+  .arc__sun path {
+    fill: var(--color-lime);
+  }
+
+  .arc__halo {
+    fill: var(--color-lime);
+    opacity: 0.16;
+  }
+
+  /* Unter dem Horizont: gedämpft statt leuchtend */
+  .arc[data-below] .arc__sun path {
+    fill: var(--cream-45);
+  }
+
+  .arc[data-below] .arc__halo {
+    opacity: 0.06;
+  }
+
+  .arc__tick {
+    fill: rgba(242, 238, 228, 0.45);
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+  }
+
+  @media (max-width: 899px) {
+    .arc {
+      width: 220px;
+    }
+  }
+</style>

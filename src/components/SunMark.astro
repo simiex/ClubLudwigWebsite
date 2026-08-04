@@ -1,0 +1,105 @@
+---
+import { SUN_PATH, SUN_VIEWBOX } from '../lib/sun';
+
+interface Props {
+  /** Kantenlänge in px */
+  size?: number;
+  /**
+   * still   – statisch (Default)
+   * spin    – dreht sich sehr langsam
+   * breathe – Strahlen pulsieren dezent
+   * draw    – Kontur wird einmalig gezeichnet, dann gefüllt
+   */
+  motion?: 'still' | 'spin' | 'breathe' | 'draw';
+  /** Umriss statt Fläche */
+  outline?: boolean;
+  class?: string;
+}
+
+const { size = 24, motion = 'still', outline = false, class: className } = Astro.props;
+---
+
+<svg
+  class:list={['sun', `sun--${motion}`, { 'sun--outline': outline }, className]}
+  viewBox={SUN_VIEWBOX}
+  width={size}
+  height={size}
+  aria-hidden="true"
+  focusable="false"
+>
+  <path d={SUN_PATH} />
+</svg>
+
+<style>
+  .sun {
+    display: block;
+    flex-shrink: 0;
+    overflow: visible;
+  }
+
+  .sun path {
+    fill: currentColor;
+  }
+
+  .sun--outline path {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 14;
+    stroke-linejoin: round;
+  }
+
+  /* Sehr langsame Drehung – als Akzent, nicht als Blickfang */
+  .sun--spin path {
+    transform-origin: 600px 600px;
+    animation: sun-spin 90s linear infinite;
+  }
+
+  .sun--breathe path {
+    transform-origin: 600px 600px;
+    animation: sun-breathe 6s ease-in-out infinite;
+  }
+
+  .sun--draw path {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 14;
+    stroke-linejoin: round;
+    stroke-dasharray: 9000;
+    stroke-dashoffset: 9000;
+    animation: sun-draw 2.2s ease-out forwards;
+  }
+
+  @keyframes sun-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes sun-breathe {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.07);
+    }
+  }
+
+  @keyframes sun-draw {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sun--spin path,
+    .sun--breathe path {
+      animation: none;
+    }
+
+    .sun--draw path {
+      animation: none;
+      stroke-dashoffset: 0;
+    }
+  }
+</style>
