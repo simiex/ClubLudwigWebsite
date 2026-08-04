@@ -1,0 +1,293 @@
+/* ============================================================
+   Club Ludwig – globale Styles & Design-Tokens
+   Dunkle Farbwelt mit Neon-Akzenten.
+   ============================================================ */
+
+:root {
+  /* Basisflächen – durchgehend dunkel */
+  --color-night: #060d16;        /* Standard-Hintergrund */
+  --color-night-deep: #03070c;   /* Footer */
+  --color-night-soft: #0a1420;
+  --color-night-mid: #101f2e;
+  --color-surface: #080f19;      /* Club-/Regionen-Sektion */
+  --color-surface-2: #0c1522;    /* Karten & Panels */
+  --color-forest: #071310;       /* Community */
+  --color-forest-mid: #0b1b16;
+
+  /* Text */
+  --color-cream: #f2eee4;
+
+  /* Neon-Akzente */
+  --color-lime: #dbff3e;         /* Primärakzent */
+  --color-neon: #3ef0cf;         /* Sekundärakzent (Teal) */
+  --color-ember: #ff9d4d;        /* Wärme-Akzent */
+
+  /* Abgeleitete Töne */
+  --cream-80: rgba(242, 238, 228, 0.8);
+  --cream-72: rgba(242, 238, 228, 0.72);
+  --cream-65: rgba(242, 238, 228, 0.65);
+  --cream-55: rgba(242, 238, 228, 0.55);
+  --cream-45: rgba(242, 238, 228, 0.45);
+  --cream-line: rgba(242, 238, 228, 0.14);
+  --lime-line: rgba(219, 255, 62, 0.22);
+  --lime-glow: 0 0 24px rgba(219, 255, 62, 0.35);
+  --neon-glow: 0 0 22px rgba(62, 240, 207, 0.28);
+
+  /* Typografie */
+  --font-sans: 'Archivo Variable', 'Archivo', system-ui, sans-serif;
+
+  /* Layout */
+  --max-width: 1560px;
+  --max-width-content: 1464px;
+  --pad-x: 48px;
+  --radius: 6px;
+  --radius-sm: 4px;
+}
+
+html {
+  scroll-behavior: smooth;
+  box-sizing: border-box;
+  background: var(--color-night);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+
+/*
+ * overflow-x auch auf html: Browser übertragen `clip` nicht vom body auf den
+ * Viewport, sonst lässt sich die Seite seitlich schieben, sobald irgendwo ein
+ * breites Element steht (z. B. die Tabellen im Mitgliederbereich).
+ * `clip` statt `hidden`, damit position: sticky im Header weiter funktioniert.
+ */
+html {
+  overflow-x: clip;
+}
+
+body {
+  margin: 0;
+  background: var(--color-night);
+  color: var(--color-cream);
+  font-family: var(--font-sans);
+  overflow-x: clip;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* iOS Safari gibt Datums-Feldern eine eigene intrinsische Mindestbreite und
+   ignoriert dabei width: 100%. Das Feld schiebt sich dann aus seiner Karte
+   heraus und zieht die Seite mit. Erst appearance: none macht das Feld
+   wieder normal formatierbar. */
+input[type='date'],
+input[type='datetime-local'],
+input[type='month'],
+input[type='time'] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  text-align: left;
+}
+
+/* Deutsche Komposita ("Wintersonnenwende", "Veranstaltungsort") sind laenger
+   als so manche Grid-Spalte auf schmalen Displays. Ohne Umbruchmoeglichkeit
+   schiebt so ein Wort die ganze Seite auf und laesst sie herauszoomen. */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+li,
+dd,
+dt,
+figcaption {
+  overflow-wrap: break-word;
+}
+
+img {
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+}
+
+a:focus-visible,
+button:focus-visible {
+  outline: 3px solid var(--color-lime);
+  outline-offset: 3px;
+}
+
+::selection {
+  background: var(--color-lime);
+  color: var(--color-night);
+}
+
+/* Wiederkehrende Bausteine ---------------------------------- */
+
+/*
+ * Kicker-Basis. Das Markup liefert Kicker.astro – die Sonne ersetzt den
+ * früheren generischen Strich.
+ */
+.kicker {
+  margin: 0;
+}
+
+/* Buttons */
+.btn {
+  display: inline-block;
+  padding: 18px 34px;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-align: center;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease,
+    box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.btn--primary {
+  background: var(--color-lime);
+  color: var(--color-night);
+  box-shadow: var(--lime-glow);
+}
+
+.btn--primary:hover {
+  background: #eaff7a;
+  color: var(--color-night);
+  box-shadow: 0 0 34px rgba(219, 255, 62, 0.55);
+}
+
+.btn--ghost {
+  border: 1px solid var(--lime-line);
+  color: var(--color-cream);
+  padding: 17px 34px;
+  font-weight: 600;
+}
+
+.btn--ghost:hover {
+  border-color: var(--color-lime);
+  color: var(--color-lime);
+  box-shadow: var(--lime-glow);
+}
+
+/* Medienflächen */
+.media-frame {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--color-surface-2);
+}
+
+.media-frame > img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* dezenter Neon-Rand auf Medienflächen */
+.media-frame::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--lime-line);
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+/* Nur für Screenreader */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Text-Link mit Unterstrich */
+.link-underline {
+  border-bottom: 1px solid rgba(242, 238, 228, 0.35);
+  padding-bottom: 3px;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.link-underline:hover {
+  color: var(--color-lime);
+  border-color: var(--color-lime);
+}
+
+/* Reduced Motion -------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (max-width: 899px) {
+  :root {
+    --pad-x: 24px;
+  }
+}
+
+
+/* ---------------------------------------------------------------------------
+ * Himmelsstimmung
+ * Das Skript setzt data-sky auf <html> nach dem echten Sonnenstand über Bonn.
+ * Die Seite bleibt dunkel – nur der Akzentschimmer im Hero wandert mit dem Tag.
+ * ------------------------------------------------------------------------- */
+:root {
+  --sky-tint: rgba(219, 255, 62, 0.1);
+  --sky-tint-2: rgba(62, 240, 207, 0.07);
+}
+
+:root[data-sky='dawn'] {
+  --sky-tint: rgba(255, 157, 77, 0.16);
+  --sky-tint-2: rgba(167, 139, 250, 0.1);
+}
+
+:root[data-sky='golden'] {
+  --sky-tint: rgba(255, 190, 92, 0.2);
+  --sky-tint-2: rgba(219, 255, 62, 0.12);
+}
+
+:root[data-sky='day'] {
+  --sky-tint: rgba(219, 255, 62, 0.16);
+  --sky-tint-2: rgba(62, 240, 207, 0.1);
+}
+
+:root[data-sky='dusk'] {
+  --sky-tint: rgba(255, 122, 92, 0.15);
+  --sky-tint-2: rgba(109, 92, 255, 0.14);
+}
+
+:root[data-sky='night'] {
+  --sky-tint: rgba(62, 240, 207, 0.08);
+  --sky-tint-2: rgba(109, 92, 255, 0.1);
+}
