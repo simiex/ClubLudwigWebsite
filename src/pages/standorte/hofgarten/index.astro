@@ -5,6 +5,7 @@ import Kicker from '../../../components/Kicker.astro';
 import { requireVenue } from '../../../data/venues';
 
 const venue = requireVenue('hofgarten');
+const komootUrl = 'https://www.komoot.com/de-DE/tour/3067886418?ref=itd&share_token=awmSVc7S6WEPw5KH1q3txk03G23PZmwMg86daWKD22XoX5nYRH&ref=its&t_s=referral&t_cid=route_share&t_ref_username=5426904744148';
 ---
 
 <BaseLayout
@@ -20,8 +21,7 @@ const venue = requireVenue('hofgarten');
 
     <div class="venue-hero__inner">
       <div class="venue-hero__copy">
-        <Kicker>Standort · Bonn</Kicker>
-        <p class="venue-hero__index">01 / Hofgarten</p>
+        <Kicker>Standort Hofgarten</Kicker>
         <h1>Mitten in Bonn.<br /><span>Direkt ins Draußen.</span></h1>
         <p class="venue-hero__lead">
           Unser urbanster Startpunkt: zentral, unkompliziert und gemacht für gemeinsame Kilometer
@@ -31,7 +31,6 @@ const venue = requireVenue('hofgarten');
           <a class="btn btn--primary" href={venue.uscUrl} target="_blank" rel="noopener">
             Bei Urban Sports Club ansehen <span aria-hidden="true">↗</span>
           </a>
-          <a class="venue-hero__textlink" href="#stadtstart">Route entdecken ↓</a>
         </div>
       </div>
     </div>
@@ -45,7 +44,7 @@ const venue = requireVenue('hofgarten');
 
   <section id="stadtstart" class="route-stage" aria-labelledby="route-title">
     <div class="route-stage__inner">
-      <div class="route-stage__visual" aria-label="Stilisierte Route vom Hofgarten durch Bonn, über den Rhein und zurück">
+      <div class="route-stage__visual" aria-label="Stilisierte Route vom Hofgarten durch Bonn und zurück">
         <div class="route-stage__map">
           <div class="route-stage__district route-stage__district--city">BONN</div>
           <div class="route-stage__district route-stage__district--beuel">BEUEL</div>
@@ -53,18 +52,18 @@ const venue = requireVenue('hofgarten');
           <div class="route-stage__streets" aria-hidden="true"></div>
 
           <svg class="route-stage__route" viewBox="0 0 900 600" aria-hidden="true">
-            <path class="route-stage__route-shadow" d="M315 92 C345 125 348 160 326 190 C300 226 275 248 250 284 C225 320 208 360 232 390 C260 424 322 422 365 402 C410 380 448 395 470 430 C493 466 515 512 565 518 C616 524 656 492 642 452 C628 412 586 392 566 360 C542 321 565 286 606 267 C650 247 676 214 652 180 C628 146 592 140 573 105" />
-            <path class="route-stage__route-line" pathLength="1" d="M315 92 C345 125 348 160 326 190 C300 226 275 248 250 284 C225 320 208 360 232 390 C260 424 322 422 365 402 C410 380 448 395 470 430 C493 466 515 512 565 518 C616 524 656 492 642 452 C628 412 586 392 566 360 C542 321 565 286 606 267 C650 247 676 214 652 180 C628 146 592 140 573 105" />
+            <path class="route-stage__route-shadow" d="M330 88 C360 122 356 165 330 198 C298 238 270 260 250 300 C228 344 220 386 250 414 C282 444 332 438 382 410 C432 382 474 394 505 430 C532 462 548 505 592 516 C626 524 654 506 650 478 C646 448 612 426 582 402 C552 378 532 346 546 316 C560 286 592 268 626 246 C660 224 670 194 652 168 C632 140 604 132 574 118 C548 106 528 92 522 72" />
+            <path class="route-stage__route-line" pathLength="1" d="M330 88 C360 122 356 165 330 198 C298 238 270 260 250 300 C228 344 220 386 250 414 C282 444 332 438 382 410 C432 382 474 394 505 430 C532 462 548 505 592 516 C626 524 654 506 650 478 C646 448 612 426 582 402 C552 378 532 346 546 316 C560 286 592 268 626 246 C660 224 670 194 652 168 C632 140 604 132 574 118 C548 106 528 92 522 72" />
           </svg>
 
           <div class="route-stage__pin route-stage__pin--start">
             <span></span><strong>START</strong><small>Hofgarten</small>
           </div>
           <div class="route-stage__pin route-stage__pin--rhein">
-            <span></span><strong>RHEIN</strong><small>Brücke &amp; Ufer</small>
+            <span></span><strong>RHEIN</strong><small>Ufer &amp; Brücke</small>
           </div>
           <div class="route-stage__pin route-stage__pin--finish">
-            <span></span><strong>ZIEL</strong><small>Zurück in Bonn</small>
+            <span></span><strong>ZIEL</strong><small>Zurück am Hofgarten</small>
           </div>
         </div>
       </div>
@@ -80,7 +79,7 @@ const venue = requireVenue('hofgarten');
           <div><dt>Treffpunkt</dt><dd>Hofgarten, Bonn</dd></div>
           <div><dt>Charakter</dt><dd>Urban Hike &amp; Community Walk</dd></div>
           <div><dt>Umgebung</dt><dd>Innenstadt, Rhein &amp; Beuel</dd></div>
-          <div><dt>Anmeldung</dt><dd>Urban Sports Club</dd></div>
+          <div><dt>Anmeldung</dt><dd><a href={venue.uscUrl} target="_blank" rel="noopener">Urban Sports Club ↗</a><a href={komootUrl} target="_blank" rel="noopener">Komoot-Strecke ↗</a></dd></div>
         </dl>
       </div>
     </div>
@@ -112,12 +111,10 @@ const venue = requireVenue('hofgarten');
   .venue-hero__inner { position: relative; z-index: 2; min-height: 100svh; max-width: var(--max-width-content); margin: 0 auto; padding: 180px var(--pad-x) 130px; display: flex; align-items: flex-end; }
   .venue-hero :global(.kicker), .route-stage :global(.kicker), .venue-cta :global(.kicker) { color: var(--color-lime); }
   .venue-hero__copy { max-width: 940px; }
-  .venue-hero__index { margin: 34px 0 0; color: var(--cream-55); font-size: 12px; letter-spacing: .24em; text-transform: uppercase; }
-  h1 { margin: 18px 0 0; font-size: clamp(58px, 9.2vw, 150px); line-height: .86; letter-spacing: -.055em; text-wrap: balance; }
+  h1 { margin: 22px 0 0; font-size: clamp(58px, 9.2vw, 150px); line-height: .86; letter-spacing: -.055em; text-wrap: balance; }
   h1 span { color: var(--color-lime); }
   .venue-hero__lead { max-width: 57ch; margin: 34px 0 0; color: var(--cream-80); font-size: clamp(17px, 1.5vw, 21px); line-height: 1.65; }
-  .venue-hero__actions { display: flex; align-items: center; gap: 28px; margin-top: 38px; flex-wrap: wrap; }
-  .venue-hero__textlink { color: var(--cream-72); border-bottom: 1px solid var(--cream-line); padding-bottom: 4px; }
+  .venue-hero__actions { margin-top: 38px; }
   .venue-hero__ticker { position: absolute; z-index: 3; left: 0; right: 0; bottom: 0; overflow: hidden; border-top: 1px solid rgba(219,255,62,.24); background: rgba(3,8,14,.84); color: var(--color-lime); }
   .venue-hero__ticker div { width: max-content; padding: 18px 0; font-size: 12px; font-weight: 700; letter-spacing: .22em; animation: ticker 30s linear infinite; }
   @keyframes ticker { to { transform: translateX(-50%); } }
@@ -128,9 +125,9 @@ const venue = requireVenue('hofgarten');
   .route-stage__map { position: relative; min-height: 650px; overflow: hidden; border: 1px solid rgba(219,255,62,.24); border-radius: var(--radius); background: radial-gradient(circle at 26% 65%, rgba(219,255,62,.11), transparent 26%), radial-gradient(circle at 78% 22%, rgba(219,255,62,.07), transparent 22%), linear-gradient(145deg, #0b1520, #060d16 58%, #0b151b); box-shadow: 0 28px 90px rgba(0,0,0,.36); }
   .route-stage__streets { position: absolute; inset: -10%; opacity: .14; background-image: linear-gradient(28deg, transparent 46%, rgba(242,238,228,.35) 47%, rgba(242,238,228,.35) 48%, transparent 49%), linear-gradient(112deg, transparent 47%, rgba(242,238,228,.24) 48%, rgba(242,238,228,.24) 49%, transparent 50%), linear-gradient(164deg, transparent 48%, rgba(242,238,228,.16) 49%, rgba(242,238,228,.16) 50%, transparent 51%); background-size: 84px 74px, 118px 92px, 142px 110px; transform: rotate(-3deg); }
   .route-stage__river { position: absolute; top: -12%; bottom: -10%; left: 57%; width: 108px; border-left: 1px solid rgba(219,255,62,.18); border-right: 1px solid rgba(219,255,62,.14); background: linear-gradient(90deg, rgba(46,101,126,.2), rgba(76,153,183,.34), rgba(46,101,126,.18)); transform: rotate(-13deg); }
-  .route-stage__district { position: absolute; z-index: 1; font-size: clamp(48px,8vw,108px); font-weight: 800; letter-spacing: -.06em; color: rgba(242,238,228,.035); }
-  .route-stage__district--city { left: 7%; top: 15%; }
-  .route-stage__district--beuel { right: 2%; top: 42%; transform: rotate(90deg); }
+  .route-stage__district { position: absolute; z-index: 1; font-weight: 800; text-transform: uppercase; letter-spacing: .18em; color: rgba(242,238,228,.18); text-shadow: 0 4px 22px rgba(0,0,0,.6); }
+  .route-stage__district--city { left: 7%; top: 13%; font-size: clamp(22px,3vw,38px); }
+  .route-stage__district--beuel { right: 7%; top: 25%; font-size: clamp(18px,2.4vw,30px); }
   .route-stage__route { position: absolute; z-index: 3; inset: 0; width: 100%; height: 100%; fill: none; }
   .route-stage__route-shadow { stroke: rgba(0,0,0,.75); stroke-width: 14; stroke-linecap: round; stroke-linejoin: round; }
   .route-stage__route-line { stroke: var(--color-lime); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1; stroke-dashoffset: 1; filter: drop-shadow(0 0 10px rgba(219,255,62,.8)); animation: draw-route 4.6s cubic-bezier(.65,0,.35,1) infinite alternate; }
@@ -139,15 +136,16 @@ const venue = requireVenue('hofgarten');
   .route-stage__pin span { grid-row: 1 / span 2; width: 14px; height: 14px; border: 3px solid var(--color-night); border-radius: 50%; background: var(--color-lime); box-shadow: 0 0 0 5px rgba(219,255,62,.18), 0 0 24px rgba(219,255,62,.7); }
   .route-stage__pin strong { font-size: 11px; letter-spacing: .16em; }
   .route-stage__pin small { color: var(--cream-65); }
-  .route-stage__pin--start { left: 31%; top: 10%; }
-  .route-stage__pin--rhein { left: 61%; top: 43%; }
-  .route-stage__pin--finish { left: 63%; bottom: 9%; }
+  .route-stage__pin--start { left: 32%; top: 10%; }
+  .route-stage__pin--rhein { left: 62%; top: 41%; }
+  .route-stage__pin--finish { left: 57%; bottom: 9%; }
   .route-stage__copy h2, .venue-cta h2 { margin: 22px 0 0; font-size: clamp(46px, 6.2vw, 92px); line-height: .94; letter-spacing: -.045em; }
   .route-stage__copy > p { margin: 30px 0 0; color: var(--cream-72); font-size: 18px; line-height: 1.75; }
   .route-stage dl { margin: 44px 0 0; border-top: 1px solid var(--cream-line); }
   .route-stage dl div { display: grid; grid-template-columns: 120px 1fr; gap: 24px; padding: 18px 0; border-bottom: 1px solid var(--cream-line); }
   .route-stage dt { color: var(--cream-45); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; }
-  .route-stage dd { margin: 0; color: var(--cream-88); }
+  .route-stage dd { margin: 0; color: var(--cream-88); display: flex; flex-wrap: wrap; gap: 12px 20px; }
+  .route-stage dd a { color: var(--color-lime); border-bottom: 1px solid rgba(219,255,62,.35); }
 
   .venue-cta { padding: 110px var(--pad-x) 120px; background: var(--color-night-deep); border-top: 1px solid var(--lime-line); }
   .venue-cta__inner { display: grid; grid-template-columns: 1.2fr .8fr; gap: 96px; align-items: end; }
@@ -156,11 +154,15 @@ const venue = requireVenue('hofgarten');
   .venue-cta__back { display: inline-block; margin-top: 22px; color: var(--cream-55); }
 
   @media (max-width: 899px) {
-    .venue-hero__inner { padding: 140px 24px 118px; }
-    h1 { font-size: clamp(48px, 15vw, 72px); }
-    .route-stage { padding: 82px 24px; }
-    .route-stage__inner, .venue-cta__inner { grid-template-columns: 1fr; gap: 54px; }
-    .route-stage__map { min-height: 470px; }
+    .venue-hero__inner { padding: 140px 24px 112px; }
+    h1 { font-size: clamp(48px, 15vw, 76px); }
+    .route-stage { padding: 76px 24px; }
+    .route-stage__inner, .venue-cta__inner { grid-template-columns: 1fr; gap: 48px; }
+    .route-stage__map { min-height: 440px; }
+    .route-stage__pin--start { left: 28%; top: 11%; }
+    .route-stage__pin--rhein { left: 58%; top: 43%; }
+    .route-stage__pin--finish { left: 52%; bottom: 8%; }
+    .route-stage dl div { grid-template-columns: 1fr; gap: 8px; }
     .venue-cta { padding: 76px 24px 84px; }
   }
 
