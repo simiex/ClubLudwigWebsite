@@ -15,25 +15,52 @@ const rhythm = ['a', 'b', 'c'] as const;
     </p>
     <div class="regions__grid">
       {
-        venues.map((v, i) => (
-          <article class:list={['region', `region--${rhythm[i % 3]}`]} id={`standort-${v.id}`} data-reveal>
-            <div class="region__media-wrap">
-              <div class="region__media" data-parallax>
-                <Media name={v.media} alt={v.alt} />
+        venues.map((v, i) => {
+          const isHofgarten = v.id === 'hofgarten';
+          const detailUrl = isHofgarten ? '/standorte/hofgarten/' : v.uscUrl;
+
+          return (
+            <article class:list={['region', `region--${rhythm[i % 3]}`]} id={`standort-${v.id}`} data-reveal>
+              <a
+                class="region__media-link"
+                href={detailUrl}
+                aria-label={`${v.name} entdecken`}
+                target={isHofgarten ? undefined : '_blank'}
+                rel={isHofgarten ? undefined : 'noopener'}
+              >
+                <div class="region__media-wrap">
+                  <div class="region__media" data-parallax>
+                    <Media name={v.media} alt={v.alt} />
+                  </div>
+                  {isHofgarten && (
+                    <span class="region__discover" aria-hidden="true">
+                      Standort entdecken <b>→</b>
+                    </span>
+                  )}
+                </div>
+              </a>
+              <div class="region__head">
+                <h3>{v.name}</h3>
+                <p class="region__area">{v.area}</p>
               </div>
-            </div>
-            <div class="region__head">
-              <h3>{v.name}</h3>
-              <p class="region__area">{v.area}</p>
-            </div>
-            <p class="region__text">{v.text}</p>
-            <a class="region__link" href={v.uscUrl} target="_blank" rel="noopener">
-              Standort bei Urban Sports Club
-              <span aria-hidden="true">↗</span>
-              <span class="visually-hidden">(öffnet in neuem Tab)</span>
-            </a>
-          </article>
-        ))
+              <p class="region__text">{v.text}</p>
+              {
+                isHofgarten ? (
+                  <a class="region__link" href="/standorte/hofgarten/">
+                    Standort entdecken
+                    <span aria-hidden="true">→</span>
+                  </a>
+                ) : (
+                  <a class="region__link" href={v.uscUrl} target="_blank" rel="noopener">
+                    Standort bei Urban Sports Club
+                    <span aria-hidden="true">↗</span>
+                    <span class="visually-hidden">(öffnet in neuem Tab)</span>
+                  </a>
+                )
+              }
+            </article>
+          );
+        })
       }
     </div>
   </div>
@@ -72,15 +99,10 @@ const rhythm = ['a', 'b', 'c'] as const;
   .regions__grid {
     display: grid;
     grid-template-columns: repeat(12, 1fr);
-    /*
-     * Zeilenabstand gehört in den Grid-Gap, nicht in Einzel-Margins:
-     * sonst fehlt er bei der jeweils ersten Kachel eines Dreier-Zyklus.
-     */
     gap: 128px 32px;
     margin-top: 72px;
   }
 
-  /* 3er-Rhythmus, wiederholt sich für weitere Standorte */
   .region--a {
     grid-column: 1 / span 7;
   }
@@ -98,13 +120,17 @@ const rhythm = ['a', 'b', 'c'] as const;
     height: 420px;
   }
 
-  /* Versetzt nur innerhalb der eigenen Zeile – nicht als Zeilenabstand */
   .region--c {
     grid-column: 3 / span 8;
   }
 
   .region--c .region__media-wrap {
     height: 440px;
+  }
+
+  .region__media-link {
+    display: block;
+    color: inherit;
   }
 
   .region__media-wrap {
@@ -121,12 +147,46 @@ const rhythm = ['a', 'b', 'c'] as const;
     width: 100%;
     height: 110%;
     top: -5%;
+    transition: transform 0.55s cubic-bezier(0.2, 0.7, 0.2, 1);
   }
 
   .region:hover .region__media-wrap,
   .region:focus-within .region__media-wrap {
     border-color: rgba(219, 255, 62, 0.45);
     box-shadow: 0 0 40px rgba(219, 255, 62, 0.12);
+  }
+
+  .region:hover .region__media,
+  .region:focus-within .region__media {
+    transform: scale(1.025);
+  }
+
+  .region__discover {
+    position: absolute;
+    right: 22px;
+    bottom: 22px;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border: 1px solid rgba(219, 255, 62, 0.45);
+    border-radius: 999px;
+    background: rgba(3, 8, 14, 0.78);
+    backdrop-filter: blur(12px);
+    color: var(--color-lime);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transform: translateY(6px);
+    opacity: 0;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+  }
+
+  .region:hover .region__discover,
+  .region:focus-within .region__discover {
+    opacity: 1;
+    transform: translateY(0);
   }
 
   .region__head {
@@ -200,6 +260,20 @@ const rhythm = ['a', 'b', 'c'] as const;
     .region--b .region__media-wrap,
     .region--c .region__media-wrap {
       height: 300px;
+    }
+
+    .region__discover {
+      opacity: 1;
+      transform: none;
+      right: 14px;
+      bottom: 14px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .region__media,
+    .region__discover {
+      transition: none;
     }
   }
 </style>
