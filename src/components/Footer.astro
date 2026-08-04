@@ -7,55 +7,66 @@ const email = resolve(contact.email);
 
 <footer id="kontakt" class="footer">
   <div class="footer__inner">
-    <div class="footer__grid">
-      <div>
+    <div class="footer__top">
+      <div class="footer__brand">
         <img src="/assets/logo-white.png" alt="Club Ludwig" width="660" height="136" loading="lazy" />
         <p class="footer__claim">{site.claim}</p>
         <p class="footer__location">{site.city}, {site.country}</p>
       </div>
+
       <nav class="footer__col" aria-label="Club">
         <p class="footer__label">Club</p>
         <a href="/#touren">Touren</a>
-        <a href="/maersche/">Marschkalender</a>
+        <a href="/#regionen">Standorte</a>
         <a href="/challenges/">Challenges</a>
         <a href="/liga/">Monatsliga</a>
-        <a href="/#regionen">Standorte</a>
         <a href="/mein-club/">Mein Bereich</a>
+      </nav>
+
+      <nav class="footer__col" aria-label="Entdecken">
+        <p class="footer__label">Entdecken</p>
+        <a href="/maersche/">Marschkalender</a>
         <a href="/faq/">FAQ</a>
         {email && <a href={`mailto:${email}`}>Kontakt</a>}
       </nav>
-      {
-        partners.length > 0 && (
-          <div class="footer__col">
-            <p class="footer__label">Unterstützt von</p>
-            <ul class="footer__partners">
-              {partners.map((p) => <li>{p}</li>)}
-            </ul>
-          </div>
-        )
-      }
 
-      {
-        socialLinks.length > 0 && (
-          <nav class="footer__col" aria-label="Social Media">
-            <p class="footer__label">Social</p>
-            {socialLinks.map((l) => (
-              <a href={l.href} target="_blank" rel="noopener">
-                {l.label}
-                <span class="visually-hidden"> (öffnet in neuem Tab)</span>
-              </a>
-            ))}
-          </nav>
-        )
-      }
-      <nav class="footer__col" aria-label="Rechtliches">
-        <p class="footer__label">Rechtliches</p>
-        <a href="/impressum/">Impressum</a>
-        <a href="/datenschutz/">Datenschutz</a>
-      </nav>
+      <div class="footer__col footer__col--network">
+        {
+          partners.length > 0 && (
+            <div>
+              <p class="footer__label">Unterstützt von</p>
+              <ul class="footer__partners">
+                {partners.map((p) => <li>{p}</li>)}
+              </ul>
+            </div>
+          )
+        }
+        {
+          socialLinks.length > 0 && (
+            <nav aria-label="Social Media">
+              <p class="footer__label">Social</p>
+              <div class="footer__socials">
+                {socialLinks.map((l) => (
+                  <a href={l.href} target="_blank" rel="noopener">
+                    {l.label}
+                    <span class="visually-hidden"> (öffnet in neuem Tab)</span>
+                  </a>
+                ))}
+              </div>
+            </nav>
+          )
+        }
+      </div>
     </div>
+
     <div class="footer__bottom">
-      <p>© {year} {site.name}</p>
+      <div class="footer__meta">
+        <p>© {year} {site.name}</p>
+        <nav aria-label="Rechtliches">
+          <a href="/impressum/">Impressum</a>
+          <a href="/datenschutz/">Datenschutz</a>
+        </nav>
+      </div>
       <p class="footer__tagline">{site.tagline}</p>
     </div>
   </div>
@@ -66,7 +77,7 @@ const email = resolve(contact.email);
     position: relative;
     background: var(--color-night-deep);
     color: var(--color-cream);
-    padding: 96px var(--pad-x) 48px;
+    padding: 88px var(--pad-x) 36px;
     border-top: 1px solid var(--lime-line);
   }
 
@@ -75,13 +86,18 @@ const email = resolve(contact.email);
     margin: 0 auto;
   }
 
-  .footer__grid {
+  .footer__top {
     display: grid;
-    grid-template-columns: minmax(0, 1.4fr) repeat(3, minmax(0, 0.6fr));
-    gap: 64px;
+    grid-template-columns: minmax(260px, 1.4fr) repeat(2, minmax(150px, .65fr)) minmax(210px, .85fr);
+    gap: clamp(42px, 5vw, 84px);
+    align-items: start;
   }
 
-  .footer__grid img {
+  .footer__brand {
+    padding-right: 24px;
+  }
+
+  .footer__brand img {
     height: 32px;
     width: auto;
     display: block;
@@ -90,40 +106,72 @@ const email = resolve(contact.email);
   .footer__claim {
     margin: 20px 0 0;
     font-size: 15px;
-    color: rgba(242, 238, 228, 0.6);
+    color: rgba(242, 238, 228, 0.64);
     max-width: 32ch;
     line-height: 1.6;
   }
 
   .footer__location {
     margin: 16px 0 0;
-    font-size: 13px;
-    letter-spacing: 0.14em;
+    font-size: 12px;
+    letter-spacing: 0.16em;
     text-transform: uppercase;
-    color: rgba(242, 238, 228, 0.4);
+    color: rgba(242, 238, 228, 0.38);
   }
 
   .footer__col {
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 12px;
     font-size: 15px;
   }
 
-  .footer__col a {
-    color: var(--cream-80);
+  .footer__col--network {
+    gap: 30px;
   }
 
-  .footer__col a:hover {
+  .footer__col a,
+  .footer__bottom a {
+    color: var(--cream-72);
+  }
+
+  .footer__col a:hover,
+  .footer__col a:focus-visible,
+  .footer__bottom a:hover,
+  .footer__bottom a:focus-visible {
     color: var(--color-lime);
   }
 
   .footer__label {
-    margin: 0 0 6px;
-    font-size: 12px;
-    letter-spacing: 0.16em;
+    margin: 0 0 8px;
+    font-size: 11px;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
-    color: rgba(242, 238, 228, 0.4);
+    color: rgba(242, 238, 228, 0.38);
+  }
+
+  .footer__partners,
+  .footer__socials {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .footer__partners {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 18px;
+  }
+
+  .footer__partners li {
+    font-size: 14px;
+    color: var(--cream-72);
+  }
+
+  .footer__socials {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 18px;
   }
 
   .footer__bottom {
@@ -131,10 +179,21 @@ const email = resolve(contact.email);
     justify-content: space-between;
     align-items: center;
     gap: 24px;
-    margin-top: 80px;
-    padding-top: 28px;
-    border-top: 1px solid rgba(242, 238, 228, 0.12);
+    margin-top: 72px;
+    padding-top: 26px;
+    border-top: 1px solid rgba(242, 238, 228, 0.11);
+  }
+
+  .footer__meta {
+    display: flex;
+    align-items: center;
+    gap: 28px;
     flex-wrap: wrap;
+  }
+
+  .footer__meta nav {
+    display: flex;
+    gap: 18px;
   }
 
   .footer__bottom p {
@@ -147,27 +206,55 @@ const email = resolve(contact.email);
     color: var(--color-lime) !important;
     letter-spacing: 0.14em;
     text-transform: uppercase;
+    text-align: right;
+  }
+
+  @media (max-width: 1050px) {
+    .footer__top {
+      grid-template-columns: minmax(260px, 1.2fr) repeat(3, minmax(130px, .7fr));
+      gap: 36px;
+    }
   }
 
   @media (max-width: 899px) {
     .footer {
-      padding: 64px 24px 36px;
+      padding: 64px 24px 32px;
     }
 
-    .footer__grid {
+    .footer__top {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 42px 28px;
+    }
+
+    .footer__brand {
+      grid-column: 1 / -1;
+      padding-right: 0;
+    }
+
+    .footer__bottom {
+      align-items: flex-start;
+      flex-direction: column;
+      margin-top: 56px;
+    }
+
+    .footer__tagline {
+      text-align: left;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .footer__top {
       grid-template-columns: 1fr;
-      gap: 40px;
     }
-  }
-  .footer__partners {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
 
-  .footer__partners li {
-    font-size: 15px;
-    line-height: 1.9;
-    color: var(--cream-72);
+    .footer__brand {
+      grid-column: auto;
+    }
+
+    .footer__meta {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 14px;
+    }
   }
 </style>
