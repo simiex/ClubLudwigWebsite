@@ -1,0 +1,178 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import Media from '../../../components/Media.astro';
+import Kicker from '../../../components/Kicker.astro';
+import { requireVenue } from '../../../data/venues';
+
+const venue = requireVenue('drachenfels');
+---
+
+<BaseLayout
+  title="Drachenfels – Club Ludwig Standort Königswinter"
+  description="Club Ludwig am Drachenfels: eine moderate Rundwanderung ab Rhöndorf durch das Siebengebirge mit Rheinblick, 11,7 Kilometern und 390 Höhenmetern."
+>
+  <section class="venue-hero">
+    <div class="venue-hero__media" aria-hidden="true">
+      <Media name={venue.media} alt="" eager />
+      <div class="venue-hero__veil"></div>
+      <div class="venue-hero__contours"></div>
+    </div>
+
+    <div class="venue-hero__inner">
+      <div class="venue-hero__copy">
+        <Kicker>Standort Drachenfels</Kicker>
+        <h1>Vom Rhein.<br /><span>Hinauf ins Siebengebirge.</span></h1>
+        <p class="venue-hero__lead">
+          Eine kompakte Runde ab Rhöndorf mit langen Waldpassagen, kräftigen Anstiegen
+          und dem Drachenfels als Höhepunkt über dem Rhein.
+        </p>
+        <a class="btn btn--primary" href={venue.uscUrl} target="_blank" rel="noopener">
+          Bei Urban Sports Club ansehen <span aria-hidden="true">↗</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="venue-hero__ticker" aria-label="Streckendaten">
+      <div>
+        DRACHENFELS · 11,7 KM · 390 HM · CA. 3 STD. 36 MIN. · MODERAT · START UND ZIEL IN RHÖNDORF ·
+        DRACHENFELS · 11,7 KM · 390 HM · CA. 3 STD. 36 MIN. · MODERAT · START UND ZIEL IN RHÖNDORF ·
+      </div>
+    </div>
+  </section>
+
+  <section class="route-stage" aria-labelledby="route-title">
+    <div class="route-stage__inner">
+      <div class="route-stage__map" aria-label="Stilisierte Darstellung der Drachenfels-Rundwanderung ab Rhöndorf">
+        <div class="district district--rhoendorf">RHÖNDORF</div>
+        <div class="district district--ittenbach">ITTENBACH</div>
+        <div class="district district--koenigswinter">KÖNIGSWINTER</div>
+        <div class="river" aria-hidden="true"></div>
+        <div class="contours" aria-hidden="true"></div>
+        <div class="ridge ridge--north" aria-hidden="true"></div>
+        <div class="ridge ridge--south" aria-hidden="true"></div>
+
+        <svg class="route" viewBox="0 0 900 620" aria-hidden="true">
+          <path
+            class="route__shadow"
+            d="M203 403 C237 385 266 365 301 349 C335 334 364 322 393 302 C418 284 441 264 462 246 C488 224 516 217 548 225 C575 232 592 249 590 270 C588 291 566 306 544 318 C520 331 508 345 520 361 C535 381 572 384 604 375 C636 366 665 368 687 384 C710 401 711 427 692 448 C672 470 641 481 607 480 C569 479 533 465 502 449 C472 433 446 425 419 435 C389 446 367 470 339 485 C309 501 270 506 237 493 C204 480 185 453 190 428 C193 417 197 409 203 403 Z"
+          />
+          <path
+            class="route__line"
+            pathLength="1"
+            d="M203 403 C237 385 266 365 301 349 C335 334 364 322 393 302 C418 284 441 264 462 246 C488 224 516 217 548 225 C575 232 592 249 590 270 C588 291 566 306 544 318 C520 331 508 345 520 361 C535 381 572 384 604 375 C636 366 665 368 687 384 C710 401 711 427 692 448 C672 470 641 481 607 480 C569 479 533 465 502 449 C472 433 446 425 419 435 C389 446 367 470 339 485 C309 501 270 506 237 493 C204 480 185 453 190 428 C193 417 197 409 203 403 Z"
+          />
+        </svg>
+
+        <div class="pin pin--start"><span></span><strong>START &amp; ZIEL</strong><small>Rhöndorf</small></div>
+        <div class="pin pin--drachenfels"><span></span><strong>DRACHENFELS</strong><small>Höhenpunkt</small></div>
+        <div class="pin pin--forest"><span></span><strong>SIEBENGEBIRGE</strong><small>Waldpassagen</small></div>
+        <div class="pin pin--rhein"><span></span><strong>RHEINBLICK</strong><small>Westflanke</small></div>
+      </div>
+
+      <div class="route-stage__copy">
+        <Kicker class="route-kicker">Bergstart</Kicker>
+        <h2 id="route-title">Kurze Runde.<br />Echte Höhenmeter.</h2>
+        <p>
+          Von Rhöndorf zieht die Runde direkt in die bewaldeten Hänge des Siebengebirges.
+          Der Verlauf kombiniert längere Anstiege, wellige Waldwege und den Rückweg über die
+          Rheinseite. Die Strecke ist als moderat eingestuft, verlangt mit 390 Höhenmetern
+          aber deutlich mehr als ein entspannter Spaziergang.
+        </p>
+
+        <dl>
+          <div><dt>Treffpunkt</dt><dd>Rhöndorf, Bad Honnef</dd></div>
+          <div><dt>Distanz</dt><dd>11,7 km</dd></div>
+          <div><dt>Höhenmeter</dt><dd>390 hm Aufstieg · 390 hm Abstieg</dd></div>
+          <div><dt>Dauer</dt><dd>ca. 3 Std. 36 Min.</dd></div>
+          <div><dt>Schwierigkeit</dt><dd>Moderat</dd></div>
+          <div><dt>Anmeldung</dt><dd><a href={venue.uscUrl} target="_blank" rel="noopener">Urban Sports Club ↗</a></dd></div>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <section class="venue-cta">
+    <div class="venue-cta__inner">
+      <div>
+        <Kicker>Nächster Schritt</Kicker>
+        <h2>Beim nächsten<br /><span>Bergstart dabei.</span></h2>
+      </div>
+      <div class="venue-cta__actions">
+        <p>Aktuelle Termine, freie Plätze und Buchungsdetails findest du direkt bei Urban Sports Club.</p>
+        <a class="btn btn--primary" href={venue.uscUrl} target="_blank" rel="noopener">
+          Zur Wanderung bei Urban Sports Club <span aria-hidden="true">↗</span>
+        </a>
+        <a class="venue-cta__back" href="/#regionen">← Alle Standorte</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .venue-hero{position:relative;min-height:100svh;overflow:hidden;background:var(--color-night-deep)}
+  .venue-hero__media,.venue-hero__media :global(.media){position:absolute;inset:0}
+  .venue-hero__media :global(img),.venue-hero__media :global(svg){width:100%;height:100%;object-fit:cover}
+  .venue-hero__veil{position:absolute;inset:0;background:linear-gradient(90deg,rgba(3,8,14,.97),rgba(3,8,14,.72) 48%,rgba(3,8,14,.18)),linear-gradient(0deg,rgba(3,8,14,.92),transparent 58%)}
+  .venue-hero__contours{position:absolute;inset:-10%;opacity:.18;background:repeating-radial-gradient(ellipse at 80% 35%,transparent 0 34px,rgba(219,255,62,.18) 35px 36px,transparent 37px 60px);transform:rotate(-8deg);mask-image:linear-gradient(90deg,transparent 32%,#000 88%)}
+  .venue-hero__inner{position:relative;z-index:2;min-height:100svh;max-width:var(--max-width-content);margin:auto;padding:180px var(--pad-x) 130px;display:flex;align-items:flex-end}
+  .venue-hero :global(.kicker),.venue-cta :global(.kicker){color:var(--color-lime)}
+  .venue-hero__copy{max-width:1000px}
+  h1{margin:22px 0 0;font-size:clamp(58px,8.8vw,142px);line-height:.86;letter-spacing:-.055em}
+  h1 span,.venue-cta h2 span{color:var(--color-lime)}
+  .venue-hero__lead{max-width:57ch;margin:34px 0 38px;color:var(--cream-80);font-size:clamp(17px,1.5vw,21px);line-height:1.65}
+  .venue-hero__ticker{position:absolute;z-index:3;left:0;right:0;bottom:0;overflow:hidden;border-top:1px solid rgba(219,255,62,.24);background:rgba(3,8,14,.84);color:var(--color-lime)}
+  .venue-hero__ticker div{width:max-content;padding:18px 0;font-size:12px;font-weight:700;letter-spacing:.22em;animation:ticker 30s linear infinite}
+  @keyframes ticker{to{transform:translateX(-50%)}}
+
+  .route-stage{padding:132px var(--pad-x);background:var(--color-night)}
+  .route-stage__inner,.venue-cta__inner{max-width:var(--max-width-content);margin:auto}
+  .route-stage__inner{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(320px,.8fr);gap:86px;align-items:center}
+  .route-stage__map{position:relative;min-height:650px;overflow:hidden;border:1px solid rgba(219,255,62,.24);border-radius:var(--radius);background:radial-gradient(circle at 63% 38%,rgba(88,128,68,.28),transparent 26%),radial-gradient(circle at 42% 70%,rgba(64,99,58,.2),transparent 32%),linear-gradient(145deg,#0a1720,#061017 52%,#0a1611);box-shadow:0 28px 90px rgba(0,0,0,.36)}
+  .contours{position:absolute;inset:-12%;opacity:.18;background:repeating-radial-gradient(ellipse at 55% 48%,transparent 0 28px,rgba(242,238,228,.24) 29px 30px,transparent 31px 52px);transform:rotate(-12deg)}
+  .river{position:absolute;top:-12%;bottom:-10%;left:5%;width:95px;border-inline:1px solid rgba(219,255,62,.12);background:linear-gradient(90deg,rgba(46,101,126,.15),rgba(76,153,183,.38),rgba(46,101,126,.14));transform:rotate(5deg)}
+  .ridge{position:absolute;border-radius:50%;background:rgba(83,122,69,.16);filter:blur(1px)}
+  .ridge--north{right:8%;top:9%;width:390px;height:310px;transform:rotate(-18deg)}
+  .ridge--south{left:30%;bottom:4%;width:430px;height:250px;transform:rotate(8deg)}
+  .district{position:absolute;z-index:1;font-weight:800;text-transform:uppercase;letter-spacing:.18em;color:rgba(242,238,228,.19);text-shadow:0 4px 22px rgba(0,0,0,.6)}
+  .district--rhoendorf{left:8%;bottom:18%;font-size:clamp(20px,2.8vw,34px)}
+  .district--ittenbach{right:5%;top:12%;font-size:clamp(17px,2vw,27px)}
+  .district--koenigswinter{left:5%;top:12%;font-size:clamp(16px,2vw,26px)}
+  .route{position:absolute;z-index:3;inset:0;width:100%;height:100%;fill:none}
+  .route__shadow{stroke:rgba(0,0,0,.82);stroke-width:14;stroke-linecap:round;stroke-linejoin:round}
+  .route__line{stroke:var(--color-lime);stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:1;filter:drop-shadow(0 0 10px rgba(219,255,62,.8));animation:draw 5s cubic-bezier(.65,0,.35,1) infinite alternate}
+  @keyframes draw{to{stroke-dashoffset:0}}
+  .pin{position:absolute;z-index:4;display:grid;grid-template-columns:18px auto;column-gap:10px;align-items:center;color:var(--color-cream);text-shadow:0 2px 12px rgba(0,0,0,.75)}
+  .pin span{grid-row:1/span 2;width:14px;height:14px;border:3px solid var(--color-night);border-radius:50%;background:var(--color-lime);box-shadow:0 0 0 5px rgba(219,255,62,.18),0 0 24px rgba(219,255,62,.7)}
+  .pin strong{font-size:11px;letter-spacing:.16em}.pin small{color:var(--cream-65)}
+  .pin--start{left:18%;top:61%}.pin--drachenfels{left:55%;top:31%}.pin--forest{right:9%;top:54%}.pin--rhein{left:29%;top:48%}
+  .route-kicker{color:var(--color-lime)!important}.route-kicker :global(.kicker__sun){color:var(--color-lime)!important}
+  .route-stage__copy h2,.venue-cta h2{margin:22px 0 0;font-size:clamp(46px,6.2vw,92px);line-height:.94;letter-spacing:-.045em}
+  .route-stage__copy>p{margin:30px 0 0;color:var(--cream-72);font-size:18px;line-height:1.75}
+  .route-stage dl{margin:44px 0 0;border-top:1px solid var(--cream-line)}
+  .route-stage dl div{display:grid;grid-template-columns:120px 1fr;gap:24px;padding:18px 0;border-bottom:1px solid var(--cream-line)}
+  .route-stage dt{color:var(--cream-45);font-size:11px;letter-spacing:.14em;text-transform:uppercase}
+  .route-stage dd{margin:0;color:var(--cream-88);display:flex;flex-wrap:wrap;gap:12px 20px}
+  .route-stage dd a{color:var(--color-lime);border-bottom:1px solid rgba(219,255,62,.35)}
+
+  .venue-cta{padding:110px var(--pad-x) 120px;background:var(--color-night-deep);border-top:1px solid var(--lime-line)}
+  .venue-cta__inner{display:grid;grid-template-columns:1.2fr .8fr;gap:96px;align-items:end}
+  .venue-cta__actions{display:flex;flex-direction:column;align-items:flex-start}
+  .venue-cta__actions p{margin:0 0 28px;max-width:45ch;color:var(--cream-72);font-size:17px;line-height:1.7}
+  .venue-cta__back{display:inline-flex;margin-top:34px;padding-top:18px;border-top:1px solid var(--cream-line);color:var(--cream-55);font-size:14px}
+  .venue-cta__back:hover,.venue-cta__back:focus-visible{color:var(--color-lime)}
+
+  @media(max-width:899px){
+    .venue-hero__inner{padding:140px 24px 112px}
+    .route-stage{padding:72px 24px 88px}
+    .route-stage__inner,.venue-cta__inner{grid-template-columns:1fr;gap:58px}
+    .route-stage__map{min-height:580px}
+    .river{left:4%;width:72px}
+    .pin{transform:scale(.88);transform-origin:left center}
+    .pin--start{left:11%;top:62%}.pin--drachenfels{left:50%;top:31%}.pin--forest{right:2%;top:55%}.pin--rhein{left:25%;top:48%}
+    .venue-cta{padding:76px 24px 88px}.venue-cta__back{margin-top:28px}
+  }
+
+  @media(prefers-reduced-motion:reduce){
+    .route__line,.venue-hero__ticker div{animation:none}.route__line{stroke-dashoffset:0}
+  }
+</style>
