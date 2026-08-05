@@ -199,12 +199,20 @@ const faqSchema = {
   .seo-hero__inner > p { max-width: 58ch; margin: 34px 0 0; color: var(--cream-80); font-size: clamp(17px,1.5vw,21px); line-height: 1.7; }
   .seo-hero__actions { display: flex; gap: 16px; margin-top: 38px; flex-wrap: wrap; }
 
-  .intro { padding: 130px var(--pad-x); background: var(--color-cream); color: var(--color-night); }
+  .intro {
+    padding: 130px var(--pad-x);
+    background:
+      radial-gradient(circle at 14% 18%, rgba(219,255,62,.08), transparent 30%),
+      linear-gradient(135deg, var(--color-surface-2), var(--color-night));
+    color: var(--color-cream);
+    border-top: 1px solid var(--lime-line);
+    border-bottom: 1px solid var(--cream-line);
+  }
   .intro__inner, .formats__inner, .places__inner, .steps__inner, .faq__inner, .cta__inner { max-width: var(--max-width-content); margin: auto; }
   .intro__inner { display: grid; grid-template-columns: 1.05fr .95fr; gap: 90px; }
   .intro h2, .formats h2, .places h2, .steps h2, .faq h2, .cta h2 { margin: 22px 0 0; font-size: clamp(44px,6.4vw,92px); line-height: .95; letter-spacing: -.045em; }
   .intro__copy { padding-top: 38px; }
-  .intro__copy p { margin: 0; font-size: 19px; line-height: 1.75; }
+  .intro__copy p { margin: 0; color: var(--cream-80); font-size: 19px; line-height: 1.75; }
   .intro__copy p + p { margin-top: 26px; }
 
   .formats { padding: 125px var(--pad-x); background: var(--color-night); }
