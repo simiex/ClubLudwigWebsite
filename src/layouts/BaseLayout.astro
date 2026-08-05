@@ -32,7 +32,6 @@ const ogImage = new URL('/assets/og-image.png', Astro.site);
     <meta name="theme-color" content="#060D16" />
     <meta name="generator" content={Astro.generator} />
 
-    <!-- Open Graph -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Club Ludwig" />
     <meta property="og:title" content={title} />
@@ -43,7 +42,6 @@ const ogImage = new URL('/assets/og-image.png', Astro.site);
     <meta name="twitter:card" content="summary_large_image" />
     {noindex && <meta name="robots" content="noindex, nofollow" />}
 
-    <!-- Strukturierte Daten (schema.org) -->
     <slot name="head" />
   </head>
   <body>
@@ -60,6 +58,22 @@ const ogImage = new URL('/assets/og-image.png', Astro.site);
         document.querySelectorAll('.route-stage__route path').forEach((path) => path.setAttribute('d', route));
       }
 
+      if (window.location.pathname === '/standorte/drachenfels/' || window.location.pathname === '/standorte/drachenfels') {
+        const registrationRow = Array.from(document.querySelectorAll('.route-stage dl > div')).find((row) =>
+          row.querySelector('dt')?.textContent?.trim() === 'Anmeldung'
+        );
+        const links = registrationRow?.querySelector('dd');
+        if (links && !links.querySelector('[data-komoot-drachenfels]')) {
+          const komootLink = document.createElement('a');
+          komootLink.href = 'https://www.komoot.com/de-DE/tour/3173336979?ref=itd&share_token=az2Jyy7j0QOz1VLZHN5emw09lrJOVhSC19or47JEItq9H58LfN&ref=its&t_s=referral&t_cid=route_share&t_ref_username=5426904744148';
+          komootLink.target = '_blank';
+          komootLink.rel = 'noopener';
+          komootLink.dataset.komootDrachenfels = 'true';
+          komootLink.textContent = 'Komoot-Strecke ↗';
+          links.appendChild(komootLink);
+        }
+      }
+
       if (window.location.pathname === '/mein-club/' || window.location.pathname === '/mein-club') {
         const nativeConfirm = window.confirm.bind(window);
         window.confirm = (message) =>
@@ -72,7 +86,6 @@ const ogImage = new URL('/assets/og-image.png', Astro.site);
         let attempts = 0;
         const cleanReferralUi = window.setInterval(() => {
           attempts += 1;
-
           document.querySelector('.promo')?.remove();
 
           const dangerText = document.querySelector('.danger__text');
@@ -88,12 +101,8 @@ const ogImage = new URL('/assets/og-image.png', Astro.site);
           document.querySelectorAll('.slot').forEach((slot) => {
             const title = slot.getAttribute('title');
             const aria = slot.getAttribute('aria-label');
-            if (title?.match(/Empfehlung/i)) {
-              slot.setAttribute('title', title.replace(/Empfehlung/gi, 'Bonus'));
-            }
-            if (aria?.match(/Empfehlung/i)) {
-              slot.setAttribute('aria-label', aria.replace(/Empfehlung/gi, 'Bonus'));
-            }
+            if (title?.match(/Empfehlung/i)) slot.setAttribute('title', title.replace(/Empfehlung/gi, 'Bonus'));
+            if (aria?.match(/Empfehlung/i)) slot.setAttribute('aria-label', aria.replace(/Empfehlung/gi, 'Bonus'));
           });
 
           const slotsLoaded = document.querySelectorAll('.slot').length > 0;
@@ -117,9 +126,7 @@ const ogImage = new URL('/assets/og-image.png', Astro.site);
     font-weight: 700;
   }
 
-  .skip-link:focus-visible {
-    top: 16px;
-  }
+  .skip-link:focus-visible { top: 16px; }
 
   :global(.route-stage .kicker .kicker__sun) {
     color: var(--color-lime) !important;
