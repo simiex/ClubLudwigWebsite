@@ -59,39 +59,6 @@ const ogImage = new URL('/assets/og-image.png', Astro.site);
         const route = 'M330 88 C360 122 356 165 330 198 C298 238 270 260 250 300 C228 344 220 386 250 414 C282 444 332 438 382 410 C430 384 468 390 498 420 C524 446 546 468 575 458 C602 448 615 420 598 398 C580 375 548 366 526 344 C505 323 506 300 526 281 C550 258 586 251 608 228 C630 205 627 177 607 158 C586 138 558 128 535 112 C510 95 486 80 458 72 C420 62 374 67 330 88';
         document.querySelectorAll('.route-stage__route path').forEach((path) => path.setAttribute('d', route));
       }
-
-      if (window.location.pathname === '/mein-club/' || window.location.pathname === '/mein-club') {
-        const cleanReferralUi = () => {
-          document.querySelector('.promo')?.remove();
-
-          const dangerText = document.querySelector('.danger__text');
-          if (dangerText) {
-            dangerText.textContent =
-              'Du kannst dein Konto jederzeit löschen. Damit verschwinden dein Profil, deine Anmeldungen und deine Stempel unwiderruflich. Das lässt sich nicht rückgängig machen.';
-          }
-
-          document.querySelectorAll('.slot__label').forEach((label) => {
-            if (label.textContent?.trim() === 'Empfehlung') label.textContent = 'Bonus';
-          });
-
-          document.querySelectorAll('.slot').forEach((slot) => {
-            const title = slot.getAttribute('title');
-            const aria = slot.getAttribute('aria-label');
-            if (title) slot.setAttribute('title', title.replace(/Empfehlung/gi, 'Bonus'));
-            if (aria) slot.setAttribute('aria-label', aria.replace(/Empfehlung/gi, 'Bonus'));
-          });
-        };
-
-        const nativeConfirm = window.confirm.bind(window);
-        window.confirm = (message) =>
-          nativeConfirm(String(message).replace(/ und Empfehlungscode/gi, '').replace(/Empfehlungscode/gi, 'zugehörige Daten'));
-
-        cleanReferralUi();
-        new MutationObserver(cleanReferralUi).observe(document.getElementById('main') ?? document.body, {
-          childList: true,
-          subtree: true,
-        });
-      }
     </script>
   </body>
 </html>
