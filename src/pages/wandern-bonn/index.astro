@@ -1,0 +1,269 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Kicker from '../../components/Kicker.astro';
+import Media from '../../components/Media.astro';
+import SunMark from '../../components/SunMark.astro';
+import { venues } from '../../data/venues';
+
+const faq = [
+  {
+    question: 'Kann ich allein zu einer Wanderung in Bonn kommen?',
+    answer:
+      'Ja. Viele Teilnehmende kommen bei ihrer ersten Tour allein. Am Treffpunkt entsteht die Gruppe ganz unkompliziert – du musst vorher niemanden kennen.',
+  },
+  {
+    question: 'Wie anstrengend sind eure Wanderungen?',
+    answer:
+      'Distanz, Höhenmeter, Dauer und Anspruch stehen bei jeder Tour. So kannst du vor der Anmeldung einschätzen, ob die Wanderung zu dir passt.',
+  },
+  {
+    question: 'Wo wandert Club Ludwig rund um Bonn?',
+    answer:
+      'Unsere Startpunkte liegen unter anderem am Hofgarten, im Ennert, an der Waldau, am Drachenfels, in Heisterbach und am Ziepchensplatz.',
+  },
+  {
+    question: 'Brauche ich eine Vereinsmitgliedschaft?',
+    answer:
+      'Nein. Club Ludwig ist ein offener Hiking Club. Für die Teilnahme ist kein klassischer Vereinsbeitritt erforderlich.',
+  },
+];
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faq.map((item) => ({
+    '@type': 'Question',
+    name: item.question,
+    acceptedAnswer: { '@type': 'Answer', text: item.answer },
+  })),
+};
+---
+
+<BaseLayout
+  title="Wandern in Bonn – offene Wandergruppe & Hiking Club | Club Ludwig"
+  description="Gemeinsam wandern in Bonn: offene Touren, Urban Hikes und Wanderungen rund um Rhein, Ennert und Siebengebirge. Allein kommen, gemeinsam losgehen."
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)}></script>
+
+  <section class="seo-hero">
+    <div class="seo-hero__media" aria-hidden="true">
+      <Media name="hero" alt="" eager />
+      <div class="seo-hero__veil"></div>
+      <div class="seo-hero__grid"></div>
+    </div>
+    <div class="seo-hero__inner">
+      <Kicker>Wandern in Bonn</Kicker>
+      <h1>Allein los.<br /><span>Gemeinsam weiter.</span></h1>
+      <p>
+        Club Ludwig ist die offene Wandergruppe aus Bonn: für Urban Hikes, Feierabendrunden und
+        gemeinsame Kilometer zwischen Rhein, Wald und Siebengebirge.
+      </p>
+      <div class="seo-hero__actions">
+        <a class="btn btn--primary" href="/#touren">Nächste Wanderung ansehen</a>
+        <a class="btn btn--ghost" href="#so-laeuft-es">So läuft es ab</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="intro">
+    <div class="intro__inner">
+      <div class="intro__head">
+        <Kicker>Offene Wandergruppe Bonn</Kicker>
+        <h2>Kein Vereinsheim.<br />Kein Wanderlatein.</h2>
+      </div>
+      <div class="intro__copy">
+        <p>
+          Du möchtest in Bonn wandern, neue Leute kennenlernen und nicht erst eine bestehende
+          Freundesgruppe organisieren? Dann komm einfach zu einer unserer ausgeschriebenen Touren.
+        </p>
+        <p>
+          Bei Club Ludwig steht nicht das Leistungsdenken im Vordergrund, sondern das gemeinsame
+          Unterwegssein. Trotzdem sagen wir klar, was dich erwartet: Strecke, Höhenmeter, Dauer und
+          Anspruch findest du vorab beim jeweiligen Termin.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="formats" aria-labelledby="formats-title">
+    <div class="formats__inner">
+      <div class="formats__top">
+        <Kicker>Von Stadt bis Trail</Kicker>
+        <h2 id="formats-title">Welche Wanderung<br />passt zu dir?</h2>
+      </div>
+      <div class="formats__grid">
+        <article>
+          <span>01</span>
+          <h3>Urban Hikes</h3>
+          <p>Direkt aus Bonn heraus: durch die Stadt, ans Rheinufer und auf überraschend grüne Wege.</p>
+        </article>
+        <article>
+          <span>02</span>
+          <h3>Feierabendtouren</h3>
+          <p>Kompakte Runden nach der Arbeit – ideal für den ersten gemeinsamen Start mit uns.</p>
+        </article>
+        <article>
+          <span>03</span>
+          <h3>Längere Wanderungen</h3>
+          <p>Mehr Kilometer, mehr Höhenmeter und mehr Zeit draußen rund um Bonn und das Siebengebirge.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="places" aria-labelledby="places-title">
+    <div class="places__inner">
+      <div class="places__copy">
+        <Kicker>Wanderwege rund um Bonn</Kicker>
+        <h2 id="places-title">Sechs Startpunkte.<br /><span>Unzählige Richtungen.</span></h2>
+        <p>
+          Mal beginnt die Wanderung mitten im Bonner Hofgarten, mal direkt am Wald. Unsere
+          Standorte verbinden Innenstadt, Rhein, Ennert, Kottenforst und Siebengebirge.
+        </p>
+        <a class="link" href="/#regionen">Alle Standorte ansehen →</a>
+      </div>
+      <div class="places__list">
+        {venues.map((venue, index) => (
+          <a href={venue.id === 'hofgarten' ? '/standorte/hofgarten/' : `/#standort-${venue.id}`}>
+            <span>{String(index + 1).padStart(2, '0')}</span>
+            <strong>{venue.name}</strong>
+            <small>{venue.area}</small>
+            <b aria-hidden="true">↗</b>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section id="so-laeuft-es" class="steps" aria-labelledby="steps-title">
+    <div class="steps__inner">
+      <div class="steps__head">
+        <Kicker>Deine erste Tour</Kicker>
+        <h2 id="steps-title">Drei Schritte.<br />Dann geht’s los.</h2>
+      </div>
+      <ol>
+        <li>
+          <span>01</span>
+          <div><h3>Tour auswählen</h3><p>Prüfe Distanz, Höhenmeter, Tempo und Treffpunkt.</p></div>
+        </li>
+        <li>
+          <span>02</span>
+          <div><h3>Anmelden</h3><p>Der jeweilige Toureneintrag führt dich direkt zur aktuellen Buchung.</p></div>
+        </li>
+        <li>
+          <span>03</span>
+          <div><h3>Einfach auftauchen</h3><p>Viele kommen allein. Am Start werden daraus schnell gemeinsame Kilometer.</p></div>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="faq" aria-labelledby="faq-title">
+    <div class="faq__inner">
+      <div class="faq__head">
+        <Kicker>Gut zu wissen</Kicker>
+        <h2 id="faq-title">Fragen vor der<br />ersten Wanderung.</h2>
+      </div>
+      <div class="faq__items">
+        {faq.map((item) => (
+          <details>
+            <summary>{item.question}</summary>
+            <p>{item.answer}</p>
+          </details>
+        ))}
+        <a class="link" href="/faq/">Alle häufigen Fragen →</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta">
+    <div class="cta__inner">
+      <SunMark size={28} motion="breathe" />
+      <p>Deine nächste Wanderung in Bonn</p>
+      <h2>Raus aus dem Chat.<br /><span>Rein in die Gruppe.</span></h2>
+      <a class="btn btn--primary" href="/#touren">Nächste Tour ansehen</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .seo-hero { position: relative; min-height: 92svh; overflow: hidden; background: var(--color-night-deep); }
+  .seo-hero__media, .seo-hero__media :global(.media) { position: absolute; inset: 0; }
+  .seo-hero__media :global(img), .seo-hero__media :global(svg) { width: 100%; height: 100%; object-fit: cover; }
+  .seo-hero__veil { position: absolute; inset: 0; background: linear-gradient(90deg,rgba(3,8,14,.97),rgba(3,8,14,.76) 52%,rgba(3,8,14,.3)),linear-gradient(0deg,rgba(3,8,14,.94),transparent 60%); }
+  .seo-hero__grid { position: absolute; inset: 0; opacity: .12; background-image: linear-gradient(rgba(219,255,62,.3) 1px,transparent 1px),linear-gradient(90deg,rgba(219,255,62,.3) 1px,transparent 1px); background-size: 74px 74px; mask-image: linear-gradient(90deg,#000,transparent 80%); }
+  .seo-hero__inner { position: relative; z-index: 1; min-height: 92svh; max-width: var(--max-width-content); margin: auto; padding: 180px var(--pad-x) 110px; display: flex; flex-direction: column; justify-content: flex-end; align-items: flex-start; }
+  .seo-hero :global(.kicker), .intro :global(.kicker), .formats :global(.kicker), .places :global(.kicker), .steps :global(.kicker), .faq :global(.kicker) { color: var(--color-lime); }
+  h1 { margin: 24px 0 0; max-width: 12ch; font-size: clamp(58px,9vw,146px); line-height: .88; letter-spacing: -.055em; }
+  h1 span, .places h2 span, .cta h2 span { color: var(--color-lime); }
+  .seo-hero__inner > p { max-width: 58ch; margin: 34px 0 0; color: var(--cream-80); font-size: clamp(17px,1.5vw,21px); line-height: 1.7; }
+  .seo-hero__actions { display: flex; gap: 16px; margin-top: 38px; flex-wrap: wrap; }
+
+  .intro { padding: 130px var(--pad-x); background: var(--color-cream); color: var(--color-night); }
+  .intro__inner, .formats__inner, .places__inner, .steps__inner, .faq__inner, .cta__inner { max-width: var(--max-width-content); margin: auto; }
+  .intro__inner { display: grid; grid-template-columns: 1.05fr .95fr; gap: 90px; }
+  .intro h2, .formats h2, .places h2, .steps h2, .faq h2, .cta h2 { margin: 22px 0 0; font-size: clamp(44px,6.4vw,92px); line-height: .95; letter-spacing: -.045em; }
+  .intro__copy { padding-top: 38px; }
+  .intro__copy p { margin: 0; font-size: 19px; line-height: 1.75; }
+  .intro__copy p + p { margin-top: 26px; }
+
+  .formats { padding: 125px var(--pad-x); background: var(--color-night); }
+  .formats__grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; margin-top: 72px; background: var(--cream-line); border: 1px solid var(--cream-line); }
+  .formats article { min-height: 310px; padding: 36px; background: var(--color-night); }
+  .formats article > span { color: var(--color-lime); font-size: 12px; letter-spacing: .18em; }
+  .formats h3 { margin: 90px 0 0; font-size: clamp(25px,2.5vw,36px); }
+  .formats article p { margin: 16px 0 0; color: var(--cream-72); line-height: 1.7; }
+
+  .places { padding: 130px var(--pad-x); background: var(--color-surface); }
+  .places__inner { display: grid; grid-template-columns: .85fr 1.15fr; gap: 96px; align-items: start; }
+  .places__copy { position: sticky; top: 130px; }
+  .places__copy > p { max-width: 48ch; margin: 28px 0 0; color: var(--cream-72); font-size: 17px; line-height: 1.7; }
+  .link { display: inline-block; margin-top: 26px; color: var(--color-lime); border-bottom: 1px solid rgba(219,255,62,.35); padding-bottom: 4px; }
+  .places__list { border-top: 1px solid var(--cream-line); }
+  .places__list a { display: grid; grid-template-columns: 52px 1fr auto 24px; gap: 20px; align-items: center; padding: 25px 0; border-bottom: 1px solid var(--cream-line); color: inherit; }
+  .places__list a > span { color: var(--color-lime); font-size: 11px; letter-spacing: .16em; }
+  .places__list strong { font-size: clamp(22px,2.5vw,34px); }
+  .places__list small { color: var(--cream-55); text-transform: uppercase; letter-spacing: .12em; }
+  .places__list b { color: var(--color-lime); transition: transform .2s ease; }
+  .places__list a:hover b { transform: translate(3px,-3px); }
+
+  .steps { padding: 130px var(--pad-x); background: var(--color-night-deep); }
+  .steps__inner { display: grid; grid-template-columns: .9fr 1.1fr; gap: 90px; }
+  .steps ol { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--cream-line); }
+  .steps li { display: grid; grid-template-columns: 70px 1fr; gap: 24px; padding: 28px 0; border-bottom: 1px solid var(--cream-line); }
+  .steps li > span { color: var(--color-lime); font-size: 12px; letter-spacing: .18em; }
+  .steps h3 { margin: 0; font-size: 26px; }
+  .steps li p { margin: 10px 0 0; color: var(--cream-72); line-height: 1.65; }
+
+  .faq { padding: 130px var(--pad-x); background: var(--color-surface); }
+  .faq__inner { display: grid; grid-template-columns: .9fr 1.1fr; gap: 90px; }
+  .faq__items { border-top: 1px solid var(--cream-line); }
+  .faq details { border-bottom: 1px solid var(--cream-line); }
+  .faq summary { position: relative; list-style: none; cursor: pointer; padding: 24px 50px 24px 0; font-size: 20px; font-weight: 700; }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary::after { content: '+'; position: absolute; right: 4px; color: var(--color-lime); }
+  .faq details[open] summary::after { content: '–'; }
+  .faq details p { margin: -2px 0 26px; max-width: 66ch; color: var(--cream-72); line-height: 1.7; }
+
+  .cta { padding: 110px var(--pad-x) 120px; background: var(--color-night); text-align: center; }
+  .cta__inner { display: flex; flex-direction: column; align-items: center; }
+  .cta__inner > :global(.sun) { color: var(--color-lime); }
+  .cta p { margin: 20px 0 0; color: var(--cream-55); text-transform: uppercase; letter-spacing: .18em; font-size: 11px; }
+  .cta h2 { max-width: 12ch; }
+  .cta .btn { margin-top: 36px; }
+
+  @media (max-width: 899px) {
+    .seo-hero__inner { padding: 145px 24px 96px; }
+    .seo-hero__actions { width: 100%; flex-direction: column; }
+    .intro, .formats, .places, .steps, .faq { padding: 76px 24px; }
+    .intro__inner, .places__inner, .steps__inner, .faq__inner { grid-template-columns: 1fr; gap: 52px; }
+    .intro__copy { padding-top: 0; }
+    .formats__grid { grid-template-columns: 1fr; margin-top: 48px; }
+    .formats article { min-height: 0; }
+    .formats h3 { margin-top: 52px; }
+    .places__copy { position: static; }
+    .places__list a { grid-template-columns: 42px 1fr 20px; }
+    .places__list small { display: none; }
+    .cta { padding: 80px 24px 90px; }
+  }
+</style>
