@@ -106,7 +106,14 @@ import Kicker from '../../components/Kicker.astro';
                     },
 
                     img: {
-                      'border-radius': '14px',
+                      'border-radius': '18px',
+                      'background-color': 'transparent',
+                    },
+
+                    imgWrapper: {
+                      'border-radius': '18px',
+                      overflow: 'hidden',
+                      'background-color': '#060d16',
                     },
 
                     title: {
@@ -118,6 +125,36 @@ import Kicker from '../../components/Kicker.astro';
                     price: {
                       color: 'rgba(242, 238, 228, 0.72)',
                       'font-size': '16px',
+                      'margin-bottom': '20px',
+                    },
+
+                    variantTitle: {
+                      color: 'rgba(242, 238, 228, 0.52)',
+                      'font-size': '12px',
+                      'font-weight': '700',
+                      'letter-spacing': '0.08em',
+                      'text-transform': 'uppercase',
+                      'margin-bottom': '8px',
+                    },
+
+                    select: {
+                      color: '#f2eee4',
+                      'background-color': '#101a24',
+                      border: '1px solid rgba(219, 255, 62, 0.22)',
+                      'border-radius': '10px',
+                      padding: '13px 42px 13px 14px',
+                      'font-size': '14px',
+                      'font-weight': '600',
+                      'box-shadow': 'none',
+                      outline: 'none',
+                    },
+
+                    selectIcon: {
+                      fill: '#dbff3e',
+                    },
+
+                    options: {
+                      'margin-bottom': '18px',
                     },
                   },
 
@@ -346,9 +383,9 @@ import Kicker from '../../components/Kicker.astro';
 
   .shop-products__header {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(280px, 420px);
-    gap: 70px;
-    align-items: end;
+    grid-template-columns: minmax(0, 820px);
+    gap: 24px;
+    align-items: start;
     margin-bottom: 72px;
   }
 
@@ -361,6 +398,7 @@ import Kicker from '../../components/Kicker.astro';
 
   .shop-products__header > p {
     margin: 0;
+    max-width: 620px;
     color: rgba(242, 238, 228, 0.62);
     font-size: 16px;
     line-height: 1.7;
