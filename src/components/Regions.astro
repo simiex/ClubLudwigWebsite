@@ -16,8 +16,8 @@ const rhythm = ['a', 'b', 'c'] as const;
     <div class="regions__grid">
       {
         venues.map((v, i) => {
-          const isHofgarten = v.id === 'hofgarten';
-          const detailUrl = isHofgarten ? '/standorte/hofgarten/' : v.uscUrl;
+          const hasDetailPage = v.id === 'hofgarten' || v.id === 'drachenfels';
+          const detailUrl = hasDetailPage ? `/standorte/${v.id}/` : v.uscUrl;
 
           return (
             <article class:list={['region', `region--${rhythm[i % 3]}`]} id={`standort-${v.id}`} data-reveal>
@@ -25,14 +25,14 @@ const rhythm = ['a', 'b', 'c'] as const;
                 class="region__media-link"
                 href={detailUrl}
                 aria-label={`${v.name} entdecken`}
-                target={isHofgarten ? undefined : '_blank'}
-                rel={isHofgarten ? undefined : 'noopener'}
+                target={hasDetailPage ? undefined : '_blank'}
+                rel={hasDetailPage ? undefined : 'noopener'}
               >
                 <div class="region__media-wrap">
                   <div class="region__media" data-parallax>
                     <Media name={v.media} alt={v.alt} />
                   </div>
-                  {isHofgarten && (
+                  {hasDetailPage && (
                     <span class="region__discover" aria-hidden="true">
                       Standort entdecken <b>→</b>
                     </span>
@@ -45,8 +45,8 @@ const rhythm = ['a', 'b', 'c'] as const;
               </div>
               <p class="region__text">{v.text}</p>
               {
-                isHofgarten ? (
-                  <a class="region__link" href="/standorte/hofgarten/">
+                hasDetailPage ? (
+                  <a class="region__link" href={detailUrl}>
                     Standort entdecken
                     <span aria-hidden="true">→</span>
                   </a>
@@ -103,35 +103,14 @@ const rhythm = ['a', 'b', 'c'] as const;
     margin-top: 72px;
   }
 
-  .region--a {
-    grid-column: 1 / span 7;
-  }
+  .region--a { grid-column: 1 / span 7; }
+  .region--a .region__media-wrap { height: 560px; }
+  .region--b { grid-column: 9 / span 4; margin-top: 160px; }
+  .region--b .region__media-wrap { height: 420px; }
+  .region--c { grid-column: 3 / span 8; }
+  .region--c .region__media-wrap { height: 440px; }
 
-  .region--a .region__media-wrap {
-    height: 560px;
-  }
-
-  .region--b {
-    grid-column: 9 / span 4;
-    margin-top: 160px;
-  }
-
-  .region--b .region__media-wrap {
-    height: 420px;
-  }
-
-  .region--c {
-    grid-column: 3 / span 8;
-  }
-
-  .region--c .region__media-wrap {
-    height: 440px;
-  }
-
-  .region__media-link {
-    display: block;
-    color: inherit;
-  }
+  .region__media-link { display: block; color: inherit; }
 
   .region__media-wrap {
     position: relative;
@@ -157,9 +136,7 @@ const rhythm = ['a', 'b', 'c'] as const;
   }
 
   .region:hover .region__media,
-  .region:focus-within .region__media {
-    transform: scale(1.025);
-  }
+  .region:focus-within .region__media { transform: scale(1.025); }
 
   .region__discover {
     position: absolute;
@@ -184,10 +161,7 @@ const rhythm = ['a', 'b', 'c'] as const;
   }
 
   .region:hover .region__discover,
-  .region:focus-within .region__discover {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  .region:focus-within .region__discover { opacity: 1; transform: translateY(0); }
 
   .region__head {
     display: flex;
@@ -236,44 +210,22 @@ const rhythm = ['a', 'b', 'c'] as const;
   }
 
   .region__link:hover,
-  .region__link:focus-visible {
-    color: var(--color-lime);
-    border-color: var(--color-lime);
-  }
+  .region__link:focus-visible { color: var(--color-lime); border-color: var(--color-lime); }
 
   @media (max-width: 899px) {
-    .regions {
-      padding: 72px 24px 56px;
-    }
-
-    .regions__grid {
-      display: block;
-    }
-
+    .regions { padding: 72px 24px 56px; }
+    .regions__grid { display: block; }
     .region--a,
     .region--b,
-    .region--c {
-      margin: 0 0 56px;
-    }
-
+    .region--c { margin: 0 0 56px; }
     .region--a .region__media-wrap,
     .region--b .region__media-wrap,
-    .region--c .region__media-wrap {
-      height: 300px;
-    }
-
-    .region__discover {
-      opacity: 1;
-      transform: none;
-      right: 14px;
-      bottom: 14px;
-    }
+    .region--c .region__media-wrap { height: 300px; }
+    .region__discover { opacity: 1; transform: none; right: 14px; bottom: 14px; }
   }
 
   @media (prefers-reduced-motion: reduce) {
     .region__media,
-    .region__discover {
-      transition: none;
-    }
+    .region__discover { transition: none; }
   }
 </style>
