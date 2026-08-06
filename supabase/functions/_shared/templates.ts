@@ -31,13 +31,18 @@ const CREAM_DIM = '#a7a49c';
 const LIME = '#dbff3e';
 const NEON = '#3ef0cf';
 const LINE = '#1d2836';
-const SOFT = '#152031';
+/** Trennzeichen zwischen Angaben – dunkler als der Text, damit es nicht mitliest. */
+const DIVIDER = '#4d5866';
+const FAINT = '#7d7a74';
 
 const esc = (s: string) =>
-  s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\"/g, '&quot;');
+  s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
 /** Externe Links absolut machen (im Kalender stehen teils Pfade wie /touren/). */
 const abs = (url: string) => (url.startsWith('http') ? url : `${SITE_URL}${url}`);
+
+/** Senkrechter Strich zwischen zwei Angaben. */
+const sep = `<span style="color:${DIVIDER};">&nbsp;|&nbsp;</span>`;
 
 /* -------------------------------------------------------------------------- */
 /* Grundgerüst                                                                 */
@@ -64,7 +69,7 @@ function shell(opts: { preheader: string; body: string; footer: string }): strin
 
           <!-- Kopf -->
           <tr>
-            <td align="center" style="padding:18px 0 40px;">
+            <td align="center" style="padding:12px 0 64px;">
               <a href="${SITE_URL}/" style="text-decoration:none;">
                 <img src="${SITE_URL}/assets/logo-white.png" width="180" height="37" alt="Club Ludwig"
                      style="display:block;border:0;width:180px;height:auto;">
@@ -76,14 +81,20 @@ function shell(opts: { preheader: string; body: string; footer: string }): strin
 
           <!-- Fuß -->
           <tr>
-            <td style="padding:36px 4px 0;border-top:1px solid ${LINE};">
-              <p style="margin:20px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.7;color:${CREAM_DIM};">
+            <td align="center" style="padding:56px 4px 0;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr><td style="border-top:1px solid ${LINE};font-size:0;line-height:0;">&nbsp;</td></tr>
+              </table>
+              <p style="margin:32px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:1.6;color:${CREAM_DIM};text-align:center;">
                 ${opts.footer}
               </p>
-              <p style="margin:16px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.7;color:#6f6d68;">
-                Club Ludwig · Bonn, Deutschland ·
-                <a href="${SITE_URL}/impressum/" style="color:#6f6d68;">Impressum</a> ·
-                <a href="${SITE_URL}/datenschutz/" style="color:#6f6d68;">Datenschutz</a>
+              <p style="margin:22px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:2;color:#6f6d68;text-align:center;">
+                <a href="${SITE_URL}/" style="color:#6f6d68;text-decoration:none;">clubludwig.de</a>
+                &nbsp;·&nbsp;
+                <a href="${SITE_URL}/impressum/" style="color:#6f6d68;text-decoration:none;">Impressum</a>
+                &nbsp;·&nbsp;
+                <a href="${SITE_URL}/datenschutz/" style="color:#6f6d68;text-decoration:none;">Datenschutz</a>
+                <br>Club Ludwig · Bonn, Deutschland
               </p>
             </td>
           </tr>
@@ -114,15 +125,42 @@ function button(label: string, href: string): string {
   </tr></table>`;
 }
 
-function infoPill(label: string, value: string, tone: string = CREAM): string {
-  return `<td style="padding:0 10px 0 0;vertical-align:top;">
-    <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border:1px solid ${LINE};border-radius:999px;background:${SOFT};">
-      <tr><td style="padding:10px 14px;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.2;">
-        <span style="display:block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:${CREAM_DIM};margin-bottom:4px;">${esc(label)}</span>
-        <span style="display:block;font-weight:bold;color:${tone};">${esc(value)}</span>
-      </td></tr>
-    </table>
-  </td>`;
+const WD_SHORT = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
+const M_SHORT = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
+
+/**
+ * Abreißkalender-Block für die linke Spalte: Wochentag, Tageszahl, Monat.
+ * Mehrtägiges wird als Spanne gesetzt (8–10) und rückt dafür eine Stufe
+ * kleiner, damit die Zahl in der schmalen Spalte nicht umbricht.
+ */
+function dateBlock(startIso: string, endIso: string | null, accent: string): string {
+  const s = new Date(`${startIso}T12:00:00Z`);
+  const e = endIso && endIso !== startIso ? new Date(`${endIso}T12:00:00Z`) : null;
+
+  const day = e ? `${s.getUTCDate()}–${e.getUTCDate()}` : String(s.getUTCDate());
+  const month =
+    e && e.getUTCMonth() !== s.getUTCMonth()
+      ? `${M_SHORT[s.getUTCMonth()]}/${M_SHORT[e.getUTCMonth()]}`
+      : M_SHORT[s.getUTCMonth()];
+
+  return `
+    <div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:${FAINT};">${
+      WD_SHORT[s.getUTCDay()]
+    }</div>
+    <div style="font-family:Arial,Helvetica,sans-serif;font-size:${
+      e ? '25px' : '34px'
+    };line-height:1.1;font-weight:bold;color:${accent};padding:3px 0 2px;">${day}</div>
+    <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:${CREAM_DIM};">${month}</div>`;
+}
+
+/** Kleine Status-Plakette – nur, wenn sie etwas aussagt. */
+function statusPill(status: string): string {
+  const label = STATUS_LABEL[status];
+  if (!label || status === 'anmeldung_offen') return '';
+  const color = status === 'ausgebucht' ? '#ff9d4d' : CREAM_DIM;
+  return `<span style="display:inline-block;padding:3px 9px;margin:0 0 8px;font-family:Arial,Helvetica,sans-serif;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:${color};border:1px solid ${color};border-radius:99px;">${esc(
+    label
+  )}</span><br>`;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -130,57 +168,47 @@ function infoPill(label: string, value: string, tone: string = CREAM): string {
 /* -------------------------------------------------------------------------- */
 
 function marchCard(m: March, accent = NEON): string {
-  const status = STATUS_LABEL[m.status];
   const format = FORMAT_LABEL[m.format] ?? m.format;
   const link = m.event_url ?? m.organizer_url;
   const ort = [m.city, m.region].filter(Boolean).join(', ');
 
-  const meta = [format, formatDistances(m), ort].filter(Boolean);
-
-  return `<tr><td style="padding:0 0 12px;">
+  return `<tr><td style="padding:0 0 10px;">
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${SURFACE}"
-           style="background:${SURFACE};border:1px solid ${LINE};border-radius:14px;overflow:hidden;">
+           style="background:${SURFACE};border:1px solid ${LINE};border-radius:8px;">
       <tr>
-        <td style="width:4px;background:${accent};font-size:0;line-height:0;">&nbsp;</td>
-        <td style="padding:20px 18px 20px 18px;">
-          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
-            <tr>
-              <td style="padding:0 0 14px;">
-                <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:${accent};font-weight:bold;">
-                  ${esc(formatDateRange(m))}${status ? ` · ${esc(status)}` : ''}
-                </p>
-              </td>
-            </tr>
-            <tr>
-              <td style="padding:0 0 8px;">
-                <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:20px;line-height:1.28;font-weight:bold;color:${CREAM};">
-                  ${link ? `<a href="${abs(link)}" style="color:${CREAM};text-decoration:none;">${esc(m.title)}</a>` : esc(m.title)}
-                </p>
-              </td>
-            </tr>
-            <tr>
-              <td style="padding:0;">
-                <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.65;color:${CREAM_DIM};">
-                  ${esc(meta.join(' · '))}<br>
-                  <span style="color:#7d7a74;">Veranstalter: ${esc(m.organizer)}</span>
-                </p>
-                ${
+        <!-- Datumsspalte -->
+        <td width="92" valign="top" align="center"
+            style="width:92px;padding:22px 0 22px 6px;border-right:1px solid ${LINE};">
+          ${dateBlock(m.start_date, m.end_date, accent)}
+        </td>
+
+        <!-- Inhalt -->
+        <td valign="top" style="padding:22px 24px 22px 20px;">
+          ${statusPill(m.status)}
+          <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:19px;line-height:1.3;font-weight:bold;color:${CREAM};">
+            ${link ? `<a href="${abs(link)}" style="color:${CREAM};text-decoration:none;">${esc(m.title)}</a>` : esc(m.title)}
+          </p>
+
+          <p style="margin:9px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.5;color:${CREAM};">
+            <span style="color:${accent};font-weight:bold;">${esc(formatDistances(m))}</span>${sep}${esc(format)}
+          </p>
+          <p style="margin:5px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:1.5;color:${CREAM_DIM};">
+            ${esc(ort)}${sep}${esc(m.organizer)}
+          </p>
+          ${
+            m.note
+              ? `<p style="margin:10px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:1.55;color:${FAINT};">${esc(
                   m.note
-                    ? `<p style="margin:10px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:1.6;color:${CREAM_DIM};">${esc(
-                        m.note
-                      )}</p>`
-                    : ''
-                }
-                ${
-                  link
-                    ? `<p style="margin:14px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:13px;">
-                         <a href="${abs(link)}" style="color:${LIME};text-decoration:none;font-weight:bold;">Zur Veranstaltung &rarr;</a>
-                       </p>`
-                    : ''
-                }
-              </td>
-            </tr>
-          </table>
+                )}</p>`
+              : ''
+          }
+          ${
+            link
+              ? `<p style="margin:14px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:13px;">
+                   <a href="${abs(link)}" style="color:${LIME};text-decoration:none;font-weight:bold;">Zur Veranstaltung &rarr;</a>
+                 </p>`
+              : ''
+          }
         </td>
       </tr>
     </table>
@@ -203,23 +231,39 @@ function eventCard(e: ClubEvent): string {
     e.meeting_point,
   ].filter(Boolean) as string[];
 
-  return `<tr><td style="padding:0 0 12px;">
+  return `<tr><td style="padding:0 0 10px;">
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${SURFACE}"
-           style="background:${SURFACE};border:1px solid rgba(219,255,62,.3);border-left:3px solid ${LIME};border-radius:14px;overflow:hidden;">
-      <tr><td style="padding:20px 22px;">
-        <p style="margin:0 0 6px;font-family:Arial,Helvetica,sans-serif;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:${LIME};">
-          ${date ? esc(formatWeekday(date)) : 'Termin folgt'}${time ? ` · ${time} Uhr` : ''}
-        </p>
-        <p style="margin:0 0 8px;font-family:Arial,Helvetica,sans-serif;font-size:19px;line-height:1.3;font-weight:bold;color:${CREAM};">
-          ${esc(e.title)}
-        </p>
-        <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.6;color:${CREAM_DIM};">
-          ${esc(meta.join(' · '))}
-        </p>
-        <p style="margin:14px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:13px;">
-          <a href="${abs(e.registration_url ?? '/touren/')}" style="color:${LIME};text-decoration:none;font-weight:bold;">Mitwandern &rarr;</a>
-        </p>
-      </td></tr>
+           style="background:${SURFACE};border:1px solid rgba(219,255,62,.35);border-radius:8px;">
+      <tr>
+        <td width="92" valign="top" align="center"
+            style="width:92px;padding:22px 0 22px 6px;border-right:1px solid rgba(219,255,62,.2);">
+          ${
+            date
+              ? dateBlock(date, null, LIME) +
+                (time
+                  ? `<div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;color:${FAINT};padding-top:5px;">${time}</div>`
+                  : '')
+              : `<div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:${CREAM_DIM};">Termin<br>folgt</div>`
+          }
+        </td>
+
+        <td valign="top" style="padding:22px 24px 22px 20px;">
+          <span style="display:inline-block;padding:3px 9px;margin:0 0 9px;font-family:Arial,Helvetica,sans-serif;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:${LIME};border:1px solid rgba(219,255,62,.45);border-radius:99px;">Club Ludwig</span><br>
+          <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:19px;line-height:1.3;font-weight:bold;color:${CREAM};">
+            ${esc(e.title)}
+          </p>
+          ${
+            meta.length > 0
+              ? `<p style="margin:9px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.5;color:${CREAM_DIM};">${esc(
+                  meta.join(' · ')
+                )}</p>`
+              : ''
+          }
+          <p style="margin:14px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:13px;">
+            <a href="${abs(e.registration_url ?? '/touren/')}" style="color:${LIME};text-decoration:none;font-weight:bold;">Mitwandern &rarr;</a>
+          </p>
+        </td>
+      </tr>
     </table>
   </td></tr>`;
 }
@@ -242,7 +286,7 @@ export interface WeeklyInput {
 export function weeklySubject(input: WeeklyInput): string {
   const label = weekLabel(input.monday);
   const n = input.thisWeek.length + input.ownEvents.length;
-  if (n === 0) return `Marschkalender: Woche vom ${label}`;
+  if (n === 0) return `Marschkalender: ${label}`;
   return `Marschkalender: ${n} ${n === 1 ? 'Termin' : 'Termine'} · ${label}`;
 }
 
@@ -252,16 +296,14 @@ export function weeklyHtml(input: WeeklyInput): string {
   const total = thisWeek.length + ownEvents.length;
 
   let body = `
-    <tr><td style="padding:0 4px 10px;">
-      <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:${CREAM_DIM};">
-        Marschkalender ${esc(label)}
+    <tr><td style="padding:0 4px 6px;">
+      <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:${LIME};font-weight:bold;">
+        Marschkalender<span style="color:${DIVIDER};font-weight:normal;">&nbsp;&nbsp;·&nbsp;&nbsp;</span><span style="color:${CREAM_DIM};font-weight:normal;">${esc(
+          label
+        )}</span>
       </p>
-      <h1 style="margin:16px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:30px;line-height:1.15;font-weight:bold;color:${CREAM};">
-        ${
-          total > 0
-            ? 'Das steht diese Woche an.'
-            : 'Ruhige Woche im Kalender.'
-        }
+      <h1 style="margin:12px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:30px;line-height:1.2;font-weight:bold;color:${CREAM};">
+        ${total > 0 ? 'Das steht diese Woche an.' : 'Ruhige Woche im Kalender.'}
       </h1>
       <p style="margin:14px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.7;color:${CREAM_DIM};">
         ${
@@ -270,13 +312,6 @@ export function weeklyHtml(input: WeeklyInput): string {
             : 'Diese Woche startet kein Marsch aus unserem Kalender. Dafür lohnt der Blick nach vorne.'
         }
       </p>
-      <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:18px 0 0;">
-        <tr>
-          ${infoPill('Woche', label, CREAM)}
-          ${infoPill('Märsche', String(thisWeek.length), LIME)}
-          ${infoPill('Touren', String(ownEvents.length), NEON)}
-        </tr>
-      </table>
     </td></tr>`;
 
   if (ownEvents.length > 0) {
@@ -293,26 +328,30 @@ export function weeklyHtml(input: WeeklyInput): string {
     body += heading('Demnächst', '#ff9d4d');
     body += `<tr><td style="padding:0 0 12px;">
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${SURFACE}"
-             style="background:${SURFACE};border:1px solid ${LINE};border-radius:14px;overflow:hidden;">
+             style="background:${SURFACE};border:1px solid ${LINE};border-radius:8px;">
         ${outlook
-          .map(
-            (m, i) => `<tr><td style="padding:16px 22px;${
-              i > 0 ? `border-top:1px solid ${LINE};` : ''
-            }">
-            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-              <td style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.5;color:${CREAM};">
-                ${
+          .map((m, i) => {
+            const rule = i > 0 ? `border-top:1px solid ${LINE};` : '';
+            return `<tr>
+              <!-- Datum linksbündig in fester Spalte: die Zeilen fluchten -->
+              <td width="86" valign="top"
+                  style="width:86px;padding:15px 0 15px 22px;${rule}
+                         font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:1.5;
+                         font-weight:bold;color:#ff9d4d;white-space:nowrap;">
+                ${esc(formatShortDate(m.start_date))}
+              </td>
+              <td valign="top" style="padding:15px 22px 15px 0;${rule}">
+                <div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.4;font-weight:bold;color:${CREAM};">${
                   m.event_url
                     ? `<a href="${abs(m.event_url)}" style="color:${CREAM};text-decoration:none;">${esc(m.title)}</a>`
                     : esc(m.title)
-                }
-                <br><span style="font-size:13px;color:${CREAM_DIM};">${esc(
-                  formatShortDate(m.start_date)
-                )} · ${esc(m.city)} · ${esc(formatDistances(m))}</span>
+                }</div>
+                <div style="font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:1.5;color:${CREAM_DIM};padding-top:3px;">
+                  ${esc(m.city)}${sep}${esc(formatDistances(m))}
+                </div>
               </td>
-            </tr></table>
-          </td></tr>`
-          )
+            </tr>`;
+          })
           .join('')}
       </table>
     </td></tr>`;
@@ -323,15 +362,13 @@ export function weeklyHtml(input: WeeklyInput): string {
     </td></tr>`;
 
   const footer =
-    `Du bekommst diese Mail, weil du dich für den Wochenüberblick von Club Ludwig angemeldet und ` +
-    `die Anmeldung per Klick bestätigt hast.<br>` +
-    `<a href="${unsubscribeUrl}" style="color:${CREAM_DIM};text-decoration:underline;">Newsletter abbestellen</a>`;
+    `<a href="${unsubscribeUrl}" style="color:${CREAM};font-weight:bold;text-decoration:underline;">Newsletter abbestellen</a><br>` +
+    `<span style="font-size:12px;line-height:1.7;color:${FAINT};">Du bekommst diese Mail, weil du dich für den Marschkalender angemeldet<br>` +
+    `und die Anmeldung per Klick bestätigt hast.</span>`;
 
   return shell({
     preheader:
-      total > 0
-        ? `${total} Termine zwischen ${label}`
-        : `Kein Marsch diese Woche – dafür der Ausblick.`,
+      total > 0 ? `${total} Termine zwischen ${label}` : `Kein Marsch diese Woche – dafür der Ausblick.`,
     body,
     footer,
   });
@@ -339,7 +376,7 @@ export function weeklyHtml(input: WeeklyInput): string {
 
 export function weeklyText(input: WeeklyInput): string {
   const lines: string[] = [];
-  lines.push(`CLUB LUDWIG – Woche vom ${weekLabel(input.monday)}`, '');
+  lines.push('CLUB LUDWIG – MARSCHKALENDER', weekLabel(input.monday), '');
 
   if (input.ownEvents.length > 0) {
     lines.push('UNSERE TOUREN', '');
@@ -355,7 +392,11 @@ export function weeklyText(input: WeeklyInput): string {
     lines.push('MÄRSCHE DIESE WOCHE', '');
     for (const m of input.thisWeek) {
       lines.push(`${formatDateRange(m)} – ${m.title}`);
-      lines.push(`  ${[FORMAT_LABEL[m.format] ?? m.format, formatDistances(m), [m.city, m.region].filter(Boolean).join(', ')].filter(Boolean).join(' · ')}`);
+      lines.push(
+        `  ${[FORMAT_LABEL[m.format] ?? m.format, formatDistances(m), [m.city, m.region].filter(Boolean).join(', ')]
+          .filter(Boolean)
+          .join(' · ')}`
+      );
       if (m.note) lines.push(`  ${m.note}`);
       // Nicht jeder Marsch hat einen Link. Ohne diesen Rückfall bekäme abs()
       // null und der ganze Versand stürbe an einem einzigen Eintrag.
@@ -392,14 +433,14 @@ export function confirmHtml(confirmUrl: string): string {
         Noch ein Klick, dann bist du dabei.
       </h1>
       <p style="margin:16px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.7;color:${CREAM_DIM};">
-        Du hast dich für den Wochenüberblick von Club Ludwig angemeldet: jeden Montagmorgen
+        Du hast dich für den Marschkalender von Club Ludwig angemeldet: jeden Montagmorgen
         die Märsche und Touren der laufenden Woche, kompakt in einer Mail.
       </p>
       <p style="margin:16px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.7;color:${CREAM_DIM};">
         Bitte bestätige kurz, dass die Adresse dir gehört:
       </p>
       <div style="margin:26px 0 0;">${button('Anmeldung bestätigen', confirmUrl)}</div>
-      <p style="margin:26px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:1.7;color:#7d7a74;">
+      <p style="margin:26px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:1.7;color:${FAINT};">
         Klappt der Button nicht, kopier diesen Link in den Browser:<br>
         <span style="color:${NEON};word-break:break-all;">${esc(confirmUrl)}</span>
       </p>
@@ -418,7 +459,7 @@ export function confirmText(confirmUrl: string): string {
   return [
     'CLUB LUDWIG – Anmeldung bestätigen',
     '',
-    'Du hast dich für den Wochenüberblick angemeldet: jeden Montag die Märsche',
+    'Du hast dich für den Marschkalender angemeldet: jeden Montag die Märsche',
     'und Touren der laufenden Woche.',
     '',
     'Bitte bestätige die Anmeldung über diesen Link:',
