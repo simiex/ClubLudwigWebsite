@@ -31,9 +31,10 @@ const CREAM_DIM = '#a7a49c';
 const LIME = '#dbff3e';
 const NEON = '#3ef0cf';
 const LINE = '#1d2836';
+const SOFT = '#152031';
 
 const esc = (s: string) =>
-  s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\"/g, '&quot;');
 
 /** Externe Links absolut machen (im Kalender stehen teils Pfade wie /touren/). */
 const abs = (url: string) => (url.startsWith('http') ? url : `${SITE_URL}${url}`);
@@ -63,7 +64,7 @@ function shell(opts: { preheader: string; body: string; footer: string }): strin
 
           <!-- Kopf -->
           <tr>
-            <td align="center" style="padding:8px 0 28px;">
+            <td align="center" style="padding:18px 0 40px;">
               <a href="${SITE_URL}/" style="text-decoration:none;">
                 <img src="${SITE_URL}/assets/logo-white.png" width="180" height="37" alt="Club Ludwig"
                      style="display:block;border:0;width:180px;height:auto;">
@@ -113,6 +114,17 @@ function button(label: string, href: string): string {
   </tr></table>`;
 }
 
+function infoPill(label: string, value: string, tone: string = CREAM): string {
+  return `<td style="padding:0 10px 0 0;vertical-align:top;">
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border:1px solid ${LINE};border-radius:999px;background:${SOFT};">
+      <tr><td style="padding:10px 14px;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.2;">
+        <span style="display:block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:${CREAM_DIM};margin-bottom:4px;">${esc(label)}</span>
+        <span style="display:block;font-weight:bold;color:${tone};">${esc(value)}</span>
+      </td></tr>
+    </table>
+  </td>`;
+}
+
 /* -------------------------------------------------------------------------- */
 /* Karten                                                                      */
 /* -------------------------------------------------------------------------- */
@@ -127,33 +139,50 @@ function marchCard(m: March, accent = NEON): string {
 
   return `<tr><td style="padding:0 0 12px;">
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${SURFACE}"
-           style="background:${SURFACE};border:1px solid ${LINE};border-radius:6px;">
-      <tr><td style="padding:20px 22px;">
-        <p style="margin:0 0 6px;font-family:Arial,Helvetica,sans-serif;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:${accent};">
-          ${esc(formatDateRange(m))}${status ? ` &middot; ${esc(status)}` : ''}
-        </p>
-        <p style="margin:0 0 8px;font-family:Arial,Helvetica,sans-serif;font-size:19px;line-height:1.3;font-weight:bold;color:${CREAM};">
-          ${link ? `<a href="${abs(link)}" style="color:${CREAM};text-decoration:none;">${esc(m.title)}</a>` : esc(m.title)}
-        </p>
-        <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.6;color:${CREAM_DIM};">
-          ${esc(meta.join(' · '))}<br>
-          <span style="color:#7d7a74;">Veranstalter: ${esc(m.organizer)}</span>
-        </p>
-        ${
-          m.note
-            ? `<p style="margin:10px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:1.6;color:${CREAM_DIM};">${esc(
-                m.note
-              )}</p>`
-            : ''
-        }
-        ${
-          link
-            ? `<p style="margin:14px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:13px;">
-                 <a href="${abs(link)}" style="color:${LIME};text-decoration:none;font-weight:bold;">Zur Veranstaltung &rarr;</a>
-               </p>`
-            : ''
-        }
-      </td></tr>
+           style="background:${SURFACE};border:1px solid ${LINE};border-radius:14px;overflow:hidden;">
+      <tr>
+        <td style="width:4px;background:${accent};font-size:0;line-height:0;">&nbsp;</td>
+        <td style="padding:20px 18px 20px 18px;">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+            <tr>
+              <td style="padding:0 0 14px;">
+                <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:${accent};font-weight:bold;">
+                  ${esc(formatDateRange(m))}${status ? ` · ${esc(status)}` : ''}
+                </p>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:0 0 8px;">
+                <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:20px;line-height:1.28;font-weight:bold;color:${CREAM};">
+                  ${link ? `<a href="${abs(link)}" style="color:${CREAM};text-decoration:none;">${esc(m.title)}</a>` : esc(m.title)}
+                </p>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:0;">
+                <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.65;color:${CREAM_DIM};">
+                  ${esc(meta.join(' · '))}<br>
+                  <span style="color:#7d7a74;">Veranstalter: ${esc(m.organizer)}</span>
+                </p>
+                ${
+                  m.note
+                    ? `<p style="margin:10px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:1.6;color:${CREAM_DIM};">${esc(
+                        m.note
+                      )}</p>`
+                    : ''
+                }
+                ${
+                  link
+                    ? `<p style="margin:14px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:13px;">
+                         <a href="${abs(link)}" style="color:${LIME};text-decoration:none;font-weight:bold;">Zur Veranstaltung &rarr;</a>
+                       </p>`
+                    : ''
+                }
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
     </table>
   </td></tr>`;
 }
@@ -176,10 +205,10 @@ function eventCard(e: ClubEvent): string {
 
   return `<tr><td style="padding:0 0 12px;">
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${SURFACE}"
-           style="background:${SURFACE};border:1px solid rgba(219,255,62,.3);border-left:3px solid ${LIME};border-radius:6px;">
+           style="background:${SURFACE};border:1px solid rgba(219,255,62,.3);border-left:3px solid ${LIME};border-radius:14px;overflow:hidden;">
       <tr><td style="padding:20px 22px;">
         <p style="margin:0 0 6px;font-family:Arial,Helvetica,sans-serif;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:${LIME};">
-          ${date ? esc(formatWeekday(date)) : 'Termin folgt'}${time ? ` &middot; ${time} Uhr` : ''}
+          ${date ? esc(formatWeekday(date)) : 'Termin folgt'}${time ? ` · ${time} Uhr` : ''}
         </p>
         <p style="margin:0 0 8px;font-family:Arial,Helvetica,sans-serif;font-size:19px;line-height:1.3;font-weight:bold;color:${CREAM};">
           ${esc(e.title)}
@@ -213,33 +242,41 @@ export interface WeeklyInput {
 export function weeklySubject(input: WeeklyInput): string {
   const label = weekLabel(input.monday);
   const n = input.thisWeek.length + input.ownEvents.length;
-  if (n === 0) return `Club Ludwig · Woche vom ${label}`;
-  return `Diese Woche: ${n} ${n === 1 ? 'Termin' : 'Termine'} · ${label}`;
+  if (n === 0) return `Marschkalender: Woche vom ${label}`;
+  return `Marschkalender: ${n} ${n === 1 ? 'Termin' : 'Termine'} · ${label}`;
 }
 
 export function weeklyHtml(input: WeeklyInput): string {
   const { monday, thisWeek, ownEvents, outlook, unsubscribeUrl } = input;
   const label = weekLabel(monday);
+  const total = thisWeek.length + ownEvents.length;
 
   let body = `
-    <tr><td style="padding:0 4px 6px;">
+    <tr><td style="padding:0 4px 10px;">
       <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:${CREAM_DIM};">
-        Die Woche vom ${esc(label)}
+        Marschkalender ${esc(label)}
       </p>
-      <h1 style="margin:12px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:30px;line-height:1.2;font-weight:bold;color:${CREAM};">
+      <h1 style="margin:16px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:30px;line-height:1.15;font-weight:bold;color:${CREAM};">
         ${
-          thisWeek.length + ownEvents.length > 0
+          total > 0
             ? 'Das steht diese Woche an.'
             : 'Ruhige Woche im Kalender.'
         }
       </h1>
       <p style="margin:14px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.7;color:${CREAM_DIM};">
         ${
-          thisWeek.length + ownEvents.length > 0
+          total > 0
             ? 'Alle Märsche und Touren, die zwischen heute und Sonntag starten.'
             : 'Diese Woche startet kein Marsch aus unserem Kalender. Dafür lohnt der Blick nach vorne.'
         }
       </p>
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:18px 0 0;">
+        <tr>
+          ${infoPill('Woche', label, CREAM)}
+          ${infoPill('Märsche', String(thisWeek.length), LIME)}
+          ${infoPill('Touren', String(ownEvents.length), NEON)}
+        </tr>
+      </table>
     </td></tr>`;
 
   if (ownEvents.length > 0) {
@@ -256,10 +293,10 @@ export function weeklyHtml(input: WeeklyInput): string {
     body += heading('Demnächst', '#ff9d4d');
     body += `<tr><td style="padding:0 0 12px;">
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${SURFACE}"
-             style="background:${SURFACE};border:1px solid ${LINE};border-radius:6px;">
+             style="background:${SURFACE};border:1px solid ${LINE};border-radius:14px;overflow:hidden;">
         ${outlook
           .map(
-            (m, i) => `<tr><td style="padding:14px 22px;${
+            (m, i) => `<tr><td style="padding:16px 22px;${
               i > 0 ? `border-top:1px solid ${LINE};` : ''
             }">
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
@@ -292,8 +329,8 @@ export function weeklyHtml(input: WeeklyInput): string {
 
   return shell({
     preheader:
-      thisWeek.length + ownEvents.length > 0
-        ? `${thisWeek.length + ownEvents.length} Termine zwischen ${label}`
+      total > 0
+        ? `${total} Termine zwischen ${label}`
         : `Kein Marsch diese Woche – dafür der Ausblick.`,
     body,
     footer,
@@ -318,80 +355,23 @@ export function weeklyText(input: WeeklyInput): string {
     lines.push('MÄRSCHE DIESE WOCHE', '');
     for (const m of input.thisWeek) {
       lines.push(`${formatDateRange(m)} – ${m.title}`);
-      lines.push(`  ${m.city} · ${formatDistances(m)} · ${m.organizer}`);
-      const link = m.event_url ?? m.organizer_url;
-      if (link) lines.push(`  ${abs(link)}`);
-      lines.push('');
+      lines.push(`  ${[FORMAT_LABEL[m.format] ?? m.format, formatDistances(m), [m.city, m.region].filter(Boolean).join(', ')].filter(Boolean).join(' · ')}`);
+      if (m.note) lines.push(`  ${m.note}`);
+      lines.push(`  ${abs(m.event_url ?? m.organizer_url)}`, '');
     }
-  } else if (input.ownEvents.length === 0) {
-    lines.push('Diese Woche startet kein Marsch aus unserem Kalender.', '');
   }
 
   if (input.outlook.length > 0) {
     lines.push('DEMNÄCHST', '');
     for (const m of input.outlook) {
-      lines.push(`${formatShortDate(m.start_date)} – ${m.title} (${m.city}, ${formatDistances(m)})`);
+      lines.push(`${formatShortDate(m.start_date)} – ${m.title}`);
+      lines.push(`  ${m.city} · ${formatDistances(m)}`);
+      lines.push(`  ${abs(m.event_url ?? '/maersche/')}`, '');
     }
-    lines.push('');
   }
 
-  lines.push(
-    `Ganzer Marschkalender: ${SITE_URL}/maersche/`,
-    '',
-    '—',
-    'Du bekommst diese Mail, weil du dich angemeldet und die Anmeldung bestätigt hast.',
-    `Abmelden: ${input.unsubscribeUrl}`,
-    `Impressum: ${SITE_URL}/impressum/`
-  );
+  lines.push(`Kalender: ${SITE_URL}/maersche/`, '');
+  lines.push(`Abmelden: ${input.unsubscribeUrl}`);
+
   return lines.join('\n');
-}
-
-/* -------------------------------------------------------------------------- */
-/* Double-Opt-in-Mail                                                          */
-/* -------------------------------------------------------------------------- */
-
-export function confirmHtml(confirmUrl: string): string {
-  const body = `
-    <tr><td style="padding:0 4px;">
-      <h1 style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:28px;line-height:1.25;font-weight:bold;color:${CREAM};">
-        Noch ein Klick, dann bist du dabei.
-      </h1>
-      <p style="margin:16px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.7;color:${CREAM_DIM};">
-        Du hast dich für den Wochenüberblick von Club Ludwig angemeldet: jeden Montagmorgen
-        die Märsche und Touren der laufenden Woche, kompakt in einer Mail.
-      </p>
-      <p style="margin:16px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.7;color:${CREAM_DIM};">
-        Bitte bestätige kurz, dass die Adresse dir gehört:
-      </p>
-      <div style="margin:26px 0 0;">${button('Anmeldung bestätigen', confirmUrl)}</div>
-      <p style="margin:26px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:1.7;color:#7d7a74;">
-        Klappt der Button nicht, kopier diesen Link in den Browser:<br>
-        <span style="color:${NEON};word-break:break-all;">${esc(confirmUrl)}</span>
-      </p>
-    </td></tr>`;
-
-  return shell({
-    preheader: 'Ein Klick fehlt noch zur Anmeldung.',
-    body,
-    footer:
-      'Du hast dich nicht angemeldet? Dann ignorier diese Mail einfach – ohne Bestätigung ' +
-      'verschicken wir nichts, und wir löschen die Adresse nach 14 Tagen automatisch.',
-  });
-}
-
-export function confirmText(confirmUrl: string): string {
-  return [
-    'CLUB LUDWIG – Anmeldung bestätigen',
-    '',
-    'Du hast dich für den Wochenüberblick angemeldet: jeden Montag die Märsche',
-    'und Touren der laufenden Woche.',
-    '',
-    'Bitte bestätige die Anmeldung über diesen Link:',
-    confirmUrl,
-    '',
-    'Du hast dich nicht angemeldet? Dann ignorier diese Mail. Ohne Bestätigung',
-    'verschicken wir nichts; die Adresse wird nach 14 Tagen gelöscht.',
-    '',
-    `${SITE_URL}/impressum/`,
-  ].join('\n');
 }
