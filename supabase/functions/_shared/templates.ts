@@ -378,3 +378,55 @@ export function weeklyText(input: WeeklyInput): string {
 
   return lines.join('\n');
 }
+
+/* -------------------------------------------------------------------------- */
+/* Double-Opt-in-Mail                                                          */
+/* -------------------------------------------------------------------------- */
+/* Wird von newsletter-subscribe importiert – ohne diese beiden Funktionen     */
+/* lässt sich die Function nicht laden und keine Anmeldung geht mehr durch.    */
+
+export function confirmHtml(confirmUrl: string): string {
+  const body = `
+    <tr><td style="padding:0 4px;">
+      <h1 style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:28px;line-height:1.2;font-weight:bold;color:${CREAM};">
+        Noch ein Klick, dann bist du dabei.
+      </h1>
+      <p style="margin:16px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.7;color:${CREAM_DIM};">
+        Du hast dich für den Wochenüberblick von Club Ludwig angemeldet: jeden Montagmorgen
+        die Märsche und Touren der laufenden Woche, kompakt in einer Mail.
+      </p>
+      <p style="margin:16px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.7;color:${CREAM_DIM};">
+        Bitte bestätige kurz, dass die Adresse dir gehört:
+      </p>
+      <div style="margin:26px 0 0;">${button('Anmeldung bestätigen', confirmUrl)}</div>
+      <p style="margin:26px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:1.7;color:#7d7a74;">
+        Klappt der Button nicht, kopier diesen Link in den Browser:<br>
+        <span style="color:${NEON};word-break:break-all;">${esc(confirmUrl)}</span>
+      </p>
+    </td></tr>`;
+
+  return shell({
+    preheader: 'Ein Klick fehlt noch zur Anmeldung.',
+    body,
+    footer:
+      'Du hast dich nicht angemeldet? Dann ignorier diese Mail einfach – ohne Bestätigung ' +
+      'verschicken wir nichts, und wir löschen die Adresse nach 14 Tagen automatisch.',
+  });
+}
+
+export function confirmText(confirmUrl: string): string {
+  return [
+    'CLUB LUDWIG – Anmeldung bestätigen',
+    '',
+    'Du hast dich für den Wochenüberblick angemeldet: jeden Montag die Märsche',
+    'und Touren der laufenden Woche.',
+    '',
+    'Bitte bestätige die Anmeldung über diesen Link:',
+    confirmUrl,
+    '',
+    'Du hast dich nicht angemeldet? Dann ignorier diese Mail. Ohne Bestätigung',
+    'verschicken wir nichts; die Adresse wird nach 14 Tagen gelöscht.',
+    '',
+    `${SITE_URL}/impressum/`,
+  ].join('\n');
+}
