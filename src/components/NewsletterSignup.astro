@@ -275,6 +275,14 @@ const endpoint = `${SUPABASE_URL}/functions/v1/newsletter-subscribe`;
       flex-direction: column;
     }
 
+    /* Untereinander gestellt zeigt flex-basis auf die Höhe statt auf die
+       Breite – die 220px aus `flex: 1 1 220px` blähten das Feld sonst zu
+       einem riesigen Kasten auf. Hier zählt nur noch die eigene Höhe. */
+    .nl__input {
+      flex: 0 0 auto;
+      width: 100%;
+    }
+
     .nl__button {
       width: 100%;
     }
