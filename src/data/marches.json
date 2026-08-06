@@ -134,7 +134,7 @@
   {
     "slug": "johanniter-heidewandern-celle-2026",
     "title": "Johanniter Heidewandern",
-    "organizer": "Johanniter",
+    "organizer": "Johanniter-Unfall-Hilfe e. V.",
     "organizer_url": null,
     "format": "wanderung",
     "start_date": "2026-08-08",
@@ -170,9 +170,9 @@
     ],
     "time_limit_hours": null,
     "price_from": null,
-    "event_url": null,
-    "note": "Aus dem Wanderrausch-Kalender übernommen – Link noch nicht geprüft.",
-    "verified_at": null,
+    "event_url": "https://www.ultramarsch.de/p/2026-ticket-ultramarsch-black-forest-x-trem-ausverkauft",
+    "note": null,
+    "verified_at": "2026-08-06",
     "status": "ausgebucht"
   },
   {
