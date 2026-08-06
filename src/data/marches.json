@@ -89,6 +89,93 @@
     "event_url": "https://www.schrittfuerschritt.org/events-1/Schritt-fur-Schritt-2026-Karlsruhe-30-km-50-km-100-km-08-08-2026-c186559752"
   },
   {
+    "slug": "doemchen-nachwanderung-koeln-2026",
+    "title": "Dömchen-Nachwanderung",
+    "organizer": "Dömchen-Nachwanderung",
+    "organizer_url": null,
+    "format": "marsch",
+    "start_date": "2026-08-08",
+    "end_date": null,
+    "city": "Köln",
+    "region": "Nordrhein-Westfalen",
+    "country": "DE",
+    "distances_km": [
+      50,
+      100
+    ],
+    "time_limit_hours": null,
+    "price_from": null,
+    "event_url": null,
+    "note": "Aus dem Wanderrausch-Kalender übernommen – Veranstalter und Link noch nicht geprüft.",
+    "verified_at": null,
+    "status": "geplant"
+  },
+  {
+    "slug": "heldenmarsch-wismar-2026",
+    "title": "Heldenmarsch Wismar",
+    "organizer": "Heldenmarsch",
+    "organizer_url": null,
+    "format": "marsch",
+    "start_date": "2026-08-08",
+    "end_date": null,
+    "city": "Wismar",
+    "region": "Mecklenburg-Vorpommern",
+    "country": "DE",
+    "distances_km": [
+      30
+    ],
+    "time_limit_hours": null,
+    "price_from": null,
+    "event_url": null,
+    "note": "Aus dem Wanderrausch-Kalender übernommen – Link noch nicht geprüft.",
+    "verified_at": null,
+    "status": "geplant"
+  },
+  {
+    "slug": "johanniter-heidewandern-celle-2026",
+    "title": "Johanniter Heidewandern",
+    "organizer": "Johanniter",
+    "organizer_url": null,
+    "format": "wanderung",
+    "start_date": "2026-08-08",
+    "end_date": null,
+    "city": "Celle",
+    "region": "Niedersachsen",
+    "country": "DE",
+    "distances_km": [
+      20,
+      35
+    ],
+    "time_limit_hours": null,
+    "price_from": null,
+    "event_url": null,
+    "note": "Aus dem Wanderrausch-Kalender übernommen – Link noch nicht geprüft.",
+    "verified_at": null,
+    "status": "geplant"
+  },
+  {
+    "slug": "ultramarsch-black-forest-2026",
+    "title": "Ultramarsch Black Forest",
+    "organizer": "Ultramarsch",
+    "organizer_url": "https://www.ultramarsch.de",
+    "format": "marsch",
+    "start_date": "2026-08-08",
+    "end_date": null,
+    "city": "Schwarzwald",
+    "region": "Baden-Württemberg",
+    "country": "DE",
+    "distances_km": [
+      50,
+      100
+    ],
+    "time_limit_hours": null,
+    "price_from": null,
+    "event_url": null,
+    "note": "Aus dem Wanderrausch-Kalender übernommen – Link noch nicht geprüft.",
+    "verified_at": null,
+    "status": "ausgebucht"
+  },
+  {
     "slug": "mammutmarsch-kopenhagen-100-2026",
     "title": "Mammutmarsch Kopenhagen 75/100",
     "organizer": "Mammutmarsch",
