@@ -357,7 +357,10 @@ export function weeklyText(input: WeeklyInput): string {
       lines.push(`${formatDateRange(m)} – ${m.title}`);
       lines.push(`  ${[FORMAT_LABEL[m.format] ?? m.format, formatDistances(m), [m.city, m.region].filter(Boolean).join(', ')].filter(Boolean).join(' · ')}`);
       if (m.note) lines.push(`  ${m.note}`);
-      lines.push(`  ${abs(m.event_url ?? m.organizer_url)}`, '');
+      // Nicht jeder Marsch hat einen Link. Ohne diesen Rückfall bekäme abs()
+      // null und der ganze Versand stürbe an einem einzigen Eintrag.
+      const link = m.event_url ?? m.organizer_url;
+      lines.push(`  ${link ? abs(link) : `${SITE_URL}/maersche/`}`, '');
     }
   }
 
