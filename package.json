@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "astro dev",
     "check:content": "node scripts/check-content.mjs",
+    "newsletter:preview": "tsx scripts/newsletter-preview.ts",
     "build": "node scripts/check-content.mjs && astro build",
     "build:draft": "CONTENT_CHECK=off node scripts/check-content.mjs && astro build",
     "preview": "astro preview",

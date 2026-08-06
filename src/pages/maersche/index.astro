@@ -15,6 +15,7 @@ import {
   type March,
 } from '../../lib/marches';
 import { buildEvents } from '../../lib/events';
+import NewsletterSignup from '../../components/NewsletterSignup.astro';
 import { loadEvents } from '../../lib/events-source';
 
 const fremde = await loadMarches();
@@ -269,6 +270,14 @@ const DISTANCE_FILTERS = [
           </>
         )
       }
+
+      <!-- Wer hier gescrollt hat, plant Termine – genau die richtige Stelle. -->
+      <div class="cal__newsletter">
+        <NewsletterSignup
+          source="marschkalender"
+          text="Statt jede Woche selbst nachzusehen: Montagmorgens kommen die Märsche der laufenden Woche per Mail, dazu der Ausblick auf die nächsten vier Wochen."
+        />
+      </div>
 
       <section class="hint" aria-labelledby="hint-heading">
         <h2 id="hint-heading">Termin fehlt?</h2>
@@ -815,6 +824,11 @@ const DISTANCE_FILTERS = [
   }
 
   /* ── Hinweis ──────────────────────────────────────────────────── */
+
+
+  .cal__newsletter {
+    margin: clamp(72px, 9vw, 120px) 0 0;
+  }
 
   .hint {
     margin-top: 112px;

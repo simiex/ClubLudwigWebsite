@@ -116,3 +116,9 @@ Canonical- und Open-Graph-URLs stimmen.
 - Partner-Liste („Lokale Partner · Platzhalter“).
 - Impressum & Datenschutz: `[Vorname Nachname]` etc. ausfüllen und rechtlich prüfen.
 - Favicon & OG-Image sind generierte Platzhalter.
+
+## Newsletter
+
+Der wöchentliche „Montagsbrief" (Anmeldung, Double Opt-in, Cron-Versand) ist in
+**[NEWSLETTER.md](NEWSLETTER.md)** beschrieben – inklusive Einrichtung von
+Resend, Secrets und Testbefehlen.

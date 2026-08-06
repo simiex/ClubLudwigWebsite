@@ -1,0 +1,282 @@
+---
+/**
+ * ============================================================================
+ * NEWSLETTER-ANMELDUNG
+ * ============================================================================
+ * Schickt die Adresse an die Edge Function `newsletter-subscribe`. Die
+ * Function trägt sie als „pending“ ein und verschickt die Bestätigungsmail –
+ * ohne Klick darin geht nie ein Newsletter raus (Double Opt-in).
+ *
+ * Varianten:
+ *   variant="band"    breite Sektion mit Überschrift (Seiten)
+ *   variant="compact" schmale Spalte ohne Rahmen (Footer)
+ * ============================================================================
+ */
+import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } from '../lib/supabase';
+
+interface Props {
+  variant?: 'band' | 'compact';
+  /** Woher die Anmeldung kam – landet in der Datenbank. */
+  source?: string;
+  title?: string;
+  text?: string;
+}
+
+const {
+  variant = 'band',
+  source = 'website',
+  title = 'Der Montagsbrief',
+  text = 'Jeden Montagmorgen die Märsche und Touren der laufenden Woche. Eine Mail, kein Geplapper, jederzeit abbestellbar.',
+} = Astro.props;
+
+const endpoint = `${SUPABASE_URL}/functions/v1/newsletter-subscribe`;
+---
+
+<section class={`nl nl--${variant}`} data-newsletter data-endpoint={endpoint} data-key={SUPABASE_PUBLISHABLE_KEY} data-source={source}>
+  {
+    variant === 'band' ? (
+      <div class="nl__intro">
+        <p class="nl__kicker">Newsletter</p>
+        <h2 class="nl__title">{title}</h2>
+        <p class="nl__text">{text}</p>
+      </div>
+    ) : (
+      <div class="nl__intro">
+        <p class="nl__label">{title}</p>
+        <p class="nl__text">{text}</p>
+      </div>
+    )
+  }
+
+  <form class="nl__form" novalidate>
+    <label class="visually-hidden" for={`nl-email-${variant}`}>E-Mail-Adresse</label>
+    <input
+      id={`nl-email-${variant}`}
+      class="nl__input"
+      type="email"
+      name="email"
+      inputmode="email"
+      autocomplete="email"
+      required
+      placeholder="deine@mail.de"
+    />
+
+    {/* Honeypot: für Menschen unsichtbar, Bots füllen ihn aus. */}
+    <div class="nl__trap" aria-hidden="true">
+      <label for={`nl-website-${variant}`}>Website</label>
+      <input id={`nl-website-${variant}`} type="text" name="website" tabindex="-1" autocomplete="off" />
+    </div>
+
+    <button class="nl__button" type="submit">Anmelden</button>
+  </form>
+
+  <p class="nl__note" data-nl-status role="status" aria-live="polite">
+    Wir schicken dir zuerst eine Bestätigungsmail. Details in der
+    <a href="/datenschutz/#newsletter">Datenschutzerklärung</a>.
+  </p>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-newsletter]').forEach((root) => {
+    const form = root.querySelector('form')!;
+    const input = root.querySelector<HTMLInputElement>('input[name="email"]')!;
+    const trap = root.querySelector<HTMLInputElement>('input[name="website"]')!;
+    const button = root.querySelector<HTMLButtonElement>('button')!;
+    const note = root.querySelector<HTMLElement>('[data-nl-status]')!;
+
+    const endpoint = root.dataset.endpoint!;
+    const key = root.dataset.key!;
+    const source = root.dataset.source ?? 'website';
+
+    function say(message: string, tone: 'ok' | 'error' | 'idle') {
+      note.textContent = message;
+      note.dataset.tone = tone;
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = input.value.trim();
+
+      if (!email || !/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(email)) {
+        say('Bitte gib eine gültige E-Mail-Adresse ein.', 'error');
+        input.focus();
+        return;
+      }
+
+      button.disabled = true;
+      const label = button.textContent;
+      button.textContent = 'Moment …';
+
+      try {
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', apikey: key },
+          body: JSON.stringify({ email, website: trap.value, source }),
+        });
+        const data = await res.json().catch(() => ({}));
+
+        if (res.ok) {
+          form.hidden = true;
+          say(data.message ?? 'Fast geschafft: Bitte bestätige die Anmeldung in deinem Postfach.', 'ok');
+        } else {
+          say(data.error ?? 'Das hat gerade nicht geklappt. Bitte später erneut versuchen.', 'error');
+        }
+      } catch {
+        say('Keine Verbindung. Bitte später erneut versuchen.', 'error');
+      } finally {
+        button.disabled = false;
+        button.textContent = label;
+      }
+    });
+  });
+</script>
+
+<style>
+  .nl {
+    --nl-gap: 18px;
+  }
+
+  /* ---------- Band (eigene Sektion) ---------- */
+  .nl--band {
+    max-width: var(--max-width-content);
+    margin: 0 auto;
+    padding: clamp(36px, 5vw, 56px) clamp(24px, 4vw, 48px);
+    background: var(--color-surface-2);
+    border: 1px solid var(--lime-line);
+    border-radius: var(--radius);
+  }
+
+  .nl__kicker {
+    margin: 0;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-lime);
+  }
+
+  .nl__title {
+    margin: 14px 0 0;
+    font-size: clamp(26px, 3.4vw, 38px);
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+  }
+
+  .nl__label {
+    margin: 0;
+    font-size: 12px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--cream-45);
+  }
+
+  .nl__text {
+    margin: 14px 0 0;
+    font-size: 15px;
+    line-height: 1.65;
+    color: var(--cream-65);
+    max-width: 52ch;
+  }
+
+  .nl--compact .nl__text {
+    margin-top: 12px;
+    font-size: 14px;
+    max-width: 34ch;
+  }
+
+  /* ---------- Formular ---------- */
+  .nl__form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 26px;
+    max-width: 520px;
+  }
+
+  .nl__input {
+    flex: 1 1 220px;
+    min-width: 0;
+    padding: 14px 16px;
+    font: inherit;
+    font-size: 15px;
+    color: var(--color-cream);
+    background: rgba(6, 13, 22, 0.7);
+    border: 1px solid var(--cream-line);
+    border-radius: var(--radius-sm);
+    appearance: none;
+  }
+
+  .nl__input::placeholder {
+    color: var(--cream-45);
+  }
+
+  .nl__input:focus-visible {
+    outline: none;
+    border-color: var(--color-lime);
+    box-shadow: var(--lime-glow);
+  }
+
+  .nl__button {
+    flex: 0 0 auto;
+    padding: 14px 26px;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--color-night);
+    background: var(--color-lime);
+    border: 0;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .nl__button:hover:not(:disabled) {
+    box-shadow: var(--lime-glow);
+  }
+
+  .nl__button:disabled {
+    opacity: 0.6;
+    cursor: progress;
+  }
+
+  /* Honeypot – nicht display:none, das ignorieren manche Bots gezielt. */
+  .nl__trap {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+
+  .nl__note {
+    margin: 16px 0 0;
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--cream-45);
+    max-width: 52ch;
+  }
+
+  .nl__note a {
+    color: var(--cream-65);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .nl__note[data-tone='ok'] {
+    color: var(--color-lime);
+  }
+
+  .nl__note[data-tone='error'] {
+    color: var(--color-ember);
+  }
+
+  @media (max-width: 560px) {
+    .nl__form {
+      flex-direction: column;
+    }
+
+    .nl__button {
+      width: 100%;
+    }
+  }
+</style>

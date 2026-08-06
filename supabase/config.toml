@@ -1,0 +1,15 @@
+project_id = "glkugldixsgtiqwdjouj"
+
+# Öffentlich erreichbar: Formular und Links aus der Mail haben keinen JWT.
+[functions.newsletter-subscribe]
+verify_jwt = false
+
+[functions.newsletter-confirm]
+verify_jwt = false
+
+[functions.newsletter-unsubscribe]
+verify_jwt = false
+
+# Versand: nur mit Service-Role-Key (Cron und Admin).
+[functions.newsletter-weekly]
+verify_jwt = true

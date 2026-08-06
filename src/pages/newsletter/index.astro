@@ -1,0 +1,211 @@
+---
+/**
+ * ============================================================================
+ * /newsletter/ – Anmeldung und Statusseite
+ * ============================================================================
+ * Eine Seite für vier Zustände. Die Edge Functions leiten nach Bestätigung
+ * bzw. Abmeldung mit ?status=… hierher zurück; ausgewertet wird das im
+ * Browser, weil die Seite statisch gebaut wird.
+ * ============================================================================
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Kicker from '../../components/Kicker.astro';
+import NewsletterSignup from '../../components/NewsletterSignup.astro';
+---
+
+<BaseLayout
+  title="Newsletter – Club Ludwig"
+  description="Der Montagsbrief von Club Ludwig: jede Woche die Märsche und Touren der laufenden Woche per Mail."
+>
+  <main class="page">
+    <header class="page__head">
+      <Kicker>Newsletter</Kicker>
+      <h1 class="page__title">Der Montagsbrief</h1>
+      <p class="page__lead">
+        Montagmorgen, kurz nach dem ersten Kaffee: eine Mail mit allen Märschen und Touren,
+        die in dieser Woche starten. Dazu ein knapper Ausblick auf die kommenden Wochen –
+        damit die Anmeldung nicht am Vergessen scheitert.
+      </p>
+    </header>
+
+    <!-- Statusmeldungen nach Bestätigung / Abmeldung -->
+    <div class="status" data-status hidden>
+      <p class="status__title" data-status-title></p>
+      <p class="status__text" data-status-text></p>
+    </div>
+
+    <div class="signup" data-signup>
+      <NewsletterSignup source="newsletter-seite" />
+    </div>
+
+    <section class="detail">
+      <h2>Was drin steht</h2>
+      <ul>
+        <li>Alle Märsche aus dem <a href="/maersche/">Marschkalender</a>, die in dieser Woche starten – mit Distanz, Ort und Link zum Veranstalter.</li>
+        <li>Unsere eigenen Club-Ludwig-Touren der Woche.</li>
+        <li>Ein Ausblick auf die nächsten vier Wochen, damit Anmeldefristen nicht durchrutschen.</li>
+      </ul>
+
+      <h2>Was nicht drin steht</h2>
+      <ul>
+        <li>Werbung von Dritten. Wir geben deine Adresse an niemanden weiter.</li>
+        <li>Tracking-Pixel. Wir messen nicht, wer wann was öffnet.</li>
+      </ul>
+
+      <h2>Abmelden</h2>
+      <p>
+        In jeder Mail steht unten ein Abmeldelink. Ein Klick genügt, keine Rückfrage,
+        keine Begründung. Mehr dazu in der <a href="/datenschutz/#newsletter">Datenschutzerklärung</a>.
+      </p>
+    </section>
+  </main>
+</BaseLayout>
+
+<script>
+  const MESSAGES: Record<string, { title: string; text: string; tone: string; hideForm: boolean }> = {
+    bestaetigt: {
+      title: 'Angemeldet. Willkommen im Verteiler.',
+      text: 'Ab dem kommenden Montag bekommst du die Wochenübersicht per Mail.',
+      tone: 'ok',
+      hideForm: true,
+    },
+    abgemeldet: {
+      title: 'Abgemeldet.',
+      text: 'Du bekommst keine weiteren Mails von uns. Wenn du es dir anders überlegst, kannst du dich hier jederzeit wieder eintragen.',
+      tone: 'neutral',
+      hideForm: false,
+    },
+    abgelaufen: {
+      title: 'Dieser Link ist nicht mehr gültig.',
+      text: 'Vermutlich hast du ihn schon einmal benutzt – dann bist du bereits angemeldet. Andernfalls trag dich einfach neu ein.',
+      tone: 'neutral',
+      hideForm: false,
+    },
+    fehler: {
+      title: 'Da ist etwas schiefgegangen.',
+      text: 'Bitte versuch es später noch einmal oder schreib an simon@clubludwig.de.',
+      tone: 'error',
+      hideForm: false,
+    },
+  };
+
+  const status = new URLSearchParams(location.search).get('status');
+  const config = status ? MESSAGES[status] : null;
+
+  if (config) {
+    const box = document.querySelector<HTMLElement>('[data-status]')!;
+    box.querySelector('[data-status-title]')!.textContent = config.title;
+    box.querySelector('[data-status-text]')!.textContent = config.text;
+    box.dataset.tone = config.tone;
+    box.hidden = false;
+
+    if (config.hideForm) {
+      document.querySelector<HTMLElement>('[data-signup]')!.hidden = true;
+    }
+
+    // Query-Parameter aus der Adresszeile nehmen – beim Neuladen wäre er sonst
+    // noch da und würde eine alte Meldung wiederholen.
+    history.replaceState(null, '', location.pathname);
+  }
+</script>
+
+<style>
+  .page {
+    max-width: var(--max-width-content);
+    margin: 0 auto;
+    padding: clamp(96px, 12vw, 152px) var(--pad-x) clamp(80px, 10vw, 128px);
+  }
+
+  .page__title {
+    margin: 18px 0 0;
+    font-size: clamp(38px, 6vw, 76px);
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+  }
+
+  .page__lead {
+    margin: 24px 0 0;
+    font-size: clamp(16px, 1.6vw, 19px);
+    line-height: 1.65;
+    color: var(--cream-65);
+    max-width: 60ch;
+  }
+
+  .status {
+    margin: 48px 0 0;
+    padding: 24px 28px;
+    background: var(--color-surface-2);
+    border: 1px solid var(--cream-line);
+    border-left: 3px solid var(--cream-45);
+    border-radius: var(--radius);
+  }
+
+  .status[data-tone='ok'] {
+    border-left-color: var(--color-lime);
+  }
+
+  .status[data-tone='error'] {
+    border-left-color: var(--color-ember);
+  }
+
+  .status__title {
+    margin: 0;
+    font-size: 19px;
+    font-weight: 600;
+  }
+
+  .status__text {
+    margin: 10px 0 0;
+    font-size: 15px;
+    line-height: 1.65;
+    color: var(--cream-65);
+    max-width: 56ch;
+  }
+
+  .signup {
+    margin: 48px 0 0;
+  }
+
+  .detail {
+    margin: clamp(64px, 8vw, 104px) 0 0;
+    max-width: 62ch;
+  }
+
+  .detail h2 {
+    margin: 44px 0 0;
+    font-size: 13px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-lime);
+  }
+
+  .detail h2:first-child {
+    margin-top: 0;
+  }
+
+  .detail ul {
+    margin: 16px 0 0;
+    padding-left: 20px;
+  }
+
+  .detail li,
+  .detail p {
+    font-size: 16px;
+    line-height: 1.7;
+    color: var(--cream-72);
+  }
+
+  .detail li {
+    margin-bottom: 10px;
+  }
+
+  .detail p {
+    margin: 16px 0 0;
+  }
+
+  .detail a {
+    color: var(--color-neon);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+</style>

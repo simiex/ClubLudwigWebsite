@@ -1,5 +1,6 @@
 ---
 import { contact, partners, resolve, site, socialLinks } from '../config/site';
+import NewsletterSignup from './NewsletterSignup.astro';
 
 const year = new Date().getFullYear();
 const email = resolve(contact.email);
@@ -7,6 +8,14 @@ const email = resolve(contact.email);
 
 <footer id="kontakt" class="footer">
   <div class="footer__inner">
+    <div class="footer__newsletter">
+      <NewsletterSignup
+        variant="compact"
+        source="footer"
+        text="Montags eine Mail mit den Märschen und Touren der Woche."
+      />
+    </div>
+
     <div class="footer__top">
       <div class="footer__brand">
         <img src="/assets/logo-white.png" alt="Club Ludwig" width="660" height="136" loading="lazy" />
@@ -28,6 +37,7 @@ const email = resolve(contact.email);
         <p class="footer__label">Entdecken</p>
         <a href="/wandern-bonn/">Wandern in Bonn</a>
         <a href="/maersche/">Marschkalender</a>
+        <a href="/newsletter/">Newsletter</a>
         <a href="/faq/">FAQ</a>
         {email && <a href={`mailto:${email}`}>Kontakt</a>}
       </nav>
@@ -86,6 +96,14 @@ const email = resolve(contact.email);
   .footer__inner {
     max-width: var(--max-width-content);
     margin: 0 auto;
+  }
+
+  /* Newsletter sitzt über den Spalten und ist durch eine Linie abgesetzt –
+     er ist ein Angebot, kein weiterer Navigationspunkt. */
+  .footer__newsletter {
+    padding-bottom: 56px;
+    margin-bottom: 56px;
+    border-bottom: 1px solid var(--cream-line);
   }
 
   .footer__top {
