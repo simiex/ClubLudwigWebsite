@@ -113,7 +113,11 @@ import NewsletterSignup from '../../components/NewsletterSignup.astro';
   .page {
     max-width: var(--max-width-content);
     margin: 0 auto;
-    padding: clamp(96px, 12vw, 152px) var(--pad-x) clamp(80px, 10vw, 128px);
+    /* Der Header liegt fix über der Seite und ist rund 95px hoch. Die alten
+       96px oben verschwanden auf schmalen Bildschirmen restlos darunter –
+       der Kicker klebte am Header. Die Werte entsprechen jetzt den übrigen
+       Unterseiten: 150px mobil, bis 200px auf großen Schirmen. */
+    padding: clamp(150px, 14vw, 200px) var(--pad-x) clamp(80px, 10vw, 128px);
   }
 
   .page__title {
