@@ -56,15 +56,32 @@ Deno.serve(async (req) => {
   const ip = clientIp(req);
   const ua = req.headers.get('user-agent')?.slice(0, 300) ?? null;
 
-  // Einfache Bremse gegen Massenanmeldungen von einer Adresse aus
+  /*
+   * Bremse gegen Massenanmeldungen von einer Adresse aus.
+   *
+   * Gezählt werden nur unbestätigte Anmeldungen: Genau die erzeugt ein Bot,
+   * während eine bestätigte Zeile für einen echten Menschen mit Zugriff auf
+   * sein Postfach steht.
+   *
+   * Die Grenze ist bewusst hoch. Mobilfunkanbieter stecken sehr viele Kunden
+   * hinter dieselbe öffentliche IPv4 – nach einem Post in einer Story kommen
+   * echte Anmeldungen darum gebündelt von wenigen IPs. Bei zu enger Grenze
+   * gingen sie lautlos verloren, denn abgewiesen wird mit der Erfolgsmeldung.
+   */
+  const ANMELDUNGEN_PRO_IP_UND_STUNDE = 20;
+
   if (ip) {
     const since = new Date(Date.now() - 60 * 60 * 1000).toISOString();
     const { count } = await db
       .from('newsletter_subscribers')
       .select('id', { count: 'exact', head: true })
       .eq('signup_ip', ip)
+      .eq('status', 'pending')
       .gte('created_at', since);
-    if ((count ?? 0) >= 5) return json(OK);
+    if ((count ?? 0) >= ANMELDUNGEN_PRO_IP_UND_STUNDE) {
+      console.warn(`[subscribe] IP-Grenze erreicht: ${ip} (${count} offene Anmeldungen/Stunde)`);
+      return json(OK);
+    }
   }
 
   const { data: existing } = await db
