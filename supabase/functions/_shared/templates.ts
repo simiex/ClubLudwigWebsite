@@ -363,7 +363,7 @@ export function weeklyHtml(input: WeeklyInput): string {
 
   const footer =
     `<a href="${unsubscribeUrl}" style="color:${CREAM};font-weight:bold;text-decoration:underline;">Newsletter abbestellen</a><br>` +
-    `<span style="font-size:12px;line-height:1.7;color:${FAINT};">Du bekommst diese Mail, weil du dich für den Marschkalender angemeldet<br>` +
+    `<span style="font-size:12px;line-height:1.7;color:${FAINT};">Du bekommst diese Mail, weil du dich für den Wochenmarsch angemeldet<br>` +
     `und die Anmeldung per Klick bestätigt hast.</span>`;
 
   return shell({
@@ -376,7 +376,7 @@ export function weeklyHtml(input: WeeklyInput): string {
 
 export function weeklyText(input: WeeklyInput): string {
   const lines: string[] = [];
-  lines.push('CLUB LUDWIG – MARSCHKALENDER', weekLabel(input.monday), '');
+  lines.push('CLUB LUDWIG – DER WOCHENMARSCH', weekLabel(input.monday), '');
 
   if (input.ownEvents.length > 0) {
     lines.push('UNSERE TOUREN', '');
@@ -433,11 +433,12 @@ export function confirmHtml(confirmUrl: string): string {
         Noch ein Klick, dann bist du dabei.
       </h1>
       <p style="margin:16px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.7;color:${CREAM_DIM};">
-        Du hast dich für den Marschkalender von Club Ludwig angemeldet: jeden Montagmorgen
-        die Märsche und Touren der laufenden Woche, kompakt in einer Mail.
+        Du hast dich für den Wochenmarsch angemeldet: jeden Montagmorgen die Märsche
+        und Touren der laufenden Woche, kompakt in einer Mail.
       </p>
       <p style="margin:16px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.7;color:${CREAM_DIM};">
-        Bitte bestätige kurz, dass die Adresse dir gehört:
+        Bestätige kurz, dass die Adresse dir gehört – die Ausgabe dieser Woche kommt
+        direkt danach:
       </p>
       <div style="margin:26px 0 0;">${button('Anmeldung bestätigen', confirmUrl)}</div>
       <p style="margin:26px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:1.7;color:${FAINT};">
@@ -459,10 +460,11 @@ export function confirmText(confirmUrl: string): string {
   return [
     'CLUB LUDWIG – Anmeldung bestätigen',
     '',
-    'Du hast dich für den Marschkalender angemeldet: jeden Montag die Märsche',
+    'Du hast dich für den Wochenmarsch angemeldet: jeden Montag die Märsche',
     'und Touren der laufenden Woche.',
     '',
-    'Bitte bestätige die Anmeldung über diesen Link:',
+    'Bestätige die Anmeldung über diesen Link – die Ausgabe dieser Woche',
+    'kommt direkt danach:',
     confirmUrl,
     '',
     'Du hast dich nicht angemeldet? Dann ignorier diese Mail. Ohne Bestätigung',
