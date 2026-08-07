@@ -119,6 +119,6 @@ Canonical- und Open-Graph-URLs stimmen.
 
 ## Newsletter
 
-Der wöchentliche „Montagsbrief" (Anmeldung, Double Opt-in, Cron-Versand) ist in
+Der wöchentliche „Wochenmarsch" (Anmeldung, Double Opt-in, Cron-Versand) ist in
 **[NEWSLETTER.md](NEWSLETTER.md)** beschrieben – inklusive Einrichtung von
 Resend, Secrets und Testbefehlen.

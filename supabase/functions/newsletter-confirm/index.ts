@@ -10,7 +10,7 @@
  * ============================================================================
  */
 import { createClient } from 'jsr:@supabase/supabase-js@2';
-import { SERVICE_ROLE_KEY, SUPABASE_URL, clientIp, redirect } from '../_shared/config.ts';
+import { FUNCTIONS_URL, SERVICE_ROLE_KEY, SUPABASE_URL, clientIp, redirect } from '../_shared/config.ts';
 
 Deno.serve(async (req) => {
   const token = new URL(req.url).searchParams.get('token');
@@ -20,7 +20,7 @@ Deno.serve(async (req) => {
 
   const { data: sub } = await db
     .from('newsletter_subscribers')
-    .select('id, status')
+    .select('id, status, email')
     .eq('confirm_token', token)
     .maybeSingle();
 
@@ -42,6 +42,28 @@ Deno.serve(async (req) => {
   if (error) {
     console.error('[confirm] Update fehlgeschlagen:', error.message);
     return redirect('/newsletter/?status=fehler');
+  }
+
+  /*
+   * Erstausgabe sofort hinterher: Wer sich am Dienstag anmeldet, soll nicht
+   * bis zum nächsten Montag auf die erste Mail warten. Der Versand läuft über
+   * newsletter-weekly, damit es nur eine Stelle gibt, die den Inhalt baut.
+   * Ein Fehler dabei darf die Bestätigung nicht kippen – die ist gespeichert.
+   */
+  try {
+    const res = await fetch(`${FUNCTIONS_URL}/newsletter-weekly`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${SERVICE_ROLE_KEY}`,
+      },
+      body: JSON.stringify({ welcome_for: sub.email }),
+    });
+    if (!res.ok) {
+      console.error('[confirm] Erstausgabe fehlgeschlagen:', res.status, await res.text());
+    }
+  } catch (err) {
+    console.error('[confirm] Erstausgabe fehlgeschlagen:', (err as Error).message);
   }
 
   return redirect('/newsletter/?status=bestaetigt');

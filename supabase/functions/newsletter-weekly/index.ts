@@ -13,9 +13,11 @@
  *   5. Versand protokollieren
  *
  * Manueller Aufruf (Service-Role-Key nötig):
- *   { "force": true }                     → sendet, auch wenn schon versendet
- *   { "test_to": "simon@clubludwig.de" }  → nur an diese Adresse, kein Protokoll
- *   { "dry": true }                       → verschickt nichts, gibt Vorschau-HTML
+ *   { "force": true }                       → sendet, auch wenn schon versendet
+ *   { "test_to": "simon@clubludwig.de" }    → nur an diese Adresse, kein Protokoll
+ *   { "welcome_for": "neu@example.de" }     → Erstausgabe an eine frisch
+ *                                             bestätigte Adresse, kein Protokoll
+ *   { "dry": true }                         → verschickt nichts, gibt Vorschau-HTML
  * ============================================================================
  */
 import { createClient } from 'jsr:@supabase/supabase-js@2';
@@ -53,9 +55,12 @@ Deno.serve(async (req) => {
   const auth = req.headers.get('Authorization') ?? '';
   if (auth !== `Bearer ${SERVICE_ROLE_KEY}`) return json({ error: 'Unauthorized' }, 401);
 
-  const opts: { force?: boolean; test_to?: string; dry?: boolean } = await req
+  const opts: { force?: boolean; test_to?: string; welcome_for?: string; dry?: boolean } = await req
     .json()
     .catch(() => ({}));
+
+  /* Beides trifft genau eine Adresse und gehört nicht ins Wochenprotokoll. */
+  const einzelversand = Boolean(opts.test_to || opts.welcome_for);
 
   const db = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, { auth: { persistSession: false } });
 
@@ -69,12 +74,12 @@ Deno.serve(async (req) => {
    * pg_cron rechnet in UTC, deshalb sind zwei Jobs eingetragen (Sommer- und
    * Winterzeit). Der zu frühe Lauf bricht hier ab, statt um 6 Uhr zu senden.
    */
-  if (!opts.force && !opts.test_to && !opts.dry && berlinHour() < 7) {
+  if (!opts.force && !einzelversand && !opts.dry && berlinHour() < 7) {
     return json({ skipped: 'zu früh (vor 07:00 Berliner Zeit)' });
   }
 
   /* --- 2. Doppelversand ausschließen ------------------------------------ */
-  if (!opts.force && !opts.test_to && !opts.dry) {
+  if (!opts.force && !einzelversand && !opts.dry) {
     const { data: already } = await db
       .from('newsletter_sends')
       .select('week_start')
@@ -132,11 +137,32 @@ Deno.serve(async (req) => {
 
   if (opts.test_to) {
     recipients = [{ id: 'test', email: opts.test_to, unsubscribe_token: 'test-token' }];
-  } else {
+  } else if (opts.welcome_for) {
+    // Erstausgabe: echte Zeile, damit der Abmeldelink der Person gehört.
     const { data, error } = await db
       .from('newsletter_subscribers')
       .select('id, email, unsubscribe_token')
+      .eq('email_normalized', opts.welcome_for.trim().toLowerCase())
+      .eq('status', 'confirmed')
+      .maybeSingle();
+    if (error) {
+      console.error('[weekly] Erstausgabe – Adresse nicht ladbar:', error.message);
+      return json({ error: error.message }, 500);
+    }
+    recipients = data ? [data] : [];
+  } else {
+    let query = db
+      .from('newsletter_subscribers')
+      .select('id, email, unsubscribe_token')
       .eq('status', 'confirmed');
+
+    // Wer die Ausgabe dieser Woche schon bei der Anmeldung bekommen hat, soll
+    // sie montags nicht ein zweites Mal bekommen.
+    if (!opts.force) {
+      query = query.or(`last_sent_at.is.null,last_sent_at.lt.${monday}T00:00:00Z`);
+    }
+
+    const { data, error } = await query;
     if (error) {
       console.error('[weekly] Empfänger konnten nicht geladen werden:', error.message);
       return json({ error: error.message }, 500);
@@ -156,7 +182,14 @@ Deno.serve(async (req) => {
   }
 
   if (recipients.length === 0) {
-    return json({ ok: true, note: 'Keine bestätigten Empfänger.', monday, marches: thisWeek.length });
+    return json({
+      ok: true,
+      note: opts.welcome_for
+        ? 'Adresse nicht bestätigt oder unbekannt – keine Erstausgabe verschickt.'
+        : 'Keine bestätigten Empfänger.',
+      monday,
+      marches: thisWeek.length,
+    });
   }
 
   const mails: Mail[] = recipients.map((r) => {
@@ -174,6 +207,8 @@ Deno.serve(async (req) => {
   const { sent, failed } = await sendBatch(mails);
 
   /* --- 5. Protokoll ------------------------------------------------------ */
+  // last_sent_at gilt auch für die Erstausgabe – daran erkennt der Montagslauf,
+  // dass diese Adresse die Woche schon hat.
   if (!opts.test_to) {
     const failedSet = new Set(failed);
     const okIds = recipients.filter((r) => !failedSet.has(r.email)).map((r) => r.id);
@@ -183,7 +218,10 @@ Deno.serve(async (req) => {
         .update({ last_sent_at: new Date().toISOString() })
         .in('id', okIds);
     }
+  }
 
+  // Das Wochenprotokoll führt nur der echte Sammelversand.
+  if (!einzelversand) {
     await db.from('newsletter_sends').upsert(
       {
         week_start: monday,

@@ -1,4 +1,4 @@
-# Newsletter – Der Montagsbrief
+# Newsletter – Der Wochenmarsch
 
 Wöchentliche Mail, montags um 07:00 Uhr (Europe/Berlin), mit allen Märschen und
 Club-Ludwig-Touren der laufenden Woche plus einem Ausblick auf vier Wochen.
@@ -15,7 +15,7 @@ supabase/
     _shared/mailer.ts        Versand über Resend (einzeln + Batch)
     _shared/templates.ts     HTML- und Textvorlagen
     newsletter-subscribe/    Anmeldung + Bestätigungsmail
-    newsletter-confirm/      Klick auf den Bestätigungslink
+    newsletter-confirm/      Klick auf den Bestätigungslink + Erstausgabe
     newsletter-unsubscribe/  Abmeldung (auch One-Click aus Gmail)
     newsletter-weekly/       Der eigentliche Versand (Cron)
 src/
