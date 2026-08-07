@@ -1,5 +1,5 @@
 ---
-import { contact, partners, resolve, site, socialLinks } from '../config/site';
+import { contact, features, partners, resolve, site, socialLinks } from '../config/site';
 import NewsletterSignup from './NewsletterSignup.astro';
 
 const year = new Date().getFullYear();
@@ -29,7 +29,7 @@ const email = resolve(contact.email);
   <a href="/#touren">Touren</a>
   <a href="/#regionen">Standorte</a>
   <a href="/challenges/">Challenges</a>
-  <a href="/liga/">Monatsliga</a>
+  {features.monatsliga && <a href="/liga/">Monatsliga</a>}
   <a href="/mein-club/">Mein Bereich</a>
 </nav>
 

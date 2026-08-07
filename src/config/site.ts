@@ -33,6 +33,26 @@ export function resolve<T>(value: T | Todo | null | undefined): T | null {
 }
 
 /* -------------------------------------------------------------------------- */
+/* Abschaltbare Bereiche                                                       */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Bereiche, die vorübergehend ruhen sollen, ohne dass Code verloren geht.
+ *
+ * `monatsliga: false` blendet den Punkt aus der Kopfnavigation und dem Fuß aus
+ * und lässt die Liga-Karte in „Mein Bereich" weg. Die Seite selbst liegt unter
+ * `src/pages/_liga/`; der Unterstrich hält Astro davon ab, daraus eine Route zu
+ * bauen. Datenbank, RPC `step_league` und das Skript bleiben unangetastet.
+ *
+ * Zum Reaktivieren sind es zwei Handgriffe:
+ *   1. hier auf `true` setzen
+ *   2. den Ordner `src/pages/_liga/` zurück nach `src/pages/liga/` schieben
+ */
+export const features = {
+  monatsliga: false,
+} as const;
+
+/* -------------------------------------------------------------------------- */
 /* Allgemein                                                                   */
 /* -------------------------------------------------------------------------- */
 

@@ -7,7 +7,7 @@ interface Props {
 const { transparent = false } = Astro.props;
 
 import SunMark from './SunMark.astro';
-import { social, urbanSports } from '../config/site';
+import { features, social, urbanSports } from '../config/site';
 import { requireVenue } from '../data/venues';
 
 /** "Mitwandern" führt zur Club-Ludwig-Seite bei Urban Sports Club (zentral konfiguriert). */
@@ -32,7 +32,10 @@ type NavItem = {
 const navItems: NavItem[] = [
   { label: 'Shop', href: '/shop/', side: 'left' },
   { label: 'Marschkalender', href: '/maersche/', side: 'left' },
-  { label: 'Monatsliga', href: '/liga/', side: 'left' },
+  // Ruht derzeit – siehe `features.monatsliga` in src/config/site.ts.
+  ...(features.monatsliga
+    ? [{ label: 'Monatsliga', href: '/liga/', side: 'left' } as NavItem]
+    : []),
   { label: 'Mein Bereich', href: '/mein-club/', side: 'right' },
 ];
 

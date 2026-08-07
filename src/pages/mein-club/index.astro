@@ -4,7 +4,7 @@ import Kicker from '../../components/Kicker.astro';
 import SunMark from '../../components/SunMark.astro';
 import { SUN_PATH } from '../../lib/sun';
 import { STAMP_GOAL, reward } from '../../config/stempelheft';
-import { social } from '../../config/site';
+import { features, social } from '../../config/site';
 ---
 
 <BaseLayout
@@ -218,22 +218,26 @@ import { social } from '../../config/site';
           </div>
         </section>
 
-        <!-- Ziele: Monatsliga und Challenges in einem Abschnitt. Vorher waren das
+        <!-- Ziele: Liga und Challenges in einem Abschnitt. Vorher waren das
              zwei Bloecke mit eigener Ueberschrift, eigenem Vorspann und praktisch
              identischen Karten – doppelt so viel Geruest fuer dieselbe Sache.
-             Die alten Sprungmarken #schritte und #challenges bleiben erhalten,
-             sie werden aus Liga, Challenges und CalendarTeaser verlinkt. -->
+             Die Sprungmarke #challenges bleibt erhalten, sie wird aus Challenges
+             und CalendarTeaser verlinkt. Die Liga ruht derzeit, siehe
+             `features` in src/config/site.ts. -->
         <section class="block" aria-labelledby="goals-heading">
           <div class="block__head">
             <h2 id="goals-heading">Deine Ziele</h2>
             <a class="link-underline block__more" href="/challenges/">Alle Challenges</a>
           </div>
           <p class="block__intro">
-            Monatsliga und laufende Challenges an einer Stelle. Eintragen funktioniert
-            überall gleich: Wert, Tag, Screenshot.
+            {features.monatsliga
+              ? 'Monatsliga und laufende Challenges an einer Stelle. Eintragen funktioniert überall gleich: Wert, Tag, Screenshot.'
+              : 'Alle laufenden Challenges an einer Stelle. Eintragen funktioniert überall gleich: Wert, Tag, Screenshot.'}
           </p>
           <div class="goals">
-            <div class="steps" id="schritte" data-steps></div>
+            {/* Ohne diesen Container rendert member-area.ts die Liga-Karte gar
+                nicht erst – renderSteps steigt bei fehlendem [data-steps] aus. */}
+            {features.monatsliga && <div class="steps" id="schritte" data-steps />}
             <div class="challenges" id="challenges" data-challenges></div>
           </div>
         </section>
