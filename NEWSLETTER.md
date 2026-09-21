@@ -33,8 +33,14 @@ Eingebunden ist das Formular im Footer (jede Seite), auf `/maersche/` und auf
 ### 1. Resend
 
 1. Account auf [resend.com](https://resend.com) anlegen.
-2. Domain `clubludwig.app` hinzufügen, die drei DNS-Einträge (SPF, DKIM, DMARC)
-   bei Cloudflare eintragen und verifizieren lassen.
+2. Domain `send.clubludwig.app` hinzufügen - die Subdomain, nicht die nackte.
+   Cloudflare Email Routing legt auf `clubludwig.app` einen eigenen
+   SPF-Eintrag an, damit `simon@clubludwig.app` Post empfangen kann. Zwei
+   SPF-Eintraege auf derselben Domain sind ungueltig: Mailserver werten
+   dann beide ab, und der Newsletter landet geschlossen im Spam. Mit einer
+   eigenen Subdomain fuer den Versand beruehren sich die beiden nie.
+   Die DNS-Eintraege (SPF, DKIM, DMARC) bei Cloudflare eintragen und
+   verifizieren lassen.
 3. API-Key erzeugen (Sending access genügt).
 
 Ohne verifizierte Domain landet der Newsletter im Spam – dieser Schritt lohnt
@@ -57,7 +63,7 @@ Dashboard → Edge Functions → Secrets:
 | Name                  | Wert                                       |
 | --------------------- | ------------------------------------------ |
 | `RESEND_API_KEY`      | Key aus Schritt 1                          |
-| `NEWSLETTER_FROM`     | `Club Ludwig <post@clubludwig.app>`        |
+| `NEWSLETTER_FROM`     | `Club Ludwig <post@send.clubludwig.app>`   |
 | `NEWSLETTER_REPLY_TO` | `simon@clubludwig.app`                     |
 | `SITE_URL`            | `https://clubludwig.app`                   |
 
