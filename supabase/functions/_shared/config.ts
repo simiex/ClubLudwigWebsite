@@ -26,8 +26,18 @@ export const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')!;
  * erreichbar. Wer die Domain ändert, ändert sie dort UND hier.
  */
 
-/** Absender – die Domain muss bei Resend verifiziert sein (SPF/DKIM). */
-export const MAIL_FROM = Deno.env.get('NEWSLETTER_FROM') ?? 'Club Ludwig <post@clubludwig.app>';
+/*
+ * Absender auf der Versand-Subdomain, Antwort auf der nackten Domain.
+ *
+ * Verifiziert ist bei Resend `send.clubludwig.app`, nicht `clubludwig.app` -
+ * auf der nackten Domain legt Cloudflare Email Routing einen eigenen
+ * SPF-Eintrag an, und zwei davon auf derselben Domain sind ungueltig.
+ * Ein Absender auf `clubludwig.app` wuerde von Resend also abgewiesen.
+ *
+ * `reply_to` ist ein eigenes Feld und an die Absenderdomain nicht gebunden.
+ * Antworten gehen deshalb an die Adresse, die auch im Impressum steht.
+ */
+export const MAIL_FROM = Deno.env.get('NEWSLETTER_FROM') ?? 'Club Ludwig <post@send.clubludwig.app>';
 export const MAIL_REPLY_TO = Deno.env.get('NEWSLETTER_REPLY_TO') ?? 'simon@clubludwig.app';
 
 /** Öffentliche Basis-URL der Website (ohne Slash am Ende). */
