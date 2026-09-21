@@ -11,6 +11,23 @@ import { contact, hosting, legal, resolve, social } from '../config/site';
  *   - Nutzerkonten über Supabase (E-Mail + Passwort)
  *   - Speicherung von Teilnahmen, Anmeldungen, Stempeln, Profilbild
  *   - kein Tracking, keine Cookies zu Werbezwecken, keine Embeds
+ *   - die App: Gesundheits- und Fitnessdaten, Sichtbarkeit in Ranglisten,
+ *     Chat und Direktnachrichten, Push, Absturzberichte
+ *
+ * DIE APP-ABSCHNITTE KAMEN SPÄTER DAZU (September 2026)
+ * Dieser Text beschrieb ein Jahr lang nur die Website, während die App längst
+ * Schritte aus Apple Health las und sie anderen Mitgliedern zeigte. Das sind
+ * Gesundheitsdaten nach Art. 9 DSGVO - die schärfste Kategorie, die die
+ * Verordnung kennt -, und sie standen hier nicht. Wer etwas an der
+ * Datenverarbeitung der App ändert, ändert diesen Text mit; die Angaben sind
+ * ausserdem gegen die Datenschutzangaben in App Store Connect zu halten, die
+ * dieselbe Verarbeitung beschreiben und nicht auseinanderlaufen duerfen.
+ *
+ * Die Angaben unten sind aus dem Quelltext belegt, nicht aus Textbausteinen:
+ * die gelesenen HealthKit-Typen aus app.config.ts, die uebertragenen Felder
+ * aus step_logs/km_logs/club_daily_hm, die Sichtbarkeitsschalter aus
+ * profiles (show_km, show_hm, show_history), der Absturzbericht aus
+ * client_errors.
  *
  * WICHTIG: Das ist eine sorgfältige Beschreibung der Verarbeitung, aber keine
  * Rechtsberatung. Vor dem Livegang von einer Anwältin oder einem Anwalt
@@ -51,6 +68,13 @@ const MISSING = (field: string) => `[FEHLT: ${field} – siehe src/config/site.t
   </p>
 
   <h2>Überblick</h2>
+  <p>
+    Diese Erklärung gilt für zwei Dinge: für diese Website und für die App <strong>Club
+    Ludwig</strong> (iOS und Android). Beide nutzen dasselbe Konto, verarbeiten aber
+    unterschiedlich viel. Die App liest mit deiner Freigabe deine Bewegungsdaten – das sind
+    Gesundheitsdaten, und dafür gelten strengere Regeln. Die Abschnitte dazu stehen
+    <a href="#app">weiter unten</a>.
+  </p>
   <p>
     Diese Website lässt sich vollständig ohne Konto nutzen. Dabei setzen wir keine Cookies, binden
     keine Analyse- oder Tracking-Dienste ein und laden keine Inhalte von Drittanbietern nach.
@@ -101,6 +125,138 @@ const MISSING = (field: string) => `[FEHLT: ${field} – siehe src/config/site.t
     Konten, Profildaten, Teilnahmen und Profilbilder liegen bei der Supabase Inc. Der Server
     unseres Projekts steht in der Europäischen Union (Region Nordeuropa). Supabase verarbeitet
     die Daten ausschließlich in unserem Auftrag und weisungsgebunden.
+  </p>
+
+  <h2 id="app">Die App Club Ludwig</h2>
+  <p>
+    Die App ist der Teil von Club Ludwig, in dem tatsächlich gelaufen wird. Sie liest mit deiner
+    Freigabe deine Bewegungsdaten, zeigt sie dir, stellt sie in Ranglisten neben die Werte
+    anderer Mitglieder und ermöglicht Duelle, Challenges und einen Chat. Dafür verarbeitet sie
+    mehr und empfindlichere Daten als die Website.
+  </p>
+  <p>
+    Dein Konto ist dasselbe wie im Mitgliederbereich; was oben unter „Mitgliederkonto“ und
+    „Technischer Dienstleister“ steht, gilt hier ebenso. Die folgenden Abschnitte beschreiben,
+    was <em>zusätzlich</em> dazukommt.
+  </p>
+
+  <h2 id="gesundheitsdaten">Gesundheits- und Fitnessdaten</h2>
+  <p>
+    Mit deiner ausdrücklichen Freigabe liest die App Bewegungsdaten aus <strong>Apple
+    Health</strong> (iOS) beziehungsweise <strong>Health Connect</strong> (Android). Gelesen
+    werden ausschließlich:
+  </p>
+  <ul>
+    <li><strong>Schritte</strong></li>
+    <li><strong>zurückgelegte Strecke</strong></li>
+    <li><strong>aktive Kalorien</strong></li>
+    <li><strong>Bewegungs- und Trainingszeiten</strong></li>
+    <li><strong>erklommene Stockwerke</strong>, woraus die App deine Höhenmeter berechnet</li>
+  </ul>
+  <p>
+    Andere Werte, die in Apple Health oder Health Connect liegen – etwa Herzfrequenz, Schlaf,
+    Gewicht, Zyklus oder medizinische Befunde –, fragt die App nicht ab und bekommt sie nicht.
+  </p>
+  <p>
+    Auf unseren Server übertragen wird daraus eine <strong>Tageszusammenfassung</strong>: Datum,
+    Schritte, Kilometer und Höhenmeter. Einzelne Trainingseinheiten, Uhrzeiten innerhalb des
+    Tages oder Rohdaten verlassen dein Gerät nicht. Trägst du einen Wert von Hand nach, kannst du
+    freiwillig ein Foto als Nachweis anhängen; dieses Bild speichern wir mit.
+  </p>
+  <p>
+    Schritte, Strecke und Kalorien sind <strong>Gesundheitsdaten im Sinne von
+    Art.&nbsp;9&nbsp;Abs.&nbsp;1 DSGVO</strong> und damit besonders geschützt. Wir verarbeiten
+    sie ausschließlich auf Grundlage deiner ausdrücklichen Einwilligung nach
+    Art.&nbsp;9&nbsp;Abs.&nbsp;2 lit.&nbsp;a in Verbindung mit Art.&nbsp;6&nbsp;Abs.&nbsp;1
+    lit.&nbsp;a DSGVO. Diese Einwilligung erteilst du zweimal: bei der Registrierung und noch
+    einmal im Systemdialog von Apple Health beziehungsweise Health Connect.
+  </p>
+  <p>
+    <strong>Du kannst die Freigabe jederzeit widerrufen</strong> – in den Systemeinstellungen
+    deines Geräts unter Apple Health beziehungsweise Health Connect. Die App liest dann keine
+    neuen Werte mehr; bereits übertragene Tageswerte bleiben gespeichert, bis du dein Konto
+    löschst oder uns formlos um ihre Löschung bittest.
+  </p>
+  <p>
+    Wir werten diese Daten nicht zu Werbezwecken aus, leiten daraus keine Aussagen über deine
+    Gesundheit ab und geben sie an niemanden weiter. Club Ludwig ist kein Medizinprodukt.
+  </p>
+
+  <h2>Bewegungssensor deines Geräts</h2>
+  <p>
+    In den letzten Minuten eines Duells liest die App zusätzlich den Schrittzähler des Geräts
+    selbst, weil Apple Health seine Werte nur mit Verzögerung herausgibt. Diese Zwischenwerte
+    bleiben auf deinem Gerät und werden nicht an uns übertragen. Gespeichert wird weiterhin
+    ausschließlich der Tageswert aus Health.
+  </p>
+
+  <h2 id="sichtbarkeit">Was andere Mitglieder von dir sehen</h2>
+  <p>
+    Club Ludwig ist ein Club und kein Einzeltagebuch: Ein Teil deiner Werte ist für andere
+    angemeldete Mitglieder sichtbar. Das betrifft
+  </p>
+  <ul>
+    <li>in Tages- und Monatsliga: <strong>Anzeigename, Profilbild und Schritte</strong></li>
+    <li>in Duellen: dieselben Angaben gegenüber deiner Gegnerin oder deinem Gegner</li>
+    <li>
+      auf deinem Profil: je nach deinen Einstellungen zusätzlich <strong>Kilometer,
+      Höhenmeter und dein Wochenverlauf</strong>
+    </li>
+  </ul>
+  <p>
+    In den Einstellungen der App legst du einzeln fest, ob Kilometer, Höhenmeter und der
+    Wochenverlauf für andere sichtbar sind. Für Menschen außerhalb des Clubs und für nicht
+    angemeldete Besucher sind diese Angaben nie sichtbar, und veröffentlicht werden sie
+    nirgends.
+  </p>
+  <p>
+    Dass deine Schritte im Club sichtbar sind, ist der Zweck der App und Teil dessen, wozu du
+    bei der Registrierung eingewilligt hast (Art.&nbsp;9&nbsp;Abs.&nbsp;2 lit.&nbsp;a DSGVO).
+    Willst du das nicht mehr, kannst du die genannten Angaben abschalten oder dein Konto löschen.
+  </p>
+
+  <h2>Chat und Direktnachrichten</h2>
+  <p>
+    Die App enthält einen Clubchat und Direktnachrichten zwischen Mitgliedern. Gespeichert werden
+    der Nachrichtentext, Absender und Empfänger, der Zeitpunkt und – bei Direktnachrichten – ob
+    die Nachricht gelesen wurde. Nachrichten im Clubchat sind für alle angemeldeten Mitglieder
+    sichtbar, Direktnachrichten nur für die beiden Beteiligten.
+  </p>
+  <p>
+    <strong>Eine Ende-zu-Ende-Verschlüsselung gibt es nicht.</strong> Die Nachrichten liegen bei
+    unserem Dienstleister (siehe oben) und wären für uns technisch einsehbar. Wir lesen sie
+    nicht, es sei denn, wir müssen einer Meldung wegen Belästigung oder Missbrauch nachgehen.
+    Rechtsgrundlage ist Art.&nbsp;6&nbsp;Abs.&nbsp;1 lit.&nbsp;b DSGVO.
+  </p>
+
+  <h2>Push-Benachrichtigungen</h2>
+  <p>
+    Erlaubst du Mitteilungen, speichern wir eine Gerätekennung (Push-Token) und die Plattform,
+    um dir Nachrichten zustellen zu können. Der Versand läuft über den Push-Dienst von Expo
+    (Expo, 650 Industries, Inc., USA) und von dort über die Systeme von Apple beziehungsweise
+    Google. Übermittelt werden dabei das Token und der Text der Mitteilung.
+  </p>
+  <p>
+    In den Einstellungen der App wählst du einzeln ab, wofür du Mitteilungen bekommst; im
+    Betriebssystem kannst du sie ganz abschalten. Rechtsgrundlage ist deine Einwilligung
+    (Art.&nbsp;6&nbsp;Abs.&nbsp;1 lit.&nbsp;a DSGVO).
+  </p>
+
+  <h2>Fehler- und Absturzberichte</h2>
+  <p>
+    Stürzt die App ab oder tritt ein Fehler auf, übermittelt sie einen Bericht: die
+    Fehlermeldung, den technischen Aufrufverlauf, App- und Systemversion sowie deine
+    Benutzerkennung. Inhalte deiner Daten – Schritte, Nachrichten, Bilder – stehen nicht darin.
+  </p>
+  <p>
+    Wir setzen dafür keinen externen Analysedienst ein; die Berichte liegen in unserer eigenen
+    Datenbank. Rechtsgrundlage ist Art.&nbsp;6&nbsp;Abs.&nbsp;1 lit.&nbsp;f DSGVO – unser
+    berechtigtes Interesse daran, Fehler zu finden und zu beheben.
+  </p>
+  <p>
+    Löschst du dein Konto, <strong>entfernen wir die Benutzerkennung aus diesen Berichten</strong>;
+    der technische Bericht selbst bleibt ohne Personenbezug erhalten, damit ein Fehler
+    nachvollziehbar bleibt. Er lässt sich danach keiner Person mehr zuordnen.
   </p>
 
   <h2>Cookies und vergleichbare Techniken</h2>
@@ -159,11 +315,23 @@ const MISSING = (field: string) => `[FEHLT: ${field} – siehe src/config/site.t
     Anmeldungen, Teilnahmen, Stempel, Empfehlungscode und Profilbild unmittelbar und
     unwiderruflich entfernt. Server-Logfiles beim Hoster werden nach dessen Fristen gelöscht.
   </p>
+  <p>
+    Für die App gilt dasselbe: Deine Tageswerte aus Health, Höhenmeter, Duelle, Abzeichen,
+    Chat- und Direktnachrichten sowie das Push-Token werden zusammen mit dem Konto gelöscht.
+    Eine einzige Ausnahme sind die Fehler- und Absturzberichte – dort wird die Benutzerkennung
+    entfernt, der technische Bericht bleibt ohne Personenbezug bestehen.
+  </p>
 
   <h2>Konto löschen</h2>
   <p>
-    Im Mitgliederbereich findest du unter „Konto“ eine Schaltfläche zum Löschen. Alternativ
-    genügt eine formlose E-Mail an die oben genannte Adresse.
+    In der App findest du die Schaltfläche unter „Einstellungen“, im Mitgliederbereich der
+    Website unter „Konto“. Beides löscht dasselbe Konto und damit alle oben genannten Daten.
+    Alternativ genügt eine formlose E-Mail an die oben genannte Adresse.
+  </p>
+  <p>
+    Nachrichten, die du anderen Mitgliedern geschrieben hast, verschwinden dabei ebenfalls –
+    auch aus deren Ansicht. Zitiert jemand deine Nachricht in einer eigenen, bleibt dieses Zitat
+    als fremder Text bestehen.
   </p>
 
   <h2>Externe Links</h2>
