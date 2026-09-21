@@ -18,6 +18,37 @@ export const TODO_REQUIRED = '__TODO_REQUIRED__' as const;
 
 export type Todo = typeof TODO_REQUIRED;
 
+/* -------------------------------------------------------------------------- */
+/* Domain                                                                      */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Die Domain – ohne Schema, ohne Schrägstrich.
+ *
+ * WARUM SIE EINE EIGENE ZEILE BEKOMMT
+ * Sie stand an vierzehn Stellen in acht Dateien, und `astro.config.mjs` trug
+ * sie ein zweites Mal ein, obwohl diese Datei laut ihrer eigenen Überschrift
+ * die zentrale Konfiguration ist. Als clubludwig.de im September 2026 wegfiel,
+ * war nicht das Ändern der Aufwand, sondern das Finden.
+ *
+ * .app IST HTTPS-ONLY
+ * Google hat die Top-Level-Domain in die HSTS-Preload-Liste eintragen lassen.
+ * Jeder Browser erzwingt TLS, bevor er die erste Anfrage schickt. Ein Link auf
+ * http:// ist dort kein unverschlüsselter Link, sondern gar keiner – darum
+ * steht das Schema hier fest und wird nicht an jeder Aufrufstelle neu
+ * geschrieben.
+ *
+ * NICHT BETROFFEN
+ * clubludwig.shop hat einen eigenen Vertrag und liegt bei Shopify.
+ * `de.clubludwig.app` in der App ist die Bundle-ID, keine Adresse – wer die
+ * ändert, veröffentlicht eine andere App.
+ *
+ * NICHT VON HIER BEDIENT
+ * supabase/functions/ läuft in Deno und wird getrennt deployt; dort kommt die
+ * Domain aus der Umgebungsvariablen SITE_URL. Siehe NEWSLETTER.md.
+ */
+export const DOMAIN = 'clubludwig.app';
+
 /** true, wenn ein Wert noch der Platzhalter-Marker ist. */
 export function isTodo(value: unknown): value is Todo {
   return value === TODO_REQUIRED;
@@ -64,7 +95,7 @@ export const site = {
   country: 'Germany',
   locale: 'de-DE',
   /** Finale Domain – wird für Canonical-, OG- und schema.org-URLs genutzt. */
-  url: 'https://clubludwig.de',
+  url: `https://${DOMAIN}`,
 } as const;
 
 /* -------------------------------------------------------------------------- */
@@ -72,7 +103,7 @@ export const site = {
 /* -------------------------------------------------------------------------- */
 
 export const contact = {
-  email: 'simon@clubludwig.de' as string | Todo,
+  email: `simon@${DOMAIN}` as string | Todo,
   /** Optional – wird ausgeblendet, solange null. */
   phone: null as string | null,
 } as const;

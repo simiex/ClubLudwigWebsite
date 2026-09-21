@@ -13,12 +13,35 @@ export const SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 /** API-Key von resend.com */
 export const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')!;
 
+/*
+ * Die Rückfallwerte sind keine Beispiele.
+ *
+ * Fehlt ein Secret, laufen die Functions damit weiter, statt abzubrechen - und
+ * das ist richtig so, nur muss der Rückfall dann auf eine Domain zeigen, die
+ * es gibt. Als clubludwig.de wegfiel, standen hier drei tote Adressen, von
+ * denen niemand etwas gemerkt hätte, solange die Secrets gesetzt sind. Die
+ * Zeilen gehören deshalb zu jedem Domainwechsel dazu.
+ *
+ * Deno läuft getrennt vom Astro-Build; src/config/site.ts ist hier nicht
+ * erreichbar. Wer die Domain ändert, ändert sie dort UND hier.
+ */
+
 /** Absender – die Domain muss bei Resend verifiziert sein (SPF/DKIM). */
-export const MAIL_FROM = Deno.env.get('NEWSLETTER_FROM') ?? 'Club Ludwig <post@clubludwig.de>';
-export const MAIL_REPLY_TO = Deno.env.get('NEWSLETTER_REPLY_TO') ?? 'simon@clubludwig.de';
+export const MAIL_FROM = Deno.env.get('NEWSLETTER_FROM') ?? 'Club Ludwig <post@clubludwig.app>';
+export const MAIL_REPLY_TO = Deno.env.get('NEWSLETTER_REPLY_TO') ?? 'simon@clubludwig.app';
 
 /** Öffentliche Basis-URL der Website (ohne Slash am Ende). */
-export const SITE_URL = Deno.env.get('SITE_URL') ?? 'https://clubludwig.de';
+export const SITE_URL = Deno.env.get('SITE_URL') ?? 'https://clubludwig.app';
+
+/**
+ * Die Domain als sichtbarer Text – abgeleitet, nicht geschrieben.
+ *
+ * In der Fußzeile jeder Mail steht die Domain einmal als Link und einmal als
+ * Beschriftung. Die Beschriftung war fest verdrahtet und folgte SITE_URL
+ * nicht: Nach dem Wechsel hätte dort weiter „clubludwig.de" gestanden,
+ * verlinkt auf clubludwig.app. Kein Secret der Welt heilt das.
+ */
+export const SITE_LABEL = SITE_URL.replace(/^https?:\/\//, '').replace(/\/$/, '');
 
 /** Basis-URL der Functions, für Bestätigungs- und Abmeldelinks. */
 export const FUNCTIONS_URL = `${SUPABASE_URL}/functions/v1`;

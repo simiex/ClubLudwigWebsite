@@ -10,7 +10,7 @@
  * Zustellbarkeit, Screenreader, Textclients).
  * ============================================================================
  */
-import { SITE_URL } from './config.ts';
+import { SITE_LABEL, SITE_URL } from './config.ts';
 import {
   FORMAT_LABEL,
   STATUS_LABEL,
@@ -89,7 +89,7 @@ function shell(opts: { preheader: string; body: string; footer: string }): strin
                 ${opts.footer}
               </p>
               <p style="margin:22px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:2;color:#6f6d68;text-align:center;">
-                <a href="${SITE_URL}/" style="color:#6f6d68;text-decoration:none;">clubludwig.de</a>
+                <a href="${SITE_URL}/" style="color:#6f6d68;text-decoration:none;">${SITE_LABEL}</a>
                 &nbsp;·&nbsp;
                 <a href="${SITE_URL}/impressum/" style="color:#6f6d68;text-decoration:none;">Impressum</a>
                 &nbsp;·&nbsp;

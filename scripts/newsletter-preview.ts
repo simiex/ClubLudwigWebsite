@@ -27,7 +27,7 @@ const SUPABASE_KEY = 'sb_publishable_3qcl4FGcXKcET-GbXb2uqA_UBeAg0r9';
         SUPABASE_URL,
         SUPABASE_SERVICE_ROLE_KEY: 'preview',
         RESEND_API_KEY: 'preview',
-        SITE_URL: 'https://clubludwig.de',
+        SITE_URL: 'https://clubludwig.app',
       }[name];
     },
   },

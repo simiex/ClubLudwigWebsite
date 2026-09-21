@@ -62,6 +62,12 @@ import NewsletterSignup from '../../components/NewsletterSignup.astro';
 </BaseLayout>
 
 <script>
+  /* Dieses <script> wird von Astro gebuendelt, ist also kein Inline-Block und
+     darf aus src/ importieren. Vite schuettelt den Rest der Konfiguration
+     heraus - im Browser landet nur die Adresse, die unten in der Fehlermeldung
+     steht, und nicht die ganze Datei. */
+  import { contact } from '../../config/site';
+
   const MESSAGES: Record<string, { title: string; text: string; tone: string; hideForm: boolean }> = {
     bestaetigt: {
       title: 'Angemeldet. Willkommen im Verteiler.',
@@ -83,7 +89,7 @@ import NewsletterSignup from '../../components/NewsletterSignup.astro';
     },
     fehler: {
       title: 'Da ist etwas schiefgegangen.',
-      text: 'Bitte versuch es später noch einmal oder schreib an simon@clubludwig.de.',
+      text: `Bitte versuch es später noch einmal oder schreib an ${contact.email}.`,
       tone: 'error',
       hideForm: false,
     },

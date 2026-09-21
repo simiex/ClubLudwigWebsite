@@ -14,7 +14,7 @@
  *
  * Manueller Aufruf (Service-Role-Key nötig):
  *   { "force": true }                       → sendet, auch wenn schon versendet
- *   { "test_to": "simon@clubludwig.de" }    → nur an diese Adresse, kein Protokoll
+ *   { "test_to": "simon@clubludwig.app" }   → nur an diese Adresse, kein Protokoll
  *   { "welcome_for": "neu@example.de" }     → Erstausgabe an eine frisch
  *                                             bestätigte Adresse, kein Protokoll
  *   { "dry": true }                         → verschickt nichts, gibt Vorschau-HTML

@@ -33,7 +33,7 @@ Eingebunden ist das Formular im Footer (jede Seite), auf `/maersche/` und auf
 ### 1. Resend
 
 1. Account auf [resend.com](https://resend.com) anlegen.
-2. Domain `clubludwig.de` hinzufügen, die drei DNS-Einträge (SPF, DKIM, DMARC)
+2. Domain `clubludwig.app` hinzufügen, die drei DNS-Einträge (SPF, DKIM, DMARC)
    bei Cloudflare eintragen und verifizieren lassen.
 3. API-Key erzeugen (Sending access genügt).
 
@@ -57,9 +57,9 @@ Dashboard → Edge Functions → Secrets:
 | Name                  | Wert                                       |
 | --------------------- | ------------------------------------------ |
 | `RESEND_API_KEY`      | Key aus Schritt 1                          |
-| `NEWSLETTER_FROM`     | `Club Ludwig <post@clubludwig.de>`         |
-| `NEWSLETTER_REPLY_TO` | `simon@clubludwig.de`                      |
-| `SITE_URL`            | `https://clubludwig.de`                    |
+| `NEWSLETTER_FROM`     | `Club Ludwig <post@clubludwig.app>`        |
+| `NEWSLETTER_REPLY_TO` | `simon@clubludwig.app`                     |
+| `SITE_URL`            | `https://clubludwig.app`                   |
 
 `SUPABASE_URL` und `SUPABASE_SERVICE_ROLE_KEY` setzt Supabase selbst.
 
@@ -92,7 +92,7 @@ open .preview/newsletter.html
 curl -X POST https://glkugldixsgtiqwdjouj.supabase.co/functions/v1/newsletter-weekly \
   -H "Authorization: Bearer $SERVICE_ROLE_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"test_to":"simon@clubludwig.de"}'
+  -d '{"test_to":"simon@clubludwig.app"}'
 ```
 
 **Versand außer der Reihe an alle:** `{"force":true}` statt `test_to`.
