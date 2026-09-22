@@ -1,0 +1,68 @@
+# Die Website ausliefern - ohne Rechner.
+#
+# WARUM ES DIESE DATEI GIBT
+# Am 21.09.2026 lagen drei Commits auf main und waren live, der vierte nicht:
+# Die Datenschutzerklaerung, die als einzige wirklich dringend war, erzeugte
+# bei Cloudflare gar keine Version. Kein Fehler, keine Meldung - sie war
+# einfach nicht da. Aufgefallen ist es nur, weil jemand die Seite auf dem
+# Handy aufgerufen und einen fehlenden Absatz bemerkt hat.
+#
+# Eine Auslieferung, die manchmal stillschweigend ausfaellt, ist schlimmer
+# als gar keine: Man glaubt, etwas sei draussen, und prueft es nicht mehr.
+#
+# Dieser Lauf steht sichtbar im Reiter "Actions" - gruen oder rot, mit
+# Protokoll. Und `workflow_dispatch` heisst: Man kann ihn von Hand starten,
+# vom Telefon aus, ohne Rechner und ohne Terminal.
+#
+# WAS DU EINMALIG BRAUCHST
+# Zwei Eintraege unter Settings -> Secrets and variables -> Actions:
+#   CLOUDFLARE_API_TOKEN    Cloudflare -> My Profile -> API Tokens ->
+#                           Create Token -> Vorlage "Edit Cloudflare Workers"
+#   CLOUDFLARE_ACCOUNT_ID   steht in Cloudflare in der Adresszeile hinter
+#                           dash.cloudflare.com/ - und rechts in der Uebersicht
+#
+# LAEUFT CLOUDFLARES EIGENE GIT-ANBINDUNG WIEDER AN, IST DAS UNSCHAEDLICH
+# Dann wird dieselbe Seite zweimal hochgeladen. Das kostet ein paar Sekunden
+# und sonst nichts - beide Male mit demselben Inhalt.
+name: Website ausliefern
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+# Zwei Pushes kurz hintereinander sollen sich nicht ueberholen: Sonst
+# gewinnt der aeltere Lauf das Rennen und liefert den aelteren Stand aus.
+concurrency:
+  group: website-deploy
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  ausliefern:
+    name: Bauen und zu Cloudflare hochladen
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # npm ci und nicht npm install: Gebaut wird genau das, was in
+      # package-lock.json steht, und nicht das, was heute zufaellig neu ist.
+      - run: npm ci
+
+      # Enthaelt scripts/check-content.mjs - der bricht ab, solange ein
+      # rechtlich notwendiger Wert noch der Platzhalter ist. Genau deshalb
+      # laeuft er vor dem Hochladen und nicht danach.
+      - run: npm run build
+
+      - uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy
