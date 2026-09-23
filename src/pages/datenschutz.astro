@@ -229,6 +229,35 @@ const MISSING = (field: string) => `[FEHLT: ${field} – siehe src/config/site.t
     Rechtsgrundlage ist Art.&nbsp;6&nbsp;Abs.&nbsp;1 lit.&nbsp;b DSGVO.
   </p>
 
+  <h2 id="moderation">Melden, Sperren und Wortfilter</h2>
+  <p>
+    Jede Nachricht und jedes Profil lässt sich in der App melden. Zu einer Meldung speichern wir:
+    wer gemeldet hat, wen oder was die Meldung betrifft, den gewählten Grund, deine freiwillige
+    Anmerkung, den Zeitpunkt und den <strong>Wortlaut des gemeldeten Inhalts</strong>. Diese
+    Momentaufnahme ist nötig, weil der gemeldete Text sonst verschwunden sein kann, bevor wir ihn
+    ansehen – gerade dann, wenn es etwas zu verbergen gibt. Einsehbar sind Meldungen
+    ausschließlich für die Vereinsleitung.
+  </p>
+  <p>
+    Sperrst du ein Mitglied, speichern wir, wer wen gesperrt hat und wann. Das gesperrte Mitglied
+    erfährt davon nichts. Entsperren kannst du jederzeit in den Einstellungen der App; der
+    Eintrag wird dabei gelöscht.
+  </p>
+  <p>
+    Beim Absenden prüft der Server jede Nachricht gegen eine feste Liste eindeutig beleidigender
+    Ausdrücke und weist sie gegebenenfalls ab. Die Prüfung läuft im Moment des Absendens, ein
+    Ergebnis wird nicht gespeichert, und es findet keine weitergehende automatisierte Auswertung
+    deiner Nachrichten statt. Eine automatisierte Entscheidung im Sinne von Art.&nbsp;22 DSGVO ist
+    damit nicht verbunden – über Konsequenzen entscheiden ausschließlich Menschen.
+  </p>
+  <p>
+    Rechtsgrundlage für Meldungen und Sperren ist unser berechtigtes Interesse an einem
+    belästigungsfreien Club und an der Erfüllung der Vorgaben der App-Stores
+    (Art.&nbsp;6&nbsp;Abs.&nbsp;1 lit.&nbsp;f DSGVO), bei der Bearbeitung zugleich
+    Art.&nbsp;6&nbsp;Abs.&nbsp;1 lit.&nbsp;b DSGVO. Erledigte Meldungen bewahren wir bis zu zwölf
+    Monate auf, um Wiederholungsfälle zu erkennen, und löschen sie danach.
+  </p>
+
   <h2>Push-Benachrichtigungen</h2>
   <p>
     Erlaubst du Mitteilungen, speichern wir eine Gerätekennung (Push-Token) und die Plattform,
