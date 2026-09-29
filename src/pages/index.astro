@@ -1,45 +1,170 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
-import Hero from '../components/Hero.astro';
-import FeaturedEvent from '../components/FeaturedEvent.astro';
-import Regions from '../components/Regions.astro';
-import StampTeaser from '../components/StampTeaser.astro';
-import CalendarTeaser from '../components/CalendarTeaser.astro';
-import Manifest from '../components/Manifest.astro';
-import StructuredData from '../components/StructuredData.astro';
-import { buildEvents, nextFrom, toEventSchema } from '../lib/events';
-import { loadEvents } from '../lib/events-source';
-import { organizationSchema, venueListSchema } from '../lib/schema';
+/**
+ * Startseite: nur noch der Hinweis auf die Club Ludwig App.
+ *
+ * Bewusst ohne BaseLayout – Kopfnavigation und Fuß mit Newsletter würden von
+ * dem einen Schritt ablenken, um den es hier geht. Impressum und Datenschutz
+ * bleiben unten verlinkt, die sind Pflicht.
+ */
+import '@fontsource-variable/archivo';
+import '../styles/global.css';
+import QRCode from 'qrcode';
+import { app, site } from '../config/site';
 
-/** Zur Build-Zeit aus Supabase geladen (Fallback: src/data/events.json). */
-const events = buildEvents(await loadEvents());
-const nextEvent = nextFrom(events);
+const title = `${app.name} – ${site.name} Bonn`;
+const description =
+  'Club Ludwig gibt es jetzt als App. QR-Code scannen und die Beta über TestFlight auf dem iPhone installieren.';
+const canonical = new URL('/', Astro.site);
+const ogImage = new URL('/assets/og-image.png', Astro.site);
+
+/* Zur Build-Zeit als SVG erzeugt – kein Script, keine externe Anfrage. */
+const qrSvg = await QRCode.toString(app.testflight, {
+  type: 'svg',
+  errorCorrectionLevel: 'M',
+  margin: 2,
+  color: { dark: '#060d16', light: '#ffffff' },
+});
 ---
 
-<BaseLayout
-  title="Club Ludwig – Hiking Club Bonn"
-  description="Der offene Hiking Club aus Bonn. Gemeinsam wandern, neue Leute kennenlernen und Wege rund um Rhein und Siebengebirge entdecken."
-  transparentNav
->
-  <StructuredData
-    slot="head"
-    schemas={[
-      organizationSchema(),
-      venueListSchema(),
-      nextEvent ? toEventSchema(nextEvent) : null,
-    ]}
-  />
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="theme-color" content="#060D16" />
 
-  <Hero />
-  <FeaturedEvent event={nextEvent} />
-  <CalendarTeaser />
-  <Regions />
-  <StampTeaser />
-  <Manifest />
-</BaseLayout>
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:locale" content="de_DE" />
+    <meta name="twitter:card" content="summary_large_image" />
+  </head>
+  <body>
+    <main class="app">
+      <img class="app__logo" src="/assets/logo-white.png" alt={site.name} width="660" height="136" />
 
-<script>
-  import { initHomeAnimations } from '../scripts/home-animations';
+      <h1 class="app__title">Club Ludwig gibt es jetzt als App.</h1>
+      <p class="app__lead">
+        Touren, Märsche, Stempelheft und dein Bereich – alles an einem Ort. Scann den Code mit der
+        iPhone-Kamera und installier die Beta über TestFlight.
+      </p>
 
-  initHomeAnimations();
-</script>
+      <a class="app__qr" href={app.testflight} aria-label="Club Ludwig App bei TestFlight öffnen">
+        <Fragment set:html={qrSvg} />
+      </a>
+
+      <a class="app__cta" href={app.testflight}>Zur App bei TestFlight ↗</a>
+      <p class="app__hint">Schon auf dem iPhone? Einfach auf den Button tippen.</p>
+    </main>
+
+    <footer class="legal-links">
+      <a href="/impressum/">Impressum</a>
+      <a href="/datenschutz/">Datenschutz</a>
+    </footer>
+  </body>
+</html>
+
+<style>
+  body {
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .app {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 48px 16px 32px;
+    max-width: 640px;
+    margin: 0 auto;
+  }
+
+  .app__logo {
+    width: min(240px, 60vw);
+    height: auto;
+    margin-bottom: 40px;
+  }
+
+  .app__title {
+    margin: 0;
+    font-size: clamp(30px, 5vw, 48px);
+    line-height: 1.05;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+
+  .app__lead {
+    margin: 18px 0 32px;
+    color: var(--cream-72);
+    font-size: 17px;
+    line-height: 1.55;
+  }
+
+  .app__qr {
+    display: block;
+    width: min(260px, 70vw);
+    padding: 10px;
+    background: #fff;
+    border-radius: var(--radius);
+    box-shadow: var(--lime-glow);
+  }
+
+  .app__qr :global(svg) {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .app__cta {
+    margin-top: 32px;
+    padding: 14px 24px;
+    border-radius: var(--radius-sm);
+    background: var(--color-lime);
+    color: var(--color-night);
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .app__cta:hover,
+  .app__cta:focus-visible {
+    box-shadow: var(--lime-glow);
+  }
+
+  .app__hint {
+    margin: 14px 0 0;
+    color: var(--cream-55);
+    font-size: 14px;
+  }
+
+  .legal-links {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    padding: 24px 16px 32px;
+    font-size: 14px;
+  }
+
+  .legal-links a {
+    color: var(--cream-55);
+    text-decoration: none;
+  }
+
+  .legal-links a:hover,
+  .legal-links a:focus-visible {
+    color: var(--color-cream);
+  }
+</style>

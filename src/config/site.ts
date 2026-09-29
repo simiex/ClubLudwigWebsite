@@ -99,6 +99,20 @@ export const site = {
 } as const;
 
 /* -------------------------------------------------------------------------- */
+/* App                                                                         */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Die Startseite zeigt nur noch den Hinweis auf die App. Der QR-Code dort wird
+ * beim Build aus `testflight` erzeugt – neuer Link hier, neu deployen, fertig.
+ */
+export const app = {
+  name: 'Club Ludwig App',
+  /** Öffentlicher TestFlight-Einladungslink (iOS). */
+  testflight: 'https://testflight.apple.com/join/dgA17QTK',
+} as const;
+
+/* -------------------------------------------------------------------------- */
 /* Kontakt                                                                     */
 /* -------------------------------------------------------------------------- */
 
