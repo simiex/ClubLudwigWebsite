@@ -70,6 +70,31 @@ src/
 _prototype/          Entpackter Design-Export (nur Referenz, nicht Teil des Builds)
 ```
 
+## App-Log pflegen (`/neu/`)
+
+Die Seite **clubludwig.app/neu/** zeigt, was in der Club Ludwig App neu ist, was als
+Nächstes kommt und ab und zu einen kleinen Leak. Die Einträge stehen in
+**`src/data/app-log.json`**:
+
+```json
+{
+  "date": "2026-10-05",
+  "kind": "leak",
+  "title": "Es wird gruselig",
+  "text": "Ende Oktober taucht etwas Orangefarbenes in euren Profilen auf."
+}
+```
+
+| `kind` | Wo es erscheint                                   |
+| ------ | ------------------------------------------------- |
+| `neu`  | „Log" – ist in der App angekommen                 |
+| `bald` | „Ausblick" – fest geplant                         |
+| `leak` | „Ausblick" – Vorgeschmack, gern vage              |
+
+Sortiert wird nach Datum, neuestes zuerst. Ist ein `bald` oder `leak` erschienen, den
+Eintrag auf `neu` umstellen (und Datum anpassen). Leere Bereiche werden ausgeblendet.
+Nach dem Ändern pushen – Cloudflare baut die Seite neu.
+
 ## Animationen
 
 Implementiert in `src/scripts/home-animations.ts` mit `gsap.matchMedia()`:
