@@ -5,9 +5,8 @@
  */
 import AppLayout from '../../layouts/AppLayout.astro';
 import { app, site } from '../../config/site';
-import { formatLogDate, shipped, upcoming, type AppLogKind } from '../../lib/app-log';
-
-const labels: Record<AppLogKind, string> = { neu: 'Neu', bald: 'Bald', leak: 'Leak' };
+import AppLogEntry from '../../components/AppLogEntry.astro';
+import { shipped, upcoming } from '../../lib/app-log';
 ---
 
 <AppLayout
@@ -29,16 +28,7 @@ const labels: Record<AppLogKind, string> = { neu: 'Neu', bald: 'Bald', leak: 'Le
         <section class="log__section" aria-labelledby="ausblick">
           <h2 id="ausblick" class="log__heading">Ausblick</h2>
           <ol class="log__list">
-            {upcoming.map((e) => (
-              <li class={`entry entry--${e.kind}`}>
-                <p class="entry__meta">
-                  <span class="entry__tag">{labels[e.kind]}</span>
-                  <time datetime={e.date}>{formatLogDate(e.date)}</time>
-                </p>
-                <h3 class="entry__title">{e.title}</h3>
-                <p class="entry__text">{e.text}</p>
-              </li>
-            ))}
+            {upcoming.map((e) => <AppLogEntry entry={e} showTag />)}
           </ol>
         </section>
       )
@@ -49,15 +39,7 @@ const labels: Record<AppLogKind, string> = { neu: 'Neu', bald: 'Bald', leak: 'Le
         <section class="log__section" aria-labelledby="log">
           <h2 id="log" class="log__heading">Log</h2>
           <ol class="log__list">
-            {shipped.map((e) => (
-              <li class="entry entry--neu">
-                <p class="entry__meta">
-                  <time datetime={e.date}>{formatLogDate(e.date)}</time>
-                </p>
-                <h3 class="entry__title">{e.title}</h3>
-                <p class="entry__text">{e.text}</p>
-              </li>
-            ))}
+            {shipped.map((e) => <AppLogEntry entry={e} />)}
           </ol>
         </section>
       )
@@ -66,6 +48,17 @@ const labels: Record<AppLogKind, string> = { neu: 'Neu', bald: 'Bald', leak: 'Le
     <a class="log__cta" href={app.testflight}>App bei TestFlight holen ↗</a>
   </main>
 </AppLayout>
+
+<script>
+  // Wer weniger Bewegung eingestellt hat, sieht das Standbild statt der Loops.
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.querySelectorAll<HTMLVideoElement>('.entry__video').forEach((v) => {
+      v.removeAttribute('autoplay');
+      v.pause();
+      v.currentTime = 0;
+    });
+  }
+</script>
 
 <style>
   .log {
@@ -117,59 +110,6 @@ const labels: Record<AppLogKind, string> = { neu: 'Neu', bald: 'Bald', leak: 'Le
     padding: 0;
     display: grid;
     gap: 12px;
-  }
-
-  .entry {
-    padding: 18px 20px;
-    border: 1px solid var(--cream-line);
-    border-radius: var(--radius);
-    background: var(--color-surface-2);
-  }
-
-  .entry--bald {
-    border-color: var(--lime-line);
-  }
-
-  .entry--leak {
-    border-color: rgba(62, 240, 207, 0.3);
-  }
-
-  .entry__meta {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin: 0;
-    color: var(--cream-55);
-    font-size: 13px;
-  }
-
-  .entry__tag {
-    padding: 2px 8px;
-    border-radius: 999px;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    background: var(--color-lime);
-    color: var(--color-night);
-  }
-
-  .entry--leak .entry__tag {
-    background: var(--color-neon);
-  }
-
-  .entry__title {
-    margin: 8px 0 0;
-    font-size: 19px;
-    font-weight: 700;
-    line-height: 1.25;
-  }
-
-  .entry__text {
-    margin: 6px 0 0;
-    color: var(--cream-72);
-    font-size: 15px;
-    line-height: 1.55;
   }
 
   .log__cta {
