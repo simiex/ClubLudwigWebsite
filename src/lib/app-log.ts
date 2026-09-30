@@ -7,12 +7,21 @@ import raw from '../data/app-log.json';
  */
 export type AppLogKind = 'neu' | 'bald' | 'leak';
 
+/** Kurzer Loop aus der App – MP4, WebM als Ausweiche, Standbild (webp) für Vorschau und reduzierte Bewegung. */
+export interface AppLogMedia {
+  src: string;
+  webm?: string;
+  poster: string;
+  alt: string;
+}
+
 export interface AppLogEntry {
   /** ISO-Datum, z. B. "2026-09-29" – bei bald/leak der Tag des Eintrags */
   date: string;
   kind: AppLogKind;
   title: string;
   text: string;
+  media?: AppLogMedia[];
 }
 
 const entries = raw as AppLogEntry[];

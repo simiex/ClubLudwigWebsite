@@ -1,15 +1,71 @@
 [
   {
+    "date": "2026-09-30",
+    "kind": "leak",
+    "title": "Winter kommt in die App",
+    "text": "Vom 1. Dezember bis zum 6. Januar wird es im Premium-Theme winterlich: Schnee auf den Karten, Lichterketten, eine Mütze für die Club-Sonne – und dein Schrittring wächst als Tannengirlande. Beim Tagesziel gehen die Lichter an.",
+    "media": [
+      {
+        "src": "/assets/app-log/winter.mp4",
+        "webm": "/assets/app-log/winter.webm",
+        "poster": "/assets/app-log/winter.webp",
+        "alt": "Die Heute-Seite im Winter: Lichterkette, Schnee auf den Karten, Schrittring als Tannengirlande mit Stern"
+      }
+    ]
+  },
+  {
+    "date": "2026-09-30",
+    "kind": "leak",
+    "title": "Drei Fest-Rahmen",
+    "text": "Ein Kürbis mit flackerndem Gesicht, ein Tannenkranz mit Lauflicht und eine Sonne, die auf dem Ring aufgeht. Wann und wie man sie bekommt? Verraten wir noch nicht.",
+    "media": [
+      {
+        "src": "/assets/app-log/halloween.mp4",
+        "webm": "/assets/app-log/halloween.webm",
+        "poster": "/assets/app-log/halloween.webp",
+        "alt": "Halloween-Rahmen mit Kürbislaterne und Spinne"
+      },
+      {
+        "src": "/assets/app-log/weihnachten.mp4",
+        "webm": "/assets/app-log/weihnachten.webm",
+        "poster": "/assets/app-log/weihnachten.webp",
+        "alt": "Weihnachts-Rahmen mit Tannenkranz, Lichterkette und Stern"
+      },
+      {
+        "src": "/assets/app-log/sonnenwende.mp4",
+        "webm": "/assets/app-log/sonnenwende.webm",
+        "poster": "/assets/app-log/sonnenwende.webp",
+        "alt": "Sonnenwende-Rahmen: Ring von Nachtblau nach Gold, die Club-Sonne geht auf"
+      }
+    ]
+  },
+  {
     "date": "2026-09-29",
     "kind": "neu",
     "title": "Neuer Rahmen: Shanghai",
-    "text": "Kommt der Club auf der Weltreise in Shanghai an – gut die Hälfte der Strecke –, bekommen alle, die dann dabei sind, den Shanghai-Rahmen fürs Profilbild. Nicht käuflich und danach nie wieder zu haben."
+    "text": "Kommt der Club auf der Weltreise in Shanghai an – gut die Hälfte der Strecke –, bekommen alle, die dann dabei sind, den Shanghai-Rahmen fürs Profilbild. Nicht käuflich und danach nie wieder zu haben.",
+    "media": [
+      {
+        "src": "/assets/app-log/shanghai.mp4",
+        "webm": "/assets/app-log/shanghai.webm",
+        "poster": "/assets/app-log/shanghai.webp",
+        "alt": "Der Shanghai-Rahmen: Skyline über dem Ring, rote Laternen links und rechts"
+      }
+    ]
   },
   {
     "date": "2026-09-28",
     "kind": "neu",
     "title": "Rahmen überall in voller Pracht",
-    "text": "Profilrahmen sehen jetzt in der Reiterleiste, in der Liga und im Chat genauso aus wie im Profil. Founder, Day 1 und Tester sind so groß wie alle anderen. Dazu ein neuer Rahmen: Supernova."
+    "text": "Profilrahmen sehen jetzt in der Reiterleiste, in der Liga und im Chat genauso aus wie im Profil. Founder, Day 1 und Tester sind so groß wie alle anderen. Dazu ein neuer Rahmen: Supernova.",
+    "media": [
+      {
+        "src": "/assets/app-log/supernova.mp4",
+        "webm": "/assets/app-log/supernova.webm",
+        "poster": "/assets/app-log/supernova.webp",
+        "alt": "Der Supernova-Rahmen: Ring im Farbverlauf, zwei Kometen auf Umlaufbahnen"
+      }
+    ]
   },
   {
     "date": "2026-09-28",

@@ -1,0 +1,125 @@
+---
+import { formatLogDate, type AppLogEntry } from '../lib/app-log';
+
+interface Props {
+  entry: AppLogEntry;
+  /** Markierung „Bald"/„Leak" zeigen – im Log selbst überflüssig */
+  showTag?: boolean;
+}
+
+const { entry: e, showTag = false } = Astro.props;
+const labels = { neu: 'Neu', bald: 'Bald', leak: 'Leak' } as const;
+const media = e.media ?? [];
+---
+
+<li class={`entry entry--${e.kind}`}>
+  <p class="entry__meta">
+    {showTag && <span class="entry__tag">{labels[e.kind]}</span>}
+    <time datetime={e.date}>{formatLogDate(e.date)}</time>
+  </p>
+  <h3 class="entry__title">{e.title}</h3>
+  <p class="entry__text">{e.text}</p>
+
+  {
+    media.length > 0 && (
+      <div
+        class:list={['entry__media', { 'entry__media--single': media.length === 1 }]}
+        style={`--spalten: ${Math.min(media.length, 3)}`}
+      >
+        {media.map((m) => (
+          <video
+            class="entry__video"
+            poster={m.poster}
+            aria-label={m.alt}
+            autoplay
+            muted
+            loop
+            playsinline
+            preload="metadata"
+          >
+            <source src={m.src} type="video/mp4" />
+            {m.webm && <source src={m.webm} type="video/webm" />}
+          </video>
+        ))}
+      </div>
+    )
+  }
+</li>
+
+<style>
+  .entry {
+    padding: 18px 20px;
+    border: 1px solid var(--cream-line);
+    border-radius: var(--radius);
+    background: var(--color-surface-2);
+  }
+
+  .entry--bald {
+    border-color: var(--lime-line);
+  }
+
+  .entry--leak {
+    border-color: rgba(62, 240, 207, 0.3);
+    background:
+      radial-gradient(120% 80% at 100% 0%, rgba(62, 240, 207, 0.08), transparent 60%),
+      var(--color-surface-2);
+  }
+
+  .entry__meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    color: var(--cream-55);
+    font-size: 13px;
+  }
+
+  .entry__tag {
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: var(--color-lime);
+    color: var(--color-night);
+  }
+
+  .entry--leak .entry__tag {
+    background: var(--color-neon);
+  }
+
+  .entry__title {
+    margin: 8px 0 0;
+    font-size: 19px;
+    font-weight: 700;
+    line-height: 1.25;
+  }
+
+  .entry__text {
+    margin: 6px 0 0;
+    color: var(--cream-72);
+    font-size: 15px;
+    line-height: 1.55;
+  }
+
+  .entry__media {
+    display: grid;
+    grid-template-columns: repeat(var(--spalten), minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  .entry__media--single {
+    grid-template-columns: minmax(0, 300px);
+    justify-content: center;
+  }
+
+  .entry__video {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: var(--radius);
+    background: var(--color-night);
+  }
+</style>

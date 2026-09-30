@@ -91,6 +91,23 @@ Nächstes kommt und ab und zu einen kleinen Leak. Die Einträge stehen in
 | `bald` | „Ausblick" – fest geplant                         |
 | `leak` | „Ausblick" – Vorgeschmack, gern vage              |
 
+Optional bekommt ein Eintrag Bilder aus der App – kurze Loops, die von selbst laufen:
+
+```json
+"media": [
+  {
+    "src": "/assets/app-log/halloween.mp4",
+    "webm": "/assets/app-log/halloween.webm",
+    "poster": "/assets/app-log/halloween.webp",
+    "alt": "Halloween-Rahmen mit Kürbislaterne"
+  }
+]
+```
+
+Die Dateien liegen in `public/assets/app-log/`. Ein Loop ist ein stummes MP4 (H.264, ein paar
+Sekunden), optional daneben dasselbe als WebM (VP9) für Browser ohne H.264; das Standbild ein WebP vom ersten Bild – es erscheint beim Laden und für alle, die
+reduzierte Bewegung eingestellt haben. Ein Medium steht allein und mittig, mehrere nebeneinander.
+
 Sortiert wird nach Datum, neuestes zuerst. Ist ein `bald` oder `leak` erschienen, den
 Eintrag auf `neu` umstellen (und Datum anpassen). Leere Bereiche werden ausgeblendet.
 Nach dem Ändern pushen – Cloudflare baut die Seite neu.
