@@ -1,21 +1,14 @@
 ---
-/**
- * Startseite: nur noch der Hinweis auf die Club Ludwig App.
- *
- * Bewusst ohne BaseLayout – Kopfnavigation und Fuß mit Newsletter würden von
- * dem einen Schritt ablenken, um den es hier geht. Impressum und Datenschutz
- * bleiben unten verlinkt, die sind Pflicht.
- */
-import '@fontsource-variable/archivo';
-import '../styles/global.css';
+/** Startseite: nur noch der Hinweis auf die Club Ludwig App. */
 import QRCode from 'qrcode';
+import AppLayout from '../layouts/AppLayout.astro';
 import { app, site } from '../config/site';
+import { shipped, upcoming } from '../lib/app-log';
 
 const title = `${app.name} – ${site.name} Bonn`;
 const description =
   'Club Ludwig gibt es jetzt als App. QR-Code scannen und die Beta über TestFlight auf dem iPhone installieren.';
-const canonical = new URL('/', Astro.site);
-const ogImage = new URL('/assets/og-image.png', Astro.site);
+const hasLog = shipped.length > 0 || upcoming.length > 0;
 
 /* Zur Build-Zeit als SVG erzeugt – kein Script, keine externe Anfrage. */
 const qrSvg = await QRCode.toString(app.testflight, {
@@ -26,61 +19,34 @@ const qrSvg = await QRCode.toString(app.testflight, {
 });
 ---
 
-<!doctype html>
-<html lang="de">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{title}</title>
-    <meta name="description" content={description} />
-    <link rel="canonical" href={canonical} />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <meta name="theme-color" content="#060D16" />
+<AppLayout title={title} description={description}>
+  <main class="app">
+    <img class="app__logo" src="/assets/logo-white.png" alt={site.name} width="660" height="136" />
 
-    <meta property="og:type" content="website" />
-    <meta property="og:site_name" content={site.name} />
-    <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
-    <meta property="og:url" content={canonical} />
-    <meta property="og:image" content={ogImage} />
-    <meta property="og:locale" content="de_DE" />
-    <meta name="twitter:card" content="summary_large_image" />
-  </head>
-  <body>
-    <main class="app">
-      <img class="app__logo" src="/assets/logo-white.png" alt={site.name} width="660" height="136" />
+    <h1 class="app__title">Club Ludwig gibt es jetzt als App.</h1>
+    <p class="app__lead">
+      Touren, Märsche, Stempelheft und dein Bereich – alles an einem Ort. Scann den Code mit der
+      iPhone-Kamera und installier die Beta über TestFlight.
+    </p>
 
-      <h1 class="app__title">Club Ludwig gibt es jetzt als App.</h1>
-      <p class="app__lead">
-        Touren, Märsche, Stempelheft und dein Bereich – alles an einem Ort. Scann den Code mit der
-        iPhone-Kamera und installier die Beta über TestFlight.
-      </p>
+    <a class="app__qr" href={app.testflight} aria-label="Club Ludwig App bei TestFlight öffnen">
+      <Fragment set:html={qrSvg} />
+    </a>
 
-      <a class="app__qr" href={app.testflight} aria-label="Club Ludwig App bei TestFlight öffnen">
-        <Fragment set:html={qrSvg} />
-      </a>
+    <a class="app__cta" href={app.testflight}>Zur App bei TestFlight ↗</a>
+    <p class="app__hint">Schon auf dem iPhone? Einfach auf den Button tippen.</p>
 
-      <a class="app__cta" href={app.testflight}>Zur App bei TestFlight ↗</a>
-      <p class="app__hint">Schon auf dem iPhone? Einfach auf den Button tippen.</p>
-    </main>
-
-    <footer class="legal-links">
-      <a href="/impressum/">Impressum</a>
-      <a href="/datenschutz/">Datenschutz</a>
-    </footer>
-  </body>
-</html>
+    {
+      hasLog && (
+        <a class="app__log" href="/neu/">
+          {upcoming.length > 0 ? 'Was gerade neu ist und was bald kommt →' : 'Was gerade neu ist →'}
+        </a>
+      )
+    }
+  </main>
+</AppLayout>
 
 <style>
-  body {
-    min-height: 100vh;
-    min-height: 100dvh;
-    display: flex;
-    flex-direction: column;
-  }
-
   .app {
     flex: 1;
     display: flex;
@@ -150,21 +116,17 @@ const qrSvg = await QRCode.toString(app.testflight, {
     font-size: 14px;
   }
 
-  .legal-links {
-    display: flex;
-    justify-content: center;
-    gap: 24px;
-    padding: 24px 16px 32px;
-    font-size: 14px;
-  }
-
-  .legal-links a {
-    color: var(--cream-55);
+  .app__log {
+    margin-top: 28px;
+    color: var(--color-neon);
+    font-size: 15px;
+    font-weight: 600;
     text-decoration: none;
   }
 
-  .legal-links a:hover,
-  .legal-links a:focus-visible {
-    color: var(--color-cream);
+  .app__log:hover,
+  .app__log:focus-visible {
+    text-decoration: underline;
+    text-underline-offset: 4px;
   }
 </style>

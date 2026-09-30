@@ -1,0 +1,80 @@
+---
+/**
+ * Schlichter Rahmen für die App-Seiten (Startseite und /neu/).
+ *
+ * Bewusst ohne Kopfnavigation und Fuß mit Newsletter – die würden vom einen
+ * Schritt ablenken, um den es hier geht. Impressum und Datenschutz bleiben
+ * unten verlinkt, die sind Pflicht.
+ */
+import '@fontsource-variable/archivo';
+import '../styles/global.css';
+import { site } from '../config/site';
+
+interface Props {
+  title: string;
+  description: string;
+}
+
+const { title, description } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const ogImage = new URL('/assets/og-image.png', Astro.site);
+---
+
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="theme-color" content="#060D16" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:locale" content="de_DE" />
+    <meta name="twitter:card" content="summary_large_image" />
+  </head>
+  <body>
+    <slot />
+
+    <footer class="legal-links">
+      <a href="/impressum/">Impressum</a>
+      <a href="/datenschutz/">Datenschutz</a>
+    </footer>
+  </body>
+</html>
+
+<style>
+  body {
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .legal-links {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    padding: 24px 16px 32px;
+    font-size: 14px;
+  }
+
+  .legal-links a {
+    color: var(--cream-55);
+    text-decoration: none;
+  }
+
+  .legal-links a:hover,
+  .legal-links a:focus-visible {
+    color: var(--color-cream);
+  }
+</style>
