@@ -104,12 +104,14 @@ export const site = {
 
 /**
  * Die Startseite zeigt nur noch den Hinweis auf die App. Der QR-Code dort wird
- * beim Build aus `testflight` erzeugt – neuer Link hier, neu deployen, fertig.
+ * beim Build aus `appStore` erzeugt – neuer Link hier, neu deployen, fertig.
  */
 export const app = {
   name: 'Club Ludwig App',
-  /** Öffentlicher TestFlight-Einladungslink (iOS). */
-  testflight: 'https://testflight.apple.com/join/dgA17QTK',
+  /** Die App im App Store (iOS). */
+  appStore: 'https://apps.apple.com/de/app/club-ludwig/id6805126860',
+  /** Apple-ID der App – für das Smart-App-Banner in Safari. */
+  appStoreId: '6805126860',
 } as const;
 
 /* -------------------------------------------------------------------------- */
