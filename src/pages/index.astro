@@ -7,11 +7,11 @@ import { shipped, upcoming } from '../lib/app-log';
 
 const title = `${app.name} – ${site.name} Bonn`;
 const description =
-  'Club Ludwig gibt es jetzt als App. QR-Code scannen und die Beta über TestFlight auf dem iPhone installieren.';
+  'Club Ludwig ist live: die App für den Hiking Club aus Bonn, jetzt im App Store. QR-Code scannen und loslegen.';
 const hasLog = shipped.length > 0 || upcoming.length > 0;
 
 /* Zur Build-Zeit als SVG erzeugt – kein Script, keine externe Anfrage. */
-const qrSvg = await QRCode.toString(app.testflight, {
+const qrSvg = await QRCode.toString(app.appStore, {
   type: 'svg',
   errorCorrectionLevel: 'M',
   margin: 2,
@@ -23,17 +23,18 @@ const qrSvg = await QRCode.toString(app.testflight, {
   <main class="app">
     <img class="app__logo" src="/assets/logo-white.png" alt={site.name} width="660" height="136" />
 
-    <h1 class="app__title">Club Ludwig gibt es jetzt als App.</h1>
+    <p class="app__kicker">Jetzt im App Store</p>
+    <h1 class="app__title">Club Ludwig ist live.</h1>
     <p class="app__lead">
       Touren, Märsche, Stempelheft und dein Bereich – alles an einem Ort. Scann den Code mit der
-      iPhone-Kamera und installier die Beta über TestFlight.
+      iPhone-Kamera und hol dir die App.
     </p>
 
-    <a class="app__qr" href={app.testflight} aria-label="Club Ludwig App bei TestFlight öffnen">
+    <a class="app__qr" href={app.appStore} aria-label="Club Ludwig im App Store öffnen">
       <Fragment set:html={qrSvg} />
     </a>
 
-    <a class="app__cta" href={app.testflight}>Zur App bei TestFlight ↗</a>
+    <a class="app__cta" href={app.appStore}>Im App Store laden ↗</a>
     <p class="app__hint">Schon auf dem iPhone? Einfach auf den Button tippen.</p>
 
     {
@@ -63,6 +64,15 @@ const qrSvg = await QRCode.toString(app.testflight, {
     width: min(240px, 60vw);
     height: auto;
     margin-bottom: 40px;
+  }
+
+  .app__kicker {
+    margin: 0 0 12px;
+    color: var(--color-lime);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
   }
 
   .app__title {

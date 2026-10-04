@@ -8,7 +8,7 @@
  */
 import '@fontsource-variable/archivo';
 import '../styles/global.css';
-import { site } from '../config/site';
+import { app, site } from '../config/site';
 
 interface Props {
   title: string;
@@ -32,6 +32,7 @@ const ogImage = new URL('/assets/og-image.png', Astro.site);
     <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta name="theme-color" content="#060D16" />
+    <meta name="apple-itunes-app" content={`app-id=${app.appStoreId}`} />
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content={site.name} />
