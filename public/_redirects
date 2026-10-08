@@ -1,0 +1,13 @@
+# Cloudflare-Weiterleitungen (Workers Static Assets lesen diese Datei aus dist/).
+#
+# Die Startseite fuehrt direkt in den App Store. Nur die Startseite: Die
+# Unterseiten bleiben erreichbar, weil die App, die Newsletter-Mails und das
+# Gesetz auf sie verweisen - /impressum/ und /datenschutz/ (Pflicht und in der
+# App verlinkt), /mein-club/, /maersche/, /newsletter/ (Bestaetigen und
+# Abmelden), /neu/.
+#
+# 302 statt 301: Browser merken sich ein 301 dauerhaft. Soll die Startseite
+# wieder eine Seite werden, wirkt das Entfernen dieser Zeile sonst erst nach
+# Wochen. Der Link steht ausserdem in src/config/site.ts (app.appStore).
+/              https://apps.apple.com/de/app/club-ludwig/id6805126860  302
+/index.html    https://apps.apple.com/de/app/club-ludwig/id6805126860  302
