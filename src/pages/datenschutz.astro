@@ -14,6 +14,19 @@ import { contact, hosting, legal, resolve, social } from '../config/site';
  *   - die App: Gesundheits- und Fitnessdaten, Sichtbarkeit in Ranglisten,
  *     Chat und Direktnachrichten, Push, Absturzberichte
  *
+ * BUILD 25 (iOS 1.3.0, Oktober 2026)
+ * Zwei Dinge kamen dazu, beide hier beschrieben:
+ *   - Bewegungssensor (CMPedometer, Freigabe "Bewegung & Fitness") als
+ *     zweite Quelle neben Health; es zaehlt der hoehere Schrittwert. Gelesen
+ *     und uebertragen wird nur die Schrittzahl (App: src/lib/health.ts,
+ *     sensorSchritte). Vorher stand hier, Sensorwerte blieben auf dem Geraet -
+ *     das gilt ab Build 25 nicht mehr.
+ *   - Stille Weckrufe waehrend laufender Duelle (App:
+ *     supabase/duell-weckruf.sql, src/lib/hintergrund.ts): Push ohne Text,
+ *     nur Token und Duell-Kennung, Endspurt alle 20 Minuten, sonst stuendlich.
+ * Der Text des iOS-Freigabedialogs (NSMotionUsageDescription in
+ * app.config.ts) sagt dasselbe: "Uebertragen wird nur die Schrittzahl."
+ *
  * DIE APP-ABSCHNITTE KAMEN SPÄTER DAZU (September 2026)
  * Dieser Text beschrieb ein Jahr lang nur die Website, während die App längst
  * Schritte aus Apple Health las und sie anderen Mitgliedern zeigte. Das sind
@@ -159,8 +172,9 @@ const MISSING = (field: string) => `[FEHLT: ${field} – siehe src/config/site.t
   </p>
   <p>
     Auf unseren Server übertragen wird daraus eine <strong>Tageszusammenfassung</strong>: Datum,
-    Schritte, Kilometer und Höhenmeter. Einzelne Trainingseinheiten, Uhrzeiten innerhalb des
-    Tages oder Rohdaten verlassen dein Gerät nicht. Trägst du einen Wert von Hand nach, kannst du
+    Schritte, Kilometer und Höhenmeter. Nimmst du an einem Duell teil, kommt dazu deine
+    <strong>Schrittzahl im Zeitraum des Duells</strong>. Einzelne Trainingseinheiten, sonstige
+    Uhrzeiten innerhalb des Tages oder Rohdaten verlassen dein Gerät nicht. Trägst du einen Wert von Hand nach, kannst du
     freiwillig ein Foto als Nachweis anhängen; dieses Bild speichern wir mit.
   </p>
   <p>
@@ -182,12 +196,26 @@ const MISSING = (field: string) => `[FEHLT: ${field} – siehe src/config/site.t
     Gesundheit ab und geben sie an niemanden weiter. Club Ludwig ist kein Medizinprodukt.
   </p>
 
-  <h2>Bewegungssensor deines Geräts</h2>
+  <h2 id="bewegungssensor">Bewegungssensor deines iPhones</h2>
   <p>
-    In den letzten Minuten eines Duells liest die App zusätzlich den Schrittzähler des Geräts
-    selbst, weil Apple Health seine Werte nur mit Verzögerung herausgibt. Diese Zwischenwerte
-    bleiben auf deinem Gerät und werden nicht an uns übertragen. Gespeichert wird weiterhin
-    ausschließlich der Tageswert aus Health.
+    Apple Health gibt Schritte oft erst Minuten später heraus – bei einem Duell von wenigen
+    Stunden zu spät. Auf dem iPhone liest die App deshalb ab Version&nbsp;1.3.0 zusätzlich den
+    <strong>Schrittzähler des Bewegungssensors</strong>, aber nur, wenn du das im Systemdialog
+    „Bewegung &amp; Fitness“ erlaubst. Für Duelle und für deine Tageswerte der letzten sieben Tage
+    zählt dann jeweils der höhere der beiden Werte aus Sensor und Health.
+  </p>
+  <p>
+    Gelesen und übertragen wird dabei <strong>ausschließlich die Schrittzahl</strong>. Weitere
+    Sensordaten – etwa Strecke, Stockwerke, Gehtempo oder Bewegungsmuster – fragt die App nicht
+    ab, und einen Standort bekommt sie über den Sensor nicht. Die Schrittzahl landet auf unserem
+    Server genau wie die Werte aus Health: als Tageswert und, während eines Duells, als
+    Duellstand. Es gelten dieselbe Rechtsgrundlage und dieselben Regeln wie oben unter
+    <a href="#gesundheitsdaten">Gesundheits- und Fitnessdaten</a>.
+  </p>
+  <p>
+    Lehnst du ab, zählt die App wie bisher nur mit Health. Ändern kannst du die Freigabe
+    jederzeit in den iOS-Einstellungen unter „Datenschutz &amp; Sicherheit“ → „Bewegung &amp;
+    Fitness“. Auf Android und in älteren App-Versionen wird der Sensor nicht genutzt.
   </p>
 
   <h2 id="sichtbarkeit">Was andere Mitglieder von dir sehen</h2>
@@ -264,6 +292,17 @@ const MISSING = (field: string) => `[FEHLT: ${field} – siehe src/config/site.t
     um dir Nachrichten zustellen zu können. Der Versand läuft über den Push-Dienst von Expo
     (Expo, 650 Industries, Inc., USA) und von dort über die Systeme von Apple beziehungsweise
     Google. Übermittelt werden dabei das Token und der Text der Mitteilung.
+  </p>
+  <p>
+    <strong>Stille Mitteilungen während eines Duells (iPhone):</strong> Läuft ein Duell, an dem
+    du teilnimmst, schickt unser Server deinem iPhone zusätzlich Mitteilungen ohne Text, die du
+    nicht siehst. Sie enthalten nur das Token und die Kennung des Duells. iOS startet die App
+    daraufhin kurz im Hintergrund; sie liest deine Schritte und meldet den Duellstand, damit
+    beide Seiten aktuell sind. In den letzten drei Stunden eines Duells geschieht das etwa alle
+    20&nbsp;Minuten, sonst etwa stündlich – außerhalb von Duellen nie. Ob iOS eine solche
+    Mitteilung zustellt, entscheidet das System: Hast du die App aus dem App-Umschalter
+    geschlossen oder die Hintergrundaktualisierung für Club Ludwig ausgeschaltet, wird sie nicht
+    geweckt.
   </p>
   <p>
     In den Einstellungen der App wählst du einzeln ab, wofür du Mitteilungen bekommst; im
@@ -345,7 +384,8 @@ const MISSING = (field: string) => `[FEHLT: ${field} – siehe src/config/site.t
     unwiderruflich entfernt. Server-Logfiles beim Hoster werden nach dessen Fristen gelöscht.
   </p>
   <p>
-    Für die App gilt dasselbe: Deine Tageswerte aus Health, Höhenmeter, Duelle, Abzeichen,
+    Für die App gilt dasselbe: Deine Tageswerte aus Health und Bewegungssensor, Höhenmeter,
+    Duelle und Duellstände, Abzeichen,
     Chat- und Direktnachrichten sowie das Push-Token werden zusammen mit dem Konto gelöscht.
     Eine einzige Ausnahme sind die Fehler- und Absturzberichte – dort wird die Benutzerkennung
     entfernt, der technische Bericht bleibt ohne Personenbezug bestehen.
