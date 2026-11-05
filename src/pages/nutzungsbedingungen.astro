@@ -1,0 +1,41 @@
+---
+import LegalLayout from '../layouts/LegalLayout.astro';
+import nb from '../data/nutzungsbedingungen.json';
+
+/**
+ * Nutzungsbedingungen der App Club Ludwig.
+ *
+ * Der Text kommt aus der App (simiex/clubludwigappv2, src/lib/nutzungsbedingungen.ts)
+ * und wird dort mit `node scripts/nutzungsbedingungen-md.cjs` nach
+ * rechtliches/nutzungsbedingungen.json geschrieben. Diese Datei hier ist eine Kopie
+ * davon (src/data/nutzungsbedingungen.json) – nie hier bearbeiten, sonst steht in
+ * App und Website ein anderer Wortlaut als der, dem jemand zugestimmt hat.
+ */
+
+const escape = (t: string) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+/* Mail-Adressen und Adressen von clubludwig.* werden zu Links. */
+const verlinkt = (t: string) =>
+  escape(t)
+    .replace(/\b([\w.+-]+@[\w-]+(?:\.[\w-]+)+)\b/g, '<a href="mailto:$1">$1</a>')
+    .replace(/(?<![@\w/.])(clubludwig\.(?:app|shop)(?:\/[\w-]+)*)/g, (_, adr: string) => {
+      const pfad = adr.includes('/') && !adr.endsWith('/') ? `${adr}/` : adr;
+      return `<a href="https://${pfad}">${adr}</a>`;
+    });
+---
+
+<LegalLayout
+  title="Nutzungsbedingungen – Club Ludwig"
+  description="Nutzungsbedingungen der App Club Ludwig."
+  heading={"Nutzungs\u00ADbedingungen"}
+>
+  <p>Stand: {nb.stand}</p>
+  {
+    nb.abschnitte.map((a) => (
+      <>
+        <h2>{a.titel}</h2>
+        {a.absaetze.map((t) => <p set:html={verlinkt(t)} />)}
+      </>
+    ))
+  }
+</LegalLayout>
