@@ -16,14 +16,12 @@ import '@fontsource/ibm-plex-mono/600.css';
 import QRCode from 'qrcode';
 import { app, site } from '../config/site';
 import { SUN_PATH } from '../lib/sun';
-import { shipped, upcoming } from '../lib/app-log';
 
 const title = `${app.name} – jetzt für iPhone und Android`;
 const description =
   'Club Ludwig, der Hiking Club aus Bonn, als App: Schritte, Tagesliga, Duelle und deine Serie. Jetzt im App Store und bei Google Play.';
 const canonical = new URL('/', Astro.site);
 const ogImage = new URL('/assets/og-image.png', Astro.site);
-const hasLog = shipped.length > 0 || upcoming.length > 0;
 
 /* QR-Codes zur Build-Zeit – immer Tinte auf Papier, auch nachts (scannt sicherer). */
 const qr = (url: string) =>
@@ -267,14 +265,6 @@ const fahrkarten = [
             <p>Deine Serie hält – mit Proviant für die Tage, an denen es mal nicht reicht.</p>
           </article>
         </section>
-
-        {
-          hasLog && (
-            <p class="mehr">
-              <a href="/neu/">Was gerade neu ist und was bald kommt →</a>
-            </p>
-          )
-        }
       </main>
 
       <footer class="fuss">
@@ -1101,20 +1091,6 @@ const fahrkarten = [
       border-left: 0;
       border-bottom: 1px solid var(--tinte-14);
     }
-  }
-
-  .mehr {
-    margin: 40px 0 0;
-    text-align: center;
-  }
-
-  .mehr a {
-    font-family: var(--f-mono);
-    font-weight: 600;
-    font-size: 13px;
-    letter-spacing: 0.06em;
-    color: var(--neon);
-    text-underline-offset: 5px;
   }
 
   /* ---------- Fuß ---------- */
