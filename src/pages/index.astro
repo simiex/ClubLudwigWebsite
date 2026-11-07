@@ -1,142 +1,1335 @@
 ---
-/** Startseite: nur noch der Hinweis auf die Club Ludwig App. */
+/**
+ * Startseite im Marschpass-Design der App: Papier (hell) bzw. Nacht (dunkel),
+ * Fraunces / Hanken Grotesk / IBM Plex Mono, ein Weg, der sich selbst zeichnet,
+ * und zwei Fahrkarten – eine in den App Store, eine zu Google Play.
+ *
+ * Farben wie `marschPaletten` in der App (src/lib/theme.ts dort). Die Schriften
+ * liegen selbst gehostet bei (Fontsource) – keine Anfrage an Google Fonts.
+ *
+ * Bewusst ohne global.css: die gehört zur alten, dunklen Neon-Seite.
+ */
+import '@fontsource-variable/fraunces';
+import '@fontsource-variable/hanken-grotesk';
+import '@fontsource/ibm-plex-mono/500.css';
+import '@fontsource/ibm-plex-mono/600.css';
 import QRCode from 'qrcode';
-import AppLayout from '../layouts/AppLayout.astro';
 import { app, site } from '../config/site';
+import { SUN_PATH, SUN_VIEWBOX } from '../lib/sun';
 import { shipped, upcoming } from '../lib/app-log';
 
-const title = `${app.name} – ${site.name} Bonn`;
+const title = `${app.name} – jetzt für iPhone und Android`;
 const description =
-  'Club Ludwig ist live: die App für den Hiking Club aus Bonn, jetzt im App Store. QR-Code scannen und loslegen.';
+  'Club Ludwig, der Hiking Club aus Bonn, als App: Schritte, Tagesliga, Duelle und deine Serie. Jetzt im App Store und bei Google Play.';
+const canonical = new URL('/', Astro.site);
+const ogImage = new URL('/assets/og-image.png', Astro.site);
 const hasLog = shipped.length > 0 || upcoming.length > 0;
 
-/* Zur Build-Zeit als SVG erzeugt – kein Script, keine externe Anfrage. */
-const qrSvg = await QRCode.toString(app.appStore, {
-  type: 'svg',
-  errorCorrectionLevel: 'M',
-  margin: 2,
-  color: { dark: '#060d16', light: '#ffffff' },
-});
+/* QR-Codes zur Build-Zeit – immer Tinte auf Papier, auch nachts (scannt sicherer). */
+const qr = (url: string) =>
+  QRCode.toString(url, {
+    type: 'svg',
+    errorCorrectionLevel: 'M',
+    margin: 1,
+    color: { dark: '#1E2320', light: '#F6F1E6' },
+  });
+const qrIos = await qr(app.appStore);
+const qrAndroid = await qr(app.playStore);
+
+/*
+ * Höhenlinien im Hintergrund: zwei Kuppen, je ein paar geschlossene, leicht
+ * wellige Ringe. Deterministisch (Sinus statt Zufall), damit jeder Build gleich aussieht.
+ */
+function ring(cx: number, cy: number, r: number, seed: number) {
+  const n = 64;
+  const pts: string[] = [];
+  for (let i = 0; i <= n; i++) {
+    const a = (i / n) * Math.PI * 2;
+    const w =
+      1 +
+      0.09 * Math.sin(a * 3 + seed) +
+      0.05 * Math.sin(a * 5 + seed * 1.7) +
+      0.03 * Math.sin(a * 7 + seed * 0.6);
+    const x = cx + Math.cos(a) * r * w * 1.25;
+    const y = cy + Math.sin(a) * r * w * 0.8;
+    pts.push(`${x.toFixed(1)},${y.toFixed(1)}`);
+  }
+  return `M${pts.join('L')}Z`;
+}
+const kuppen = [
+  { cx: 1020, cy: 180, ringe: 9, schritt: 46, seed: 1.3 },
+  { cx: 160, cy: 760, ringe: 8, schritt: 52, seed: 4.1 },
+];
+const hoehenlinien = kuppen.flatMap((k) =>
+  Array.from({ length: k.ringe }, (_, i) => ({
+    d: ring(k.cx, k.cy, 40 + i * k.schritt, k.seed + i * 0.35),
+    stark: i % 4 === 3,
+  })),
+);
+
+/* Der Weg: von links unten über einen Hügel zur Sonne rechts. */
+const WEG =
+  'M40 230 C150 230 190 150 290 150 C390 150 400 210 500 200 C610 188 640 80 760 74 C860 69 900 140 990 130 C1060 122 1100 70 1150 60';
+const ETAPPEN = [
+  { x: 290, y: 150, label: '2.500' },
+  { x: 500, y: 200, label: '5.000' },
+  { x: 760, y: 74, label: '7.500' },
+  { x: 990, y: 130, label: '9.000' },
+];
+
+const fahrkarten = [
+  {
+    id: 'ios',
+    href: app.appStore,
+    geraet: 'iPhone',
+    ziel: 'App Store',
+    route: 'BONN → APP STORE',
+    qr: qrIos,
+    aria: 'Club Ludwig im App Store laden',
+  },
+  {
+    id: 'android',
+    href: app.playStore,
+    geraet: 'Android',
+    ziel: 'Google Play',
+    route: 'BONN → GOOGLE PLAY',
+    qr: qrAndroid,
+    aria: 'Club Ludwig bei Google Play laden',
+  },
+];
 ---
 
-<AppLayout title={title} description={description}>
-  <main class="app">
-    <img class="app__logo" src="/assets/logo-white.png" alt={site.name} width="660" height="136" />
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="theme-color" content="#EEE7D9" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0F1412" media="(prefers-color-scheme: dark)" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="apple-itunes-app" content={`app-id=${app.appStoreId}`} />
 
-    <p class="app__kicker">Jetzt im App Store</p>
-    <h1 class="app__title">Club Ludwig ist live.</h1>
-    <p class="app__lead">
-      Touren, Märsche, Stempelheft und dein Bereich – alles an einem Ort. Scann den Code mit der
-      iPhone-Kamera und hol dir die App.
-    </p>
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:locale" content="de_DE" />
+    <meta name="twitter:card" content="summary_large_image" />
 
-    <a class="app__qr" href={app.appStore} aria-label="Club Ludwig im App Store öffnen">
-      <Fragment set:html={qrSvg} />
-    </a>
+    <!-- Plattform vor dem ersten Zeichnen setzen: die passende Fahrkarte steht oben. -->
+    <script is:inline>
+      (function () {
+        var ua = navigator.userAgent || '';
+        var p = /android/i.test(ua)
+          ? 'android'
+          : /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1)
+            ? 'ios'
+            : 'desktop';
+        document.documentElement.dataset.plattform = p;
+      })();
+    </script>
+  </head>
 
-    <a class="app__cta" href={app.appStore}>Im App Store laden ↗</a>
-    <p class="app__hint">Schon auf dem iPhone? Einfach auf den Button tippen.</p>
+  <body>
+    <svg class="karte" viewBox="0 0 1200 1000" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <g class="karte__linien">
+        {hoehenlinien.map((l) => <path d={l.d} class:list={{ stark: l.stark }} />)}
+      </g>
+      <g class="karte__kompass">
+        <line x1="600" y1="0" x2="600" y2="1000" />
+        <line x1="0" y1="500" x2="1200" y2="500" />
+        <line x1="0" y1="0" x2="1200" y2="1000" />
+        <line x1="1200" y1="0" x2="0" y2="1000" />
+      </g>
+    </svg>
 
-    {
-      hasLog && (
-        <a class="app__log" href="/neu/">
-          {upcoming.length > 0 ? 'Was gerade neu ist und was bald kommt →' : 'Was gerade neu ist →'}
+    <div class="seite">
+      <header class="kopf">
+        <a class="marke" href="/" aria-label={site.name}>
+          <svg class="marke__sonne" viewBox={SUN_VIEWBOX} aria-hidden="true"><path d={SUN_PATH} /></svg>
+          <span class="marke__name">Club Ludwig</span>
         </a>
-      )
+        <span class="etikett kopf__ort">Hiking Club · Bonn</span>
+      </header>
+
+      <main id="main">
+        <section class="held">
+          <p class="etikett held__etikett reveal" style="--d: 0">
+            <span class="punkt" aria-hidden="true"></span> Marschpass · Ausgabe 2026
+          </p>
+          <h1 class="held__titel">
+            <span class="zeile reveal" style="--d: 1">Jeder Schritt</span>
+            <span class="zeile reveal" style="--d: 2">zählt. <em>Jetzt auch</em></span>
+            <span class="zeile reveal" style="--d: 3"><em>auf Android.</em></span>
+          </h1>
+          <p class="held__text reveal" style="--d: 4">
+            Die App des Hiking Clubs aus Bonn: Tagesliga, Duelle, deine Serie und eine Weltreise, die
+            wir zusammen laufen. Kostenlos für iPhone und Android.
+          </p>
+
+          <div class="stempel" aria-hidden="true">
+            <span>Neu</span>
+            <strong>Android</strong>
+            <span>06·11·26</span>
+          </div>
+        </section>
+
+        <figure class="weg" aria-hidden="true">
+          <svg viewBox="0 0 1200 270" class="weg__svg">
+            <path class="weg__spur" d={WEG} />
+            <path class="weg__linie" d={WEG} pathLength="1000" />
+            {
+              ETAPPEN.map((e, i) => (
+                <g class="etappe" style={`--i: ${i}`} transform={`translate(${e.x} ${e.y})`}>
+                  <circle r="9" />
+                  <text y="-20">{e.label}</text>
+                </g>
+              ))
+            }
+            <g class="weg__start" transform="translate(40 230)">
+              <circle r="6" />
+              <text y="30">START</text>
+            </g>
+            <g class="weg__sonne">
+              <circle class="weg__schein" r="44" />
+              <g class="weg__drehen">
+                <path d={SUN_PATH} transform="translate(-30 -30) scale(0.05)" />
+              </g>
+            </g>
+          </svg>
+          <figcaption class="weg__zaehler">
+            <span class="etikett">Heute</span>
+            <span class="weg__zahl" data-zahl>0</span>
+            <span class="etikett">/ 10.000 Schritte</span>
+          </figcaption>
+        </figure>
+
+        <section class="fahrkarten" aria-label="App herunterladen">
+          {
+            fahrkarten.map((f, i) => (
+              <a
+                class="fahrkarte"
+                data-fahrkarte={f.id}
+                href={f.href}
+                aria-label={f.aria}
+                style={`--i: ${i}`}
+                rel="noopener"
+              >
+                <span class="fahrkarte__haupt">
+                  <span class="etikett fahrkarte__kopf">
+                    Fahrkarte · {f.geraet}
+                    <span class="fahrkarte__deins">Dein Telefon</span>
+                  </span>
+                  <span class="fahrkarte__ziel">{f.ziel}</span>
+                  <span class="fahrkarte__route etikett">
+                    <span>{f.route}</span>
+                    <span>1 Person · gratis</span>
+                  </span>
+                </span>
+                <span class="fahrkarte__abriss">
+                  <span class="fahrkarte__qr" set:html={f.qr} />
+                  <span class="fahrkarte__pfeil" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><path d="M5 12h13M12 5l7 7-7 7" /></svg>
+                  </span>
+                  <span class="etikett fahrkarte__laden">Laden</span>
+                </span>
+              </a>
+            ))
+          }
+        </section>
+
+        <p class="hinweis etikett">
+          <span class="nur-desktop">Mit der Handykamera scannen – oder auf die Fahrkarte klicken.</span>
+          <span class="nur-mobil">Tippen, laden, loslaufen.</span>
+        </p>
+
+        <section class="drei" aria-label="Was die App kann">
+          <article class="drei__etappe reveal-scroll">
+            <span class="drei__nr">I</span>
+            <h2>Laufen</h2>
+            <p>Deine Schritte aus Apple Health oder Health Connect – jeden Tag ein Stück weiter auf dem Weg.</p>
+          </article>
+          <article class="drei__etappe reveal-scroll">
+            <span class="drei__nr">II</span>
+            <h2>Messen</h2>
+            <p>Tagesliga, Gruppen und Duelle gegen den Club. Wer abends noch läuft, holt auf.</p>
+          </article>
+          <article class="drei__etappe reveal-scroll">
+            <span class="drei__nr">III</span>
+            <h2>Dranbleiben</h2>
+            <p>Deine Serie hält – mit Proviant für die Tage, an denen es mal nicht reicht.</p>
+          </article>
+        </section>
+
+        {
+          hasLog && (
+            <p class="mehr">
+              <a href="/neu/">Was gerade neu ist und was bald kommt →</a>
+            </p>
+          )
+        }
+      </main>
+
+      <footer class="fuss">
+        <span class="etikett">{site.name} · {site.city}</span>
+        <nav aria-label="Rechtliches">
+          <a href="/impressum/">Impressum</a>
+          <a href="/datenschutz/">Datenschutz</a>
+          <a href="/nutzungsbedingungen/">Nutzungsbedingungen</a>
+        </nav>
+      </footer>
+    </div>
+
+    <script>
+      const weniger = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      /* Der Weg zeichnet sich, die Sonne läuft vorneweg, der Zähler läuft mit. */
+      const linie = document.querySelector<SVGPathElement>('.weg__linie');
+      const sonne = document.querySelector<SVGGElement>('.weg__sonne');
+      const zahl = document.querySelector<HTMLElement>('[data-zahl]');
+      const etappen = Array.from(document.querySelectorAll<SVGGElement>('.etappe'));
+      const ZIEL = 10000;
+      const fmt = new Intl.NumberFormat('de-DE');
+
+      if (linie && sonne && zahl) {
+        const laenge = linie.getTotalLength();
+        // Wo auf dem Weg jede Etappe liegt (0..1), damit sie genau dann stempelt.
+        const anteile = etappen.map((e) => {
+          const m = e.transform.baseVal.consolidate()?.matrix;
+          if (!m) return 1;
+          let best = 0;
+          let bestD = Infinity;
+          for (let s = 0; s <= 200; s++) {
+            const p = linie.getPointAtLength((s / 200) * laenge);
+            const d = (p.x - m.e) ** 2 + (p.y - m.f) ** 2;
+            if (d < bestD) {
+              bestD = d;
+              best = s / 200;
+            }
+          }
+          return best;
+        });
+
+        const setze = (t: number) => {
+          const p = linie.getPointAtLength(t * laenge);
+          sonne.setAttribute('transform', `translate(${p.x} ${p.y})`);
+          linie.style.strokeDashoffset = String(1000 * (1 - t));
+          zahl.textContent = fmt.format(Math.round((t * ZIEL) / 10) * 10);
+          etappen.forEach((e, i) => e.classList.toggle('gestempelt', t >= anteile[i] - 0.002));
+          document.documentElement.classList.toggle('ziel', t >= 1);
+        };
+
+        if (weniger) {
+          setze(1);
+        } else {
+          setze(0);
+          const dauer = 3200;
+          const start = performance.now() + 700;
+          const ease = (x: number) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+          const schritt = (jetzt: number) => {
+            const x = Math.min(1, Math.max(0, (jetzt - start) / dauer));
+            setze(ease(x));
+            if (x < 1) requestAnimationFrame(schritt);
+          };
+          requestAnimationFrame(schritt);
+        }
+      }
+
+      /* Fahrkarten kippen leicht zur Maus – nur mit echter Maus. */
+      if (!weniger && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+        document.querySelectorAll<HTMLElement>('.fahrkarte').forEach((k) => {
+          k.addEventListener('pointermove', (ev) => {
+            const r = k.getBoundingClientRect();
+            const x = (ev.clientX - r.left) / r.width - 0.5;
+            const y = (ev.clientY - r.top) / r.height - 0.5;
+            k.style.setProperty('--rx', `${(-y * 6).toFixed(2)}deg`);
+            k.style.setProperty('--ry', `${(x * 8).toFixed(2)}deg`);
+          });
+          k.addEventListener('pointerleave', () => {
+            k.style.setProperty('--rx', '0deg');
+            k.style.setProperty('--ry', '0deg');
+          });
+        });
+      }
+
+      /* Etappen unten kommen beim Scrollen. */
+      const io = new IntersectionObserver(
+        (eintraege) =>
+          eintraege.forEach((e) => {
+            if (e.isIntersecting) {
+              e.target.classList.add('sichtbar');
+              io.unobserve(e.target);
+            }
+          }),
+        { threshold: 0.2 },
+      );
+      document.querySelectorAll('.reveal-scroll').forEach((el) => io.observe(el));
+    </script>
+  </body>
+</html>
+
+<style is:global>
+  /* ---------- Paletten wie in der App (marschPaletten) ---------- */
+  :root {
+    --grund: #eee7d9;
+    --flaeche: #f6f1e6;
+    --flaeche2: #e7dfcf;
+    --tinte: #1e2320;
+    --tinte-70: rgba(30, 35, 32, 0.7);
+    --tinte-45: rgba(30, 35, 32, 0.45);
+    --tinte-14: rgba(30, 35, 32, 0.14);
+    --tinte-08: rgba(30, 35, 32, 0.08);
+    --wald: #2e4a3b;
+    --neon: #2f5c6e;
+    --glut: #c4542a;
+    --gold: #b8892a;
+
+    --f-titel: 'Fraunces Variable', 'Fraunces', Georgia, serif;
+    --f-text: 'Hanken Grotesk Variable', 'Hanken Grotesk', system-ui, sans-serif;
+    --f-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+    color-scheme: light;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --grund: #0f1412;
+      --flaeche: #151b18;
+      --flaeche2: #1a221e;
+      --tinte: #e8e3d6;
+      --tinte-70: rgba(232, 227, 214, 0.72);
+      --tinte-45: rgba(232, 227, 214, 0.45);
+      --tinte-14: rgba(232, 227, 214, 0.14);
+      --tinte-08: rgba(232, 227, 214, 0.07);
+      --wald: #8db39a;
+      --neon: #7fb0be;
+      --glut: #ee7440;
+      --gold: #d9b25c;
+      color-scheme: dark;
     }
-  </main>
-</AppLayout>
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    background: var(--grund);
+    color: var(--tinte);
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100dvh;
+    background: var(--grund);
+    color: var(--tinte);
+    font-family: var(--f-text);
+    font-size: 17px;
+    line-height: 1.55;
+    overflow-x: clip;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a {
+    color: inherit;
+  }
+
+  .etikett {
+    font-family: var(--f-mono);
+    font-weight: 600;
+    font-size: 11.5px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+</style>
 
 <style>
-  .app {
+  /* ---------- Karte im Hintergrund ---------- */
+  .karte {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .karte__linien path {
+    fill: none;
+    stroke: var(--tinte-14);
+    stroke-width: 1;
+  }
+
+  .karte__linien path.stark {
+    stroke-width: 1.8;
+  }
+
+  .karte__linien {
+    animation: drift 60s ease-in-out infinite alternate;
+  }
+
+  .karte__kompass line {
+    stroke: var(--tinte-08);
+    stroke-width: 1;
+    stroke-dasharray: 2 8;
+  }
+
+  @keyframes drift {
+    from {
+      transform: translate(0, 0);
+    }
+    to {
+      transform: translate(-30px, 18px);
+    }
+  }
+
+  /* ---------- Gerüst ---------- */
+  .seite {
+    position: relative;
+    z-index: 1;
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: max(20px, env(safe-area-inset-top)) 20px 0;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  main {
     flex: 1;
+  }
+
+  .kopf {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0 24px;
+    border-bottom: 1.5px solid var(--tinte);
+  }
+
+  .marke {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+  }
+
+  .marke__sonne {
+    width: 28px;
+    height: 28px;
+    fill: var(--glut);
+    animation: drehen 40s linear infinite;
+  }
+
+  .marke__name {
+    font-family: var(--f-titel);
+    font-weight: 700;
+    font-size: 22px;
+    letter-spacing: -0.01em;
+  }
+
+  .kopf__ort {
+    color: var(--tinte-70);
+  }
+
+  /* ---------- Held ---------- */
+  .held {
+    position: relative;
+    padding: clamp(40px, 8vw, 88px) 0 8px;
+  }
+
+  .held__etikett {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 22px;
+    color: var(--glut);
+  }
+
+  .punkt {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--glut);
+    animation: puls 2.4s ease-in-out infinite;
+  }
+
+  .held__titel {
+    margin: 0;
+    font-family: var(--f-titel);
+    font-weight: 650;
+    font-size: clamp(44px, 9.2vw, 108px);
+    line-height: 0.98;
+    letter-spacing: -0.035em;
+    font-variation-settings: 'SOFT' 50, 'WONK' 0;
+  }
+
+  .held__titel em {
+    font-style: italic;
+    font-weight: 500;
+    color: var(--glut);
+  }
+
+  .zeile {
+    display: block;
+  }
+
+  .held__text {
+    max-width: 540px;
+    margin: 26px 0 0;
+    font-size: clamp(17px, 2vw, 19px);
+    color: var(--tinte-70);
+  }
+
+  /* Stempel „Neu Android“ – knallt nach dem Titel auf die Seite. */
+  .stempel {
+    position: absolute;
+    right: clamp(0px, 3vw, 40px);
+    top: clamp(28px, 7vw, 80px);
+    width: clamp(112px, 16vw, 152px);
+    aspect-ratio: 1;
+    border: 2.5px solid var(--glut);
+    border-radius: 50%;
+    display: grid;
+    place-content: center;
+    gap: 2px;
+    text-align: center;
+    color: var(--glut);
+    font-family: var(--f-mono);
+    font-size: clamp(9px, 1.1vw, 11px);
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    transform: rotate(-12deg);
+    opacity: 0;
+    animation: stempeln 0.55s cubic-bezier(0.2, 1.6, 0.4, 1) 1.15s forwards;
+    mix-blend-mode: multiply;
+  }
+
+  .stempel::before {
+    content: '';
+    position: absolute;
+    inset: 6px;
+    border: 1px dashed var(--glut);
+    border-radius: 50%;
+  }
+
+  .stempel strong {
+    font-family: var(--f-titel);
+    font-size: clamp(20px, 2.8vw, 28px);
+    letter-spacing: -0.01em;
+    text-transform: none;
+    font-weight: 700;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .stempel {
+      mix-blend-mode: normal;
+    }
+  }
+
+  /* ---------- Der Weg ---------- */
+  .weg {
+    position: relative;
+    margin: clamp(8px, 3vw, 24px) 0 0;
+  }
+
+  .weg__svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  .weg__spur {
+    fill: none;
+    stroke: var(--tinte-45);
+    stroke-width: 2;
+    stroke-dasharray: 2 9;
+    stroke-linecap: round;
+  }
+
+  .weg__linie {
+    fill: none;
+    stroke: var(--tinte);
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+  }
+
+  .weg__start circle {
+    fill: var(--tinte);
+  }
+
+  .weg text {
+    font-family: var(--f-mono);
+    font-weight: 600;
+    font-size: 15px;
+    letter-spacing: 0.12em;
+    fill: var(--tinte-70);
+    text-anchor: middle;
+  }
+
+  .etappe circle {
+    fill: var(--grund);
+    stroke: var(--tinte-45);
+    stroke-width: 2;
+    transition: fill 0.3s, stroke 0.3s;
+  }
+
+  .etappe text {
+    opacity: 0.35;
+    transition: opacity 0.3s;
+  }
+
+  .etappe.gestempelt circle {
+    fill: var(--tinte);
+    stroke: var(--tinte);
+    animation: tupfen 0.4s cubic-bezier(0.2, 1.8, 0.4, 1);
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  .etappe.gestempelt text {
+    opacity: 1;
+  }
+
+  .weg__sonne path {
+    fill: var(--glut);
+  }
+
+  .weg__drehen {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: drehen 14s linear infinite;
+  }
+
+  .weg__schein {
+    fill: var(--glut);
+    opacity: 0;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  :global(html.ziel) .weg__schein {
+    animation: schein 2.8s ease-out infinite;
+  }
+
+  .weg__zaehler {
+    position: absolute;
+    left: 0;
+    top: 0;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    flex-wrap: wrap;
+    color: var(--tinte-70);
+  }
+
+  .weg__zahl {
+    font-family: var(--f-titel);
+    font-weight: 650;
+    font-size: clamp(26px, 4vw, 40px);
+    letter-spacing: -0.02em;
+    color: var(--tinte);
+    font-variant-numeric: tabular-nums;
+    min-width: 5ch;
+  }
+
+  /* ---------- Fahrkarten ---------- */
+  .fahrkarten {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 22px;
+    margin-top: clamp(28px, 5vw, 48px);
+    perspective: 1200px;
+  }
+
+  :global(html[data-plattform='android']) .fahrkarte[data-fahrkarte='android'],
+  :global(html[data-plattform='ios']) .fahrkarte[data-fahrkarte='ios'] {
+    order: -1;
+  }
+
+  .fahrkarte {
+    --kerbe: 14px;
+    --rx: 0deg;
+    --ry: 0deg;
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    min-height: 196px;
+    background: var(--flaeche);
+    border: 2px solid var(--tinte);
+    border-radius: 6px;
+    text-decoration: none;
+    color: var(--tinte);
+    overflow: hidden;
+    box-shadow: 0 0 0 0 var(--tinte);
+    transform: rotateX(var(--rx)) rotateY(var(--ry));
+    transition:
+      transform 0.25s ease-out,
+      box-shadow 0.25s ease-out,
+      translate 0.25s ease-out;
+    opacity: 0;
+    animation: einfahren 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation-delay: calc(0.55s + var(--i) * 0.14s);
+  }
+
+  .fahrkarte:hover,
+  .fahrkarte:focus-visible {
+    translate: -4px -4px;
+    box-shadow: 8px 8px 0 0 var(--tinte);
+  }
+
+  .fahrkarte:active {
+    translate: 0 0;
+    box-shadow: 2px 2px 0 0 var(--tinte);
+  }
+
+  .fahrkarte:focus-visible {
+    outline: 3px solid var(--glut);
+    outline-offset: 4px;
+  }
+
+  /* Glanz, der einmal über die Karte läuft – beim Hover wieder. */
+  .fahrkarte::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      105deg,
+      transparent 35%,
+      color-mix(in srgb, var(--flaeche) 20%, white 60%) 50%,
+      transparent 65%
+    );
+    opacity: 0.55;
+    translate: -120% 0;
+    pointer-events: none;
+    animation: glanz 1.4s ease-in-out forwards;
+    animation-delay: calc(1.6s + var(--i) * 0.2s);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .fahrkarte::after {
+      opacity: 0.1;
+    }
+  }
+
+  .fahrkarte:hover::after {
+    animation: glanz 0.9s ease-in-out;
+  }
+
+  .fahrkarte__haupt {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 22px 24px 20px;
+    min-width: 0;
+  }
+
+  .fahrkarte__kopf {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    color: var(--tinte-70);
+  }
+
+  .fahrkarte__deins {
+    display: none;
+    padding: 3px 7px;
+    border: 1.5px solid var(--glut);
+    border-radius: 3px;
+    color: var(--glut);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    transform: rotate(-3deg);
+  }
+
+  :global(html[data-plattform='android']) [data-fahrkarte='android'] .fahrkarte__deins,
+  :global(html[data-plattform='ios']) [data-fahrkarte='ios'] .fahrkarte__deins {
+    display: inline-block;
+  }
+
+  .fahrkarte__ziel {
+    font-family: var(--f-titel);
+    font-weight: 700;
+    font-size: clamp(38px, 5.2vw, 56px);
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+  }
+
+  .fahrkarte__route {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 4px 14px;
+    padding-top: 12px;
+    border-top: 1px solid var(--tinte-14);
+    color: var(--tinte-70);
+    font-size: 10.5px;
+  }
+
+  /* Abriss: Perforation und Kerben oben und unten. */
+  .fahrkarte__abriss {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    text-align: center;
-    padding: 48px 16px 32px;
-    max-width: 640px;
-    margin: 0 auto;
+    gap: 10px;
+    width: 156px;
+    padding: 18px;
+    border-left: 2px dashed var(--tinte-45);
+    background: var(--flaeche2);
   }
 
-  .app__logo {
-    width: min(240px, 60vw);
-    height: auto;
-    margin-bottom: 40px;
+  .fahrkarte__abriss::before,
+  .fahrkarte__abriss::after {
+    content: '';
+    position: absolute;
+    left: calc(var(--kerbe) * -1 - 1px);
+    width: calc(var(--kerbe) * 2);
+    height: calc(var(--kerbe) * 2);
+    border-radius: 50%;
+    background: var(--grund);
+    border: 2px solid var(--tinte);
   }
 
-  .app__kicker {
-    margin: 0 0 12px;
-    color: var(--color-lime);
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
+  .fahrkarte__abriss::before {
+    top: calc(var(--kerbe) * -1 - 2px);
   }
 
-  .app__title {
-    margin: 0;
-    font-size: clamp(30px, 5vw, 48px);
-    line-height: 1.05;
-    font-weight: 800;
-    letter-spacing: -0.02em;
+  .fahrkarte__abriss::after {
+    bottom: calc(var(--kerbe) * -1 - 2px);
   }
 
-  .app__lead {
-    margin: 18px 0 32px;
-    color: var(--cream-72);
-    font-size: 17px;
-    line-height: 1.55;
-  }
-
-  .app__qr {
+  .fahrkarte__qr {
     display: block;
-    width: min(260px, 70vw);
-    padding: 10px;
-    background: #fff;
-    border-radius: var(--radius);
-    box-shadow: var(--lime-glow);
+    width: 112px;
+    border: 1.5px solid #1e2320;
+    border-radius: 3px;
+    overflow: hidden;
   }
 
-  .app__qr :global(svg) {
+  .fahrkarte__qr :global(svg) {
     display: block;
     width: 100%;
     height: auto;
   }
 
-  .app__cta {
-    margin-top: 32px;
-    padding: 14px 24px;
-    border-radius: var(--radius-sm);
-    background: var(--color-lime);
-    color: var(--color-night);
-    font-weight: 700;
-    text-decoration: none;
+  .fahrkarte__pfeil {
+    display: none;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: var(--tinte);
+    place-items: center;
   }
 
-  .app__cta:hover,
-  .app__cta:focus-visible {
-    box-shadow: var(--lime-glow);
+  .fahrkarte__pfeil svg {
+    width: 24px;
+    height: 24px;
+    fill: none;
+    stroke: var(--grund);
+    stroke-width: 2.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: translate 0.25s ease-out;
   }
 
-  .app__hint {
-    margin: 14px 0 0;
-    color: var(--cream-55);
+  .fahrkarte:hover .fahrkarte__pfeil svg {
+    translate: 3px 0;
+  }
+
+  .fahrkarte__laden {
+    color: var(--tinte-70);
+  }
+
+  /* Die eigene Plattform bekommt die Glut. */
+  :global(html[data-plattform='android']) [data-fahrkarte='android'] .fahrkarte__pfeil,
+  :global(html[data-plattform='ios']) [data-fahrkarte='ios'] .fahrkarte__pfeil {
+    background: var(--glut);
+  }
+
+  .hinweis {
+    margin: 22px 0 0;
+    text-align: center;
+    color: var(--tinte-45);
+  }
+
+  .nur-mobil {
+    display: none;
+  }
+
+  /* Auf dem Telefon: Pfeil statt QR, Karten untereinander. */
+  :global(html[data-plattform='ios']) .fahrkarte__qr,
+  :global(html[data-plattform='android']) .fahrkarte__qr {
+    display: none;
+  }
+
+  :global(html[data-plattform='ios']) .fahrkarte__pfeil,
+  :global(html[data-plattform='android']) .fahrkarte__pfeil {
+    display: grid;
+  }
+
+  :global(html[data-plattform='ios']) .fahrkarte__abriss,
+  :global(html[data-plattform='android']) .fahrkarte__abriss {
+    width: 108px;
+  }
+
+  :global(html[data-plattform='ios']) .nur-desktop,
+  :global(html[data-plattform='android']) .nur-desktop {
+    display: none;
+  }
+
+  :global(html[data-plattform='ios']) .nur-mobil,
+  :global(html[data-plattform='android']) .nur-mobil {
+    display: inline;
+  }
+
+  @media (max-width: 760px) {
+    .fahrkarten {
+      grid-template-columns: 1fr;
+      gap: 18px;
+    }
+
+    .fahrkarte {
+      min-height: 168px;
+    }
+
+    .fahrkarte__qr {
+      display: none;
+    }
+
+    .fahrkarte__pfeil {
+      display: grid;
+    }
+
+    .fahrkarte__abriss {
+      width: 96px;
+      padding: 14px 10px;
+    }
+
+    .fahrkarte__haupt {
+      padding: 18px 18px 16px;
+    }
+
+    .nur-desktop {
+      display: none;
+    }
+
+    .nur-mobil {
+      display: inline;
+    }
+  }
+
+  /* ---------- Drei Etappen ---------- */
+  .drei {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    margin-top: clamp(56px, 9vw, 96px);
+    border-top: 1.5px solid var(--tinte);
+  }
+
+  .drei__etappe {
+    padding: 24px 22px 8px 0;
+    opacity: 0;
+    translate: 0 18px;
+    transition:
+      opacity 0.7s ease-out,
+      translate 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .drei__etappe + .drei__etappe {
+    padding-left: 22px;
+    border-left: 1px solid var(--tinte-14);
+  }
+
+  .drei__etappe:nth-child(2) {
+    transition-delay: 0.1s;
+  }
+
+  .drei__etappe:nth-child(3) {
+    transition-delay: 0.2s;
+  }
+
+  .drei__etappe:global(.sichtbar) {
+    opacity: 1;
+    translate: 0 0;
+  }
+
+  .drei__nr {
+    font-family: var(--f-mono);
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: 0.16em;
+    color: var(--glut);
+  }
+
+  .drei h2 {
+    margin: 6px 0 8px;
+    font-family: var(--f-titel);
+    font-weight: 650;
+    font-size: 30px;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+
+  .drei p {
+    margin: 0;
+    color: var(--tinte-70);
+    font-size: 16px;
+  }
+
+  @media (max-width: 760px) {
+    .drei {
+      grid-template-columns: 1fr;
+    }
+
+    .drei__etappe,
+    .drei__etappe + .drei__etappe {
+      padding: 20px 0 16px;
+      border-left: 0;
+      border-bottom: 1px solid var(--tinte-14);
+    }
+  }
+
+  .mehr {
+    margin: 40px 0 0;
+    text-align: center;
+  }
+
+  .mehr a {
+    font-family: var(--f-mono);
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    color: var(--neon);
+    text-underline-offset: 5px;
+  }
+
+  /* ---------- Fuß ---------- */
+  .fuss {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px 24px;
+    margin-top: 56px;
+    padding: 20px 0 max(28px, env(safe-area-inset-bottom));
+    border-top: 1.5px solid var(--tinte);
+    color: var(--tinte-70);
+  }
+
+  .fuss nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 20px;
     font-size: 14px;
   }
 
-  .app__log {
-    margin-top: 28px;
-    color: var(--color-neon);
-    font-size: 15px;
-    font-weight: 600;
+  .fuss a {
+    color: var(--tinte-70);
     text-decoration: none;
   }
 
-  .app__log:hover,
-  .app__log:focus-visible {
+  .fuss a:hover,
+  .fuss a:focus-visible {
+    color: var(--tinte);
     text-decoration: underline;
     text-underline-offset: 4px;
+  }
+
+  /* ---------- Einblenden ---------- */
+  .reveal {
+    opacity: 0;
+    translate: 0 0.4em;
+    animation: auftauchen 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation-delay: calc(0.08s + var(--d) * 0.11s);
+  }
+
+  .held__titel .reveal {
+    clip-path: inset(-0.2em -0.2em 0 -0.2em);
+  }
+
+  @keyframes auftauchen {
+    to {
+      opacity: 1;
+      translate: 0 0;
+    }
+  }
+
+  @keyframes einfahren {
+    from {
+      opacity: 0;
+      translate: 0 40px;
+    }
+    to {
+      opacity: 1;
+      translate: 0 0;
+    }
+  }
+
+  @keyframes glanz {
+    from {
+      translate: -120% 0;
+    }
+    to {
+      translate: 120% 0;
+    }
+  }
+
+  @keyframes stempeln {
+    0% {
+      opacity: 0;
+      transform: rotate(-24deg) scale(2.2);
+    }
+    60% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0.92;
+      transform: rotate(-12deg) scale(1);
+    }
+  }
+
+  @keyframes tupfen {
+    from {
+      transform: scale(1.9);
+    }
+    to {
+      transform: scale(1);
+    }
+  }
+
+  @keyframes schein {
+    0% {
+      opacity: 0.35;
+      transform: scale(0.4);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(1.6);
+    }
+  }
+
+  @keyframes drehen {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes puls {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.25;
+    }
+  }
+
+  @media (max-width: 760px) {
+    .weg__zaehler {
+      position: static;
+      margin-top: 8px;
+    }
+
+    .stempel {
+      top: 14px;
+      right: 0;
+      width: 84px;
+      font-size: 7.5px;
+      gap: 0;
+    }
+
+    .stempel strong {
+      font-size: 17px;
+    }
+
+    .stempel::before {
+      inset: 4px;
+    }
+
+    /* Der Weg ist hier gut ein Drittel so breit – Striche und Schrift wachsen mit. */
+    .weg text {
+      font-size: 30px;
+    }
+
+    .weg__linie {
+      stroke-width: 8;
+    }
+
+    .weg__spur {
+      stroke-width: 4;
+      stroke-dasharray: 3 14;
+    }
+
+    .etappe circle {
+      r: 16px;
+      stroke-width: 4;
+    }
+
+    .etappe text {
+      transform: translateY(-14px);
+    }
+
+    .weg__start circle {
+      r: 11px;
+    }
+
+    .weg__start text {
+      transform: translateY(16px);
+    }
+
+    .weg__drehen {
+      scale: 1.7;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .karte__linien,
+    .marke__sonne,
+    .weg__drehen,
+    .punkt,
+    :global(html.ziel) .weg__schein {
+      animation: none;
+    }
+
+    .reveal,
+    .fahrkarte,
+    .stempel {
+      animation: none;
+      opacity: 1;
+      translate: 0 0;
+    }
+
+    .stempel {
+      opacity: 0.92;
+    }
+
+    .fahrkarte::after {
+      display: none;
+    }
+
+    .drei__etappe {
+      opacity: 1;
+      translate: 0 0;
+      transition: none;
+    }
   }
 </style>
