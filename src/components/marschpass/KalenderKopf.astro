@@ -1,0 +1,204 @@
+---
+/**
+ * Kopf der Kalenderseiten: Etikett, große Überschrift mit kursivem Schluss,
+ * Text und ein runder Stempel mit der Zahl der Termine.
+ */
+interface Props {
+  etikett: string;
+  /** Zeilen der Überschrift; die letzte wird kursiv in Glut gesetzt. */
+  zeilen: string[];
+  stempelZahl: number;
+  stempelUnten: string;
+}
+
+const { etikett, zeilen, stempelZahl, stempelUnten } = Astro.props;
+const vorne = zeilen.slice(0, -1);
+const schluss = zeilen.at(-1);
+---
+
+<section class="held">
+  <p class="etikett held__etikett">
+    <span class="punkt" aria-hidden="true"></span>
+    {etikett}
+  </p>
+  <h1 class="held__titel">
+    {vorne.map((z) => <span class="zeile">{z}</span>)}
+    <span class="zeile"><em>{schluss}</em></span>
+  </h1>
+  <div class="held__text">
+    <slot />
+  </div>
+
+  <div class="stempel" aria-hidden="true">
+    <span>Termine</span>
+    <strong>{stempelZahl}</strong>
+    <span>{stempelUnten}</span>
+  </div>
+</section>
+
+<style>
+  .held {
+    position: relative;
+    padding: clamp(36px, 7vw, 76px) 0 8px;
+  }
+
+  .held__etikett {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 20px;
+    color: var(--glut);
+  }
+
+  .punkt {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--glut);
+    animation: puls 2.4s ease-in-out infinite;
+  }
+
+  .held__titel {
+    margin: 0;
+    max-width: 11ch;
+    font-family: var(--f-titel);
+    font-weight: 650;
+    font-size: clamp(42px, 8.4vw, 98px);
+    line-height: 0.98;
+    letter-spacing: -0.035em;
+    font-variation-settings: 'SOFT' 50, 'WONK' 0;
+    hyphens: manual;
+    overflow-wrap: break-word;
+  }
+
+  .held__titel em {
+    font-style: italic;
+    font-weight: 500;
+    color: var(--glut);
+  }
+
+  .zeile {
+    display: block;
+  }
+
+  .held__text {
+    max-width: 600px;
+    margin: 24px 0 0;
+    font-size: clamp(17px, 2vw, 19px);
+    color: var(--tinte-70);
+  }
+
+  .held__text :global(p) {
+    margin: 0 0 12px;
+  }
+
+  .held__text :global(a) {
+    color: var(--tinte);
+    text-decoration-color: var(--glut);
+    text-underline-offset: 3px;
+  }
+
+  .stempel {
+    position: absolute;
+    right: clamp(0px, 3vw, 40px);
+    top: clamp(28px, 7vw, 80px);
+    width: clamp(112px, 15vw, 148px);
+    aspect-ratio: 1;
+    border: 2.5px solid var(--glut);
+    border-radius: 50%;
+    display: grid;
+    place-content: center;
+    gap: 2px;
+    text-align: center;
+    color: var(--glut);
+    font-family: var(--f-mono);
+    font-size: clamp(9px, 1.1vw, 11px);
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    transform: rotate(-12deg);
+    opacity: 0;
+    animation: stempeln 0.55s cubic-bezier(0.2, 1.6, 0.4, 1) 0.5s forwards;
+    mix-blend-mode: multiply;
+  }
+
+  .stempel::before {
+    content: '';
+    position: absolute;
+    inset: 6px;
+    border: 1px dashed var(--glut);
+    border-radius: 50%;
+  }
+
+  .stempel strong {
+    font-family: var(--f-titel);
+    font-size: clamp(28px, 3.8vw, 40px);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    font-weight: 700;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .stempel {
+      mix-blend-mode: normal;
+    }
+  }
+
+  @media (max-width: 760px) {
+    .stempel {
+      top: 62px;
+      right: 0;
+      width: 84px;
+      font-size: 7.5px;
+      gap: 0;
+    }
+
+    .stempel strong {
+      font-size: 24px;
+    }
+
+    .stempel::before {
+      inset: 4px;
+    }
+
+    .held__titel {
+      max-width: none;
+      font-size: clamp(38px, 11vw, 48px);
+    }
+  }
+
+  @keyframes stempeln {
+    0% {
+      opacity: 0;
+      transform: rotate(-24deg) scale(2.2);
+    }
+    60% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0.92;
+      transform: rotate(-12deg) scale(1);
+    }
+  }
+
+  @keyframes puls {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.25;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .punkt {
+      animation: none;
+    }
+
+    .stempel {
+      animation: none;
+      opacity: 0.92;
+    }
+  }
+</style>

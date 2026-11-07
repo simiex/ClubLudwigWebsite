@@ -1,0 +1,127 @@
+---
+/**
+ * Alle Regionen als Kacheln mit der Zahl ihrer Termine – der Weg zu
+ * „Märsche in meiner Nähe“. Jede Kachel ist ein echter Link auf
+ * /maersche/<region>/, damit Google die Seiten findet.
+ */
+import { REGIONEN, inRegion, type Region } from '../../lib/kalender';
+import type { March } from '../../lib/marches';
+
+interface Props {
+  termine: March[];
+  /** Diese Region hervorheben (auf ihrer eigenen Seite). */
+  aktuell?: string;
+  /** Nur diese Regionen zeigen – sonst alle. */
+  nur?: Region[];
+}
+
+const { termine, aktuell, nur } = Astro.props;
+const liste = (nur ?? REGIONEN).map((r) => ({ r, n: termine.filter((m) => inRegion(m, r)).length }));
+---
+
+<ul class="regionen">
+  {
+    liste.map(({ r, n }) => (
+      <li>
+        <a
+          class:list={['region', { 'region--leer': n === 0 }]}
+          href={`/maersche/${r.slug}/`}
+          aria-current={r.slug === aktuell ? 'page' : undefined}
+        >
+          <span class="region__name">{r.name}</span>
+          <span class="etikett region__zahl">
+            {n === 0 ? 'gerade ruhig' : `${n} ${n === 1 ? 'Termin' : 'Termine'}`}
+          </span>
+        </a>
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  .regionen {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .region {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 10px;
+    height: 100%;
+    min-height: 84px;
+    padding: 14px 16px;
+    border: 1.5px solid var(--tinte);
+    border-radius: 5px;
+    background: var(--flaeche);
+    text-decoration: none;
+    transition:
+      translate 0.15s ease-out,
+      box-shadow 0.15s ease-out;
+  }
+
+  .region:hover,
+  .region:focus-visible {
+    translate: -3px -3px;
+    box-shadow: 5px 5px 0 var(--tinte);
+  }
+
+  .region:focus-visible {
+    outline: 3px solid var(--glut);
+    outline-offset: 3px;
+  }
+
+  .region[aria-current='page'] {
+    background: var(--tinte);
+    color: var(--grund);
+  }
+
+  .region[aria-current='page'] .region__zahl {
+    color: var(--grund);
+    opacity: 0.75;
+  }
+
+  .region__name {
+    font-family: var(--f-titel);
+    font-weight: 650;
+    font-size: 19px;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+  }
+
+  .region__zahl {
+    color: var(--glut);
+    font-size: 10.5px;
+  }
+
+  .region--leer {
+    border-color: var(--tinte-45);
+    background: transparent;
+  }
+
+  .region--leer .region__zahl {
+    color: var(--tinte-45);
+  }
+
+  @media (max-width: 560px) {
+    .regionen {
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .region {
+      min-height: 72px;
+      padding: 12px;
+    }
+
+    .region__name {
+      font-size: 16px;
+      hyphens: auto;
+    }
+  }
+</style>

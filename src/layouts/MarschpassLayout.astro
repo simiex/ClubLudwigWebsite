@@ -1,0 +1,387 @@
+---
+/**
+ * Rahmen für die Seiten im Marschpass-Design der App: Startseite und
+ * Marschkalender. Papier (hell) bzw. Nacht (dunkel), Fraunces / Hanken
+ * Grotesk / IBM Plex Mono, Höhenlinien im Hintergrund, Kopf mit Logo, Fuß mit
+ * den Pflichtseiten.
+ *
+ * Farben wie `marschPaletten` in der App (src/lib/theme.ts dort). Die Schriften
+ * liegen selbst gehostet bei (Fontsource) – keine Anfrage an Google Fonts.
+ *
+ * Bewusst ohne global.css: die gehört zur alten, dunklen Neon-Seite.
+ */
+import '@fontsource-variable/fraunces';
+import '@fontsource-variable/hanken-grotesk';
+import '@fontsource/ibm-plex-mono/500.css';
+import '@fontsource/ibm-plex-mono/600.css';
+import { app, site } from '../config/site';
+
+interface Props {
+  title: string;
+  description: string;
+  /** Welcher Kopf-Link als aktuelle Seite markiert wird. */
+  aktiv?: 'start' | 'maersche';
+}
+
+const { title, description, aktiv } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const ogImage = new URL('/assets/og-image.png', Astro.site);
+
+/*
+ * Höhenlinien im Hintergrund: zwei Kuppen, je ein paar geschlossene, leicht
+ * wellige Ringe. Deterministisch (Sinus statt Zufall), damit jeder Build gleich aussieht.
+ */
+function ring(cx: number, cy: number, r: number, seed: number) {
+  const n = 64;
+  const pts: string[] = [];
+  for (let i = 0; i <= n; i++) {
+    const a = (i / n) * Math.PI * 2;
+    const w =
+      1 +
+      0.09 * Math.sin(a * 3 + seed) +
+      0.05 * Math.sin(a * 5 + seed * 1.7) +
+      0.03 * Math.sin(a * 7 + seed * 0.6);
+    const x = cx + Math.cos(a) * r * w * 1.25;
+    const y = cy + Math.sin(a) * r * w * 0.8;
+    pts.push(`${x.toFixed(1)},${y.toFixed(1)}`);
+  }
+  return `M${pts.join('L')}Z`;
+}
+const kuppen = [
+  { cx: 1020, cy: 180, ringe: 9, schritt: 46, seed: 1.3 },
+  { cx: 160, cy: 760, ringe: 8, schritt: 52, seed: 4.1 },
+];
+const hoehenlinien = kuppen.flatMap((k) =>
+  Array.from({ length: k.ringe }, (_, i) => ({
+    d: ring(k.cx, k.cy, 40 + i * k.schritt, k.seed + i * 0.35),
+    stark: i % 4 === 3,
+  })),
+);
+---
+
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="theme-color" content="#EEE7D9" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0F1412" media="(prefers-color-scheme: dark)" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="apple-itunes-app" content={`app-id=${app.appStoreId}`} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:locale" content="de_DE" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- Plattform vor dem ersten Zeichnen setzen: die passende Fahrkarte steht oben. -->
+    <script is:inline>
+      (function () {
+        var ua = navigator.userAgent || '';
+        var p = /android/i.test(ua)
+          ? 'android'
+          : /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1)
+            ? 'ios'
+            : 'desktop';
+        document.documentElement.dataset.plattform = p;
+      })();
+    </script>
+
+    <slot name="head" />
+  </head>
+
+  <body>
+    <svg class="karte" viewBox="0 0 1200 1000" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <g class="karte__linien">
+        {hoehenlinien.map((l) => <path d={l.d} class:list={{ stark: l.stark }} />)}
+      </g>
+      <g class="karte__kompass">
+        <line x1="600" y1="0" x2="600" y2="1000" />
+        <line x1="0" y1="500" x2="1200" y2="500" />
+        <line x1="0" y1="0" x2="1200" y2="1000" />
+        <line x1="1200" y1="0" x2="0" y2="1000" />
+      </g>
+    </svg>
+
+    <div class="seite">
+      <header class="kopf">
+        <a class="marke" href="/" aria-label={`${site.name} – Startseite`}>
+          <span class="marke__logo" aria-hidden="true"></span>
+        </a>
+        <nav class="kopf__nav" aria-label="Hauptnavigation">
+          <a
+            class="etikett kopf__link"
+            href="/maersche/"
+            aria-current={aktiv === 'maersche' ? 'page' : undefined}
+          >
+            Marschkalender
+          </a>
+          <span class="etikett kopf__ort">Hiking Club · Bonn</span>
+        </nav>
+      </header>
+
+      <main id="main">
+        <slot />
+      </main>
+
+      <footer class="fuss">
+        <span class="etikett">{site.name} · {site.city}</span>
+        <nav aria-label="Weitere Seiten">
+          <a href="/">App laden</a>
+          <a href="/maersche/">Marschkalender</a>
+          <a href="/impressum/">Impressum</a>
+          <a href="/datenschutz/">Datenschutz</a>
+          <a href="/nutzungsbedingungen/">Nutzungsbedingungen</a>
+        </nav>
+      </footer>
+    </div>
+  </body>
+</html>
+
+<style is:global>
+  /* ---------- Paletten wie in der App (marschPaletten) ---------- */
+  :root {
+    --grund: #eee7d9;
+    --flaeche: #f6f1e6;
+    --flaeche2: #e7dfcf;
+    --tinte: #1e2320;
+    --tinte-70: rgba(30, 35, 32, 0.7);
+    --tinte-45: rgba(30, 35, 32, 0.45);
+    --tinte-14: rgba(30, 35, 32, 0.14);
+    --tinte-08: rgba(30, 35, 32, 0.08);
+    --wald: #2e4a3b;
+    --neon: #2f5c6e;
+    --glut: #c4542a;
+    --gold: #b8892a;
+
+    --f-titel: 'Fraunces Variable', 'Fraunces', Georgia, serif;
+    --f-text: 'Hanken Grotesk Variable', 'Hanken Grotesk', system-ui, sans-serif;
+    --f-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+    color-scheme: light;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --grund: #0f1412;
+      --flaeche: #151b18;
+      --flaeche2: #1a221e;
+      --tinte: #e8e3d6;
+      --tinte-70: rgba(232, 227, 214, 0.72);
+      --tinte-45: rgba(232, 227, 214, 0.45);
+      --tinte-14: rgba(232, 227, 214, 0.14);
+      --tinte-08: rgba(232, 227, 214, 0.07);
+      --wald: #8db39a;
+      --neon: #7fb0be;
+      --glut: #ee7440;
+      --gold: #d9b25c;
+      color-scheme: dark;
+    }
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    background: var(--grund);
+    color: var(--tinte);
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100dvh;
+    background: var(--grund);
+    color: var(--tinte);
+    font-family: var(--f-text);
+    font-size: 17px;
+    line-height: 1.55;
+    overflow-x: clip;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a {
+    color: inherit;
+  }
+
+  .etikett {
+    font-family: var(--f-mono);
+    font-weight: 600;
+    font-size: 11.5px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+</style>
+
+<style>
+  /* ---------- Karte im Hintergrund ---------- */
+  .karte {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .karte__linien path {
+    fill: none;
+    stroke: var(--tinte-14);
+    stroke-width: 1;
+  }
+
+  .karte__linien path.stark {
+    stroke-width: 1.8;
+  }
+
+  .karte__linien {
+    animation: drift 60s ease-in-out infinite alternate;
+  }
+
+  .karte__kompass line {
+    stroke: var(--tinte-08);
+    stroke-width: 1;
+    stroke-dasharray: 2 8;
+  }
+
+  @keyframes drift {
+    from {
+      transform: translate(0, 0);
+    }
+    to {
+      transform: translate(-30px, 18px);
+    }
+  }
+
+  /* ---------- Gerüst ---------- */
+  .seite {
+    position: relative;
+    z-index: 1;
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: max(20px, env(safe-area-inset-top)) 20px 0;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  main {
+    flex: 1;
+  }
+
+  .kopf {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 8px 0 24px;
+    border-bottom: 1.5px solid var(--tinte);
+  }
+
+  .marke {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+  }
+
+  /* Das Club-Logo als Maske – so nimmt es genau die Tinte der Palette an. */
+  .marke__logo {
+    display: block;
+    height: 28px;
+    aspect-ratio: 660 / 136;
+    background: var(--tinte);
+    -webkit-mask: url('/assets/logo-dark.png') center / contain no-repeat;
+    mask: url('/assets/logo-dark.png') center / contain no-repeat;
+  }
+
+  .kopf__nav {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+  }
+
+  .kopf__link {
+    color: var(--tinte);
+    text-decoration: none;
+    padding: 6px 0;
+    border-bottom: 1.5px solid transparent;
+  }
+
+  .kopf__link:hover,
+  .kopf__link:focus-visible,
+  .kopf__link[aria-current='page'] {
+    border-bottom-color: var(--glut);
+  }
+
+  .kopf__ort {
+    color: var(--tinte-70);
+  }
+
+  @media (max-width: 620px) {
+    .kopf__ort {
+      display: none;
+    }
+  }
+
+  /* ---------- Fuß ---------- */
+  .fuss {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px 24px;
+    margin-top: 56px;
+    padding: 20px 0 max(28px, env(safe-area-inset-bottom));
+    border-top: 1.5px solid var(--tinte);
+    color: var(--tinte-70);
+  }
+
+  .fuss nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 20px;
+    font-size: 14px;
+  }
+
+  .fuss a {
+    color: var(--tinte-70);
+    text-decoration: none;
+  }
+
+  .fuss a:hover,
+  .fuss a:focus-visible {
+    color: var(--tinte);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .karte__linien {
+      animation: none;
+    }
+  }
+</style>

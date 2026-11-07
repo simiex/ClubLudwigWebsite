@@ -112,6 +112,23 @@ Sortiert wird nach Datum, neuestes zuerst. Ist ein `bald` oder `leak` erschienen
 Eintrag auf `neu` umstellen (und Datum anpassen). Leere Bereiche werden ausgeblendet.
 Nach dem Ändern pushen – Cloudflare baut die Seite neu.
 
+## Marschkalender (`/maersche/`) und Google
+
+Der Marschkalender steht im Marschpass-Design wie die Startseite und soll über
+Suchen wie „Märsche in meiner Nähe“ oder „Wanderevents NRW“ Leute zur App bringen.
+
+- **`/maersche/`** – alle Termine, Kacheln je Bundesland, Filter, App-Werbung, FAQ.
+- **`/maersche/<region>/`** – eine Seite je Bundesland plus Österreich und Schweiz
+  (`REGIONEN` in `src/lib/kalender.ts`), mit den Terminen dort und in den Nachbarregionen.
+  Die Seiten bleiben auch ohne Termin stehen, damit sie nicht aus dem Index fallen.
+- Für Google: schema.org-`Event` je Termin, `BreadcrumbList`, `FAQPage`; dazu
+  `/sitemap.xml` und `/robots.txt` (`src/pages/sitemap.xml.ts`, `robots.txt.ts`).
+- Kopf, Fuß und Fahrkarten teilen sich Startseite und Kalender:
+  `src/layouts/MarschpassLayout.astro`, `src/components/marschpass/`.
+
+Die Termine kommen wie bisher aus Supabase (`marches`), Rückfall `src/data/marches.json`.
+Nach dem Livegang die Sitemap einmal in der Google Search Console einreichen.
+
 ## Animationen
 
 Implementiert in `src/scripts/home-animations.ts` mit `gsap.matchMedia()`:
