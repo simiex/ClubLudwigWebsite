@@ -103,8 +103,9 @@ export const site = {
 /* -------------------------------------------------------------------------- */
 
 /**
- * Die Startseite zeigt nur noch den Hinweis auf die App. Der QR-Code dort wird
- * beim Build aus `appStore` erzeugt – neuer Link hier, neu deployen, fertig.
+ * Die Startseite zeigt nur noch die App – je eine Fahrkarte für iOS und
+ * Android. Die QR-Codes dort werden beim Build aus diesen Links erzeugt – neuer
+ * Link hier, neu deployen, fertig.
  */
 export const app = {
   name: 'Club Ludwig App',
@@ -112,6 +113,8 @@ export const app = {
   appStore: 'https://apps.apple.com/de/app/club-ludwig/id6805126860',
   /** Apple-ID der App – für das Smart-App-Banner in Safari. */
   appStoreId: '6805126860',
+  /** Die App bei Google Play (Android, live seit 6.11.2026). */
+  playStore: 'https://play.google.com/store/apps/details?id=de.clubludwig.app',
 } as const;
 
 /* -------------------------------------------------------------------------- */
