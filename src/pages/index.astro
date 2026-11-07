@@ -15,7 +15,7 @@ import '@fontsource/ibm-plex-mono/500.css';
 import '@fontsource/ibm-plex-mono/600.css';
 import QRCode from 'qrcode';
 import { app, site } from '../config/site';
-import { SUN_PATH, SUN_VIEWBOX } from '../lib/sun';
+import { SUN_PATH } from '../lib/sun';
 import { shipped, upcoming } from '../lib/app-log';
 
 const title = `${app.name} – jetzt für iPhone und Android`;
@@ -154,8 +154,7 @@ const fahrkarten = [
     <div class="seite">
       <header class="kopf">
         <a class="marke" href="/" aria-label={site.name}>
-          <svg class="marke__sonne" viewBox={SUN_VIEWBOX} aria-hidden="true"><path d={SUN_PATH} /></svg>
-          <span class="marke__name">Club Ludwig</span>
+          <span class="marke__logo" aria-hidden="true"></span>
         </a>
         <span class="etikett kopf__ort">Hiking Club · Bonn</span>
       </header>
@@ -525,18 +524,14 @@ const fahrkarten = [
     text-decoration: none;
   }
 
-  .marke__sonne {
-    width: 28px;
+  /* Das Club-Logo als Maske – so nimmt es genau die Tinte der Palette an. */
+  .marke__logo {
+    display: block;
     height: 28px;
-    fill: var(--glut);
-    animation: drehen 40s linear infinite;
-  }
-
-  .marke__name {
-    font-family: var(--f-titel);
-    font-weight: 700;
-    font-size: 22px;
-    letter-spacing: -0.01em;
+    aspect-ratio: 660 / 136;
+    background: var(--tinte);
+    -webkit-mask: url('/assets/logo-dark.png') center / contain no-repeat;
+    mask: url('/assets/logo-dark.png') center / contain no-repeat;
   }
 
   .kopf__ort {
@@ -1303,7 +1298,6 @@ const fahrkarten = [
 
   @media (prefers-reduced-motion: reduce) {
     .karte__linien,
-    .marke__sonne,
     .weg__drehen,
     .punkt,
     :global(html.ziel) .weg__schein {
