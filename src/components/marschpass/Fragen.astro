@@ -1,0 +1,108 @@
+---
+/**
+ * Häufige Fragen zum Aufklappen. Derselbe Text geht als FAQPage-JSON-LD in den
+ * Kopf der Seite (faqSchema in lib/kalender.ts) – Google verlangt, dass er
+ * sichtbar auf der Seite steht.
+ */
+interface Props {
+  titel: string;
+  fragen: { frage: string; antwort: string }[];
+}
+
+const { titel, fragen } = Astro.props;
+---
+
+<section class="fragen" aria-labelledby="fragen-titel">
+  <h2 class="fragen__titel" id="fragen-titel">{titel}</h2>
+  {
+    fragen.map((f) => (
+      <details class="frage">
+        <summary>
+          <span>{f.frage}</span>
+          <span class="frage__plus" aria-hidden="true" />
+        </summary>
+        <p>{f.antwort}</p>
+      </details>
+    ))
+  }
+</section>
+
+<style>
+  .fragen {
+    margin-top: clamp(56px, 9vw, 96px);
+  }
+
+  .fragen__titel {
+    margin: 0 0 8px;
+    padding-bottom: 12px;
+    border-bottom: 1.5px solid var(--tinte);
+    font-family: var(--f-titel);
+    font-weight: 650;
+    font-size: clamp(28px, 4vw, 42px);
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+
+  .frage {
+    border-bottom: 1px solid var(--tinte-14);
+  }
+
+  .frage summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 18px 0;
+    font-family: var(--f-titel);
+    font-weight: 600;
+    font-size: 20px;
+    line-height: 1.25;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .frage summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .frage summary:focus-visible {
+    outline: 3px solid var(--glut);
+    outline-offset: 4px;
+  }
+
+  .frage__plus {
+    position: relative;
+    flex: none;
+    width: 28px;
+    height: 28px;
+    border: 1.5px solid var(--tinte);
+    border-radius: 50%;
+  }
+
+  .frage__plus::before,
+  .frage__plus::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 12px;
+    height: 1.5px;
+    background: var(--tinte);
+    translate: -50% -50%;
+    transition: rotate 0.2s ease-out;
+  }
+
+  .frage__plus::after {
+    rotate: 90deg;
+  }
+
+  .frage[open] .frage__plus::after {
+    rotate: 0deg;
+  }
+
+  .frage p {
+    max-width: 680px;
+    margin: 0 0 20px;
+    color: var(--tinte-70);
+  }
+</style>

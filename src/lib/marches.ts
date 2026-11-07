@@ -19,7 +19,8 @@ export type MarchFormat =
   | 'backyard'
   | 'etappen'
   | 'nachtmarsch'
-  | 'wanderung';
+  | 'wanderung'
+  | 'marathon';
 
 export interface March {
   slug: string;
@@ -59,6 +60,7 @@ export const FORMAT_LABEL: Record<MarchFormat, string> = {
   etappen: 'Etappen',
   nachtmarsch: 'Nachtmarsch',
   wanderung: 'Wanderung',
+  marathon: 'Marathon',
 };
 
 /** Grobe Einordnung für den Filter „wie weit". */

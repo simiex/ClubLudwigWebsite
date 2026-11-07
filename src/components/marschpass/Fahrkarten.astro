@@ -1,0 +1,431 @@
+---
+/**
+ * Zwei Fahrkarten – eine in den App Store, eine zu Google Play. Am Rechner mit
+ * QR-Code, am Telefon mit Pfeil; die eigene Plattform steht oben und trägt
+ * „Dein Telefon“ (html[data-plattform], gesetzt im MarschpassLayout).
+ */
+import QRCode from 'qrcode';
+import { app } from '../../config/site';
+
+interface Props {
+  /** Die Zeile darunter („Mit der Handykamera scannen …“). */
+  hinweis?: boolean;
+}
+
+const { hinweis = true } = Astro.props;
+
+/* QR-Codes zur Build-Zeit – immer Tinte auf Papier, auch nachts (scannt sicherer). */
+const qr = (url: string) =>
+  QRCode.toString(url, {
+    type: 'svg',
+    errorCorrectionLevel: 'M',
+    margin: 1,
+    color: { dark: '#1E2320', light: '#F6F1E6' },
+  });
+
+const fahrkarten = [
+  {
+    id: 'ios',
+    href: app.appStore,
+    geraet: 'iPhone',
+    ziel: 'App Store',
+    route: 'BONN → APP STORE',
+    qr: await qr(app.appStore),
+    aria: 'Club Ludwig im App Store laden',
+  },
+  {
+    id: 'android',
+    href: app.playStore,
+    geraet: 'Android',
+    ziel: 'Google Play',
+    route: 'BONN → GOOGLE PLAY',
+    qr: await qr(app.playStore),
+    aria: 'Club Ludwig bei Google Play laden',
+  },
+];
+---
+
+<section class="fahrkarten" aria-label="App herunterladen">
+  {
+    fahrkarten.map((f, i) => (
+      <a
+        class="fahrkarte"
+        data-fahrkarte={f.id}
+        href={f.href}
+        aria-label={f.aria}
+        style={`--i: ${i}`}
+        rel="noopener"
+      >
+        <span class="fahrkarte__haupt">
+          <span class="etikett fahrkarte__kopf">
+            Fahrkarte · {f.geraet}
+            <span class="fahrkarte__deins">Dein Telefon</span>
+          </span>
+          <span class="fahrkarte__ziel">{f.ziel}</span>
+          <span class="fahrkarte__route etikett">
+            <span>{f.route}</span>
+            <span>1 Person · gratis</span>
+          </span>
+        </span>
+        <span class="fahrkarte__abriss">
+          <span class="fahrkarte__qr" set:html={f.qr} />
+          <span class="fahrkarte__pfeil" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M5 12h13M12 5l7 7-7 7" /></svg>
+          </span>
+          <span class="etikett fahrkarte__laden">Laden</span>
+        </span>
+      </a>
+    ))
+  }
+</section>
+
+{
+  hinweis && (
+    <p class="hinweis etikett">
+      <span class="nur-desktop">Mit der Handykamera scannen – oder auf die Fahrkarte klicken.</span>
+      <span class="nur-mobil">Tippen, laden, loslaufen.</span>
+    </p>
+  )
+}
+
+<script>
+  /* Fahrkarten kippen leicht zur Maus – nur mit echter Maus. */
+  const weniger = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!weniger && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    document.querySelectorAll<HTMLElement>('.fahrkarte').forEach((k) => {
+      k.addEventListener('pointermove', (ev) => {
+        const r = k.getBoundingClientRect();
+        const x = (ev.clientX - r.left) / r.width - 0.5;
+        const y = (ev.clientY - r.top) / r.height - 0.5;
+        k.style.setProperty('--rx', `${(-y * 6).toFixed(2)}deg`);
+        k.style.setProperty('--ry', `${(x * 8).toFixed(2)}deg`);
+      });
+      k.addEventListener('pointerleave', () => {
+        k.style.setProperty('--rx', '0deg');
+        k.style.setProperty('--ry', '0deg');
+      });
+    });
+  }
+</script>
+
+<style>
+  .fahrkarten {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 22px;
+    margin-top: clamp(28px, 5vw, 48px);
+    perspective: 1200px;
+  }
+
+  :global(html[data-plattform='android']) .fahrkarte[data-fahrkarte='android'],
+  :global(html[data-plattform='ios']) .fahrkarte[data-fahrkarte='ios'] {
+    order: -1;
+  }
+
+  .fahrkarte {
+    --kerbe: 14px;
+    --rx: 0deg;
+    --ry: 0deg;
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    min-height: 196px;
+    background: var(--flaeche);
+    border: 2px solid var(--tinte);
+    border-radius: 6px;
+    text-decoration: none;
+    color: var(--tinte);
+    overflow: hidden;
+    box-shadow: 0 0 0 0 var(--tinte);
+    transform: rotateX(var(--rx)) rotateY(var(--ry));
+    transition:
+      transform 0.25s ease-out,
+      box-shadow 0.25s ease-out,
+      translate 0.25s ease-out;
+    opacity: 0;
+    animation: einfahren 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation-delay: calc(0.55s + var(--i) * 0.14s);
+  }
+
+  .fahrkarte:hover,
+  .fahrkarte:focus-visible {
+    translate: -4px -4px;
+    box-shadow: 8px 8px 0 0 var(--tinte);
+  }
+
+  .fahrkarte:active {
+    translate: 0 0;
+    box-shadow: 2px 2px 0 0 var(--tinte);
+  }
+
+  .fahrkarte:focus-visible {
+    outline: 3px solid var(--glut);
+    outline-offset: 4px;
+  }
+
+  /* Glanz, der einmal über die Karte läuft – beim Hover wieder. */
+  .fahrkarte::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      105deg,
+      transparent 35%,
+      color-mix(in srgb, var(--flaeche) 20%, white 60%) 50%,
+      transparent 65%
+    );
+    opacity: 0.55;
+    translate: -120% 0;
+    pointer-events: none;
+    animation: glanz 1.4s ease-in-out forwards;
+    animation-delay: calc(1.6s + var(--i) * 0.2s);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .fahrkarte::after {
+      opacity: 0.1;
+    }
+  }
+
+  .fahrkarte:hover::after {
+    animation: glanz 0.9s ease-in-out;
+  }
+
+  .fahrkarte__haupt {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 22px 24px 20px;
+    min-width: 0;
+  }
+
+  .fahrkarte__kopf {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    color: var(--tinte-70);
+  }
+
+  .fahrkarte__deins {
+    display: none;
+    padding: 3px 7px;
+    border: 1.5px solid var(--glut);
+    border-radius: 3px;
+    color: var(--glut);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    transform: rotate(-3deg);
+  }
+
+  :global(html[data-plattform='android']) [data-fahrkarte='android'] .fahrkarte__deins,
+  :global(html[data-plattform='ios']) [data-fahrkarte='ios'] .fahrkarte__deins {
+    display: inline-block;
+  }
+
+  .fahrkarte__ziel {
+    font-family: var(--f-titel);
+    font-weight: 700;
+    font-size: clamp(38px, 5.2vw, 56px);
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+  }
+
+  .fahrkarte__route {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 4px 14px;
+    padding-top: 12px;
+    border-top: 1px solid var(--tinte-14);
+    color: var(--tinte-70);
+    font-size: 10.5px;
+  }
+
+  /* Abriss: Perforation und Kerben oben und unten. */
+  .fahrkarte__abriss {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 156px;
+    padding: 18px;
+    border-left: 2px dashed var(--tinte-45);
+    background: var(--flaeche2);
+  }
+
+  .fahrkarte__abriss::before,
+  .fahrkarte__abriss::after {
+    content: '';
+    position: absolute;
+    left: calc(var(--kerbe) * -1 - 1px);
+    width: calc(var(--kerbe) * 2);
+    height: calc(var(--kerbe) * 2);
+    border-radius: 50%;
+    background: var(--grund);
+    border: 2px solid var(--tinte);
+  }
+
+  .fahrkarte__abriss::before {
+    top: calc(var(--kerbe) * -1 - 2px);
+  }
+
+  .fahrkarte__abriss::after {
+    bottom: calc(var(--kerbe) * -1 - 2px);
+  }
+
+  .fahrkarte__qr {
+    display: block;
+    width: 112px;
+    border: 1.5px solid #1e2320;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .fahrkarte__qr :global(svg) {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .fahrkarte__pfeil {
+    display: none;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: var(--tinte);
+    place-items: center;
+  }
+
+  .fahrkarte__pfeil svg {
+    width: 24px;
+    height: 24px;
+    fill: none;
+    stroke: var(--grund);
+    stroke-width: 2.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: translate 0.25s ease-out;
+  }
+
+  .fahrkarte:hover .fahrkarte__pfeil svg {
+    translate: 3px 0;
+  }
+
+  .fahrkarte__laden {
+    color: var(--tinte-70);
+  }
+
+  /* Die eigene Plattform bekommt die Glut. */
+  :global(html[data-plattform='android']) [data-fahrkarte='android'] .fahrkarte__pfeil,
+  :global(html[data-plattform='ios']) [data-fahrkarte='ios'] .fahrkarte__pfeil {
+    background: var(--glut);
+  }
+
+  .hinweis {
+    margin: 22px 0 0;
+    text-align: center;
+    color: var(--tinte-45);
+  }
+
+  .nur-mobil {
+    display: none;
+  }
+
+  /* Auf dem Telefon: Pfeil statt QR, Karten untereinander. */
+  :global(html[data-plattform='ios']) .fahrkarte__qr,
+  :global(html[data-plattform='android']) .fahrkarte__qr {
+    display: none;
+  }
+
+  :global(html[data-plattform='ios']) .fahrkarte__pfeil,
+  :global(html[data-plattform='android']) .fahrkarte__pfeil {
+    display: grid;
+  }
+
+  :global(html[data-plattform='ios']) .fahrkarte__abriss,
+  :global(html[data-plattform='android']) .fahrkarte__abriss {
+    width: 108px;
+  }
+
+  :global(html[data-plattform='ios']) .nur-desktop,
+  :global(html[data-plattform='android']) .nur-desktop {
+    display: none;
+  }
+
+  :global(html[data-plattform='ios']) .nur-mobil,
+  :global(html[data-plattform='android']) .nur-mobil {
+    display: inline;
+  }
+
+  @media (max-width: 760px) {
+    .fahrkarten {
+      grid-template-columns: 1fr;
+      gap: 18px;
+    }
+
+    .fahrkarte {
+      min-height: 168px;
+    }
+
+    .fahrkarte__qr {
+      display: none;
+    }
+
+    .fahrkarte__pfeil {
+      display: grid;
+    }
+
+    .fahrkarte__abriss {
+      width: 96px;
+      padding: 14px 10px;
+    }
+
+    .fahrkarte__haupt {
+      padding: 18px 18px 16px;
+    }
+
+    .nur-desktop {
+      display: none;
+    }
+
+    .nur-mobil {
+      display: inline;
+    }
+  }
+
+  @keyframes einfahren {
+    from {
+      opacity: 0;
+      translate: 0 40px;
+    }
+    to {
+      opacity: 1;
+      translate: 0 0;
+    }
+  }
+
+  @keyframes glanz {
+    from {
+      translate: -120% 0;
+    }
+    to {
+      translate: 120% 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .fahrkarte {
+      animation: none;
+      opacity: 1;
+      translate: 0 0;
+    }
+
+    .fahrkarte::after {
+      display: none;
+    }
+  }
+</style>

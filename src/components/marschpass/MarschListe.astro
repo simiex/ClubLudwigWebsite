@@ -1,0 +1,580 @@
+---
+/**
+ * Die Termine des Marschkalenders, nach Monat gruppiert, im Marschpass-Stil.
+ * Mit `filter` gibt es oben Chips für Format und Distanz (rein clientseitig;
+ * ohne JavaScript steht einfach alles da).
+ */
+import {
+  FORMAT_LABEL,
+  buckets,
+  formatDateRange,
+  formatDistances,
+  monthKey,
+  monthLabel,
+  statusLabel,
+  type March,
+} from '../../lib/marches';
+import { landName, regionOf } from '../../lib/kalender';
+
+interface Props {
+  termine: March[];
+  /** Chips für Format und Distanz anzeigen. */
+  filter?: boolean;
+  /** Region am Eintrag verlinken (auf der Hauptseite sinnvoll, auf einer Regionsseite nicht). */
+  regionVerlinken?: boolean;
+  /** Überschriftenebene der Monate – h2 auf der Hauptseite, h3 unter einer h2. */
+  ebene?: 'h2' | 'h3';
+}
+
+const { termine, filter = false, regionVerlinken = true, ebene = 'h2' } = Astro.props;
+const Monat = ebene;
+const Titel = ebene === 'h2' ? 'h3' : 'h4';
+
+const grouped = termine.reduce<Record<string, March[]>>((acc, m) => {
+  (acc[monthKey(m)] ??= []).push(m);
+  return acc;
+}, {});
+const months = Object.keys(grouped).sort();
+
+/** Häufigkeit zählen – Filter nach Relevanz statt nach Alphabet. */
+const formats = [...termine.reduce((map, m) => map.set(m.format, (map.get(m.format) ?? 0) + 1), new Map<string, number>())]
+  .sort((a, b) => b[1] - a[1])
+  .map(([wert, anzahl]) => ({ wert, anzahl, label: FORMAT_LABEL[wert as March['format']] ?? wert }));
+
+const DISTANZEN = [
+  { key: 'kurz', label: 'unter 30 km' },
+  { key: 'mittel', label: '30–60 km' },
+  { key: 'lang', label: '60–100 km' },
+  { key: 'ultra', label: 'ab 100 km' },
+].filter((d) => termine.some((m) => buckets(m).includes(d.key)));
+
+const wochentag = (iso: string) =>
+  new Date(`${iso}T12:00:00`).toLocaleDateString('de-DE', { weekday: 'short' }).replace('.', '');
+const monatKurz = (iso: string) =>
+  new Date(`${iso}T12:00:00`).toLocaleDateString('de-DE', { month: 'short' }).replace('.', '');
+
+const ortZeile = (m: March) => {
+  const r = regionOf(m);
+  const hinten = m.country === 'DE' ? m.region : landName(m.country);
+  return { r, text: [m.city, hinten].filter(Boolean).join(' · ') };
+};
+---
+
+<div class="liste" data-liste>
+  {
+    filter && termine.length > 1 && (
+      <div class="filter" data-filter-root role="group" aria-label="Termine filtern">
+        <div class="filter__zeile">
+          <span class="etikett filter__titel">Format</span>
+          {formats.map((f) => (
+            <button class="chip" type="button" data-filter="format" data-value={f.wert} aria-pressed="false">
+              {f.label} <span class="chip__zahl">{f.anzahl}</span>
+            </button>
+          ))}
+        </div>
+        {DISTANZEN.length > 1 && (
+          <div class="filter__zeile">
+            <span class="etikett filter__titel">Distanz</span>
+            {DISTANZEN.map((d) => (
+              <button class="chip" type="button" data-filter="bucket" data-value={d.key} aria-pressed="false">
+                {d.label}
+              </button>
+            ))}
+          </div>
+        )}
+        <p class="filter__stand etikett" aria-live="polite">
+          <span data-zahl>{termine.length} Termine</span>
+          <button class="filter__reset" type="button" data-reset hidden>Zurücksetzen</button>
+        </p>
+      </div>
+    )
+  }
+
+  {
+    months.map((key) => (
+      <section class="monat" data-monat={key} aria-label={monthLabel(key)}>
+        <Monat class="monat__titel">
+          {monthLabel(key)}
+          <span class="etikett monat__zahl" data-monat-zahl>
+            {grouped[key]!.length} {grouped[key]!.length === 1 ? 'Termin' : 'Termine'}
+          </span>
+        </Monat>
+
+        <ol class="eintraege">
+          {grouped[key]!.map((m) => {
+            const ort = ortZeile(m);
+            const eigen = m.organizer === 'Club Ludwig';
+            const status = statusLabel(m);
+            return (
+              <li
+                class:list={['eintrag', { 'eintrag--eigen': eigen, 'eintrag--voll': m.status === 'ausgebucht' || m.status === 'abgesagt' }]}
+                data-marsch
+                data-format={m.format}
+                data-buckets={buckets(m).join(' ')}
+                data-bis={m.end_date ?? m.start_date}
+              >
+                <time class="eintrag__datum" datetime={m.start_date}>
+                  <span class="etikett">{wochentag(m.start_date)}</span>
+                  <span class="eintrag__tag">{m.start_date.slice(8, 10)}</span>
+                  <span class="etikett">{monatKurz(m.start_date)}</span>
+                </time>
+
+                <div class="eintrag__inhalt">
+                  <p class="etikett eintrag__veranstalter">
+                    {eigen ? <span class="eintrag__eigen">Unsere Tour</span> : m.organizer}
+                  </p>
+                  <Titel class="eintrag__titel">{m.title}</Titel>
+                  <p class="eintrag__ort">
+                    <span class="eintrag__format">{FORMAT_LABEL[m.format] ?? m.format}</span>
+                    {regionVerlinken && ort.r ? (
+                      <a href={`/maersche/${ort.r.slug}/`}>{ort.text}</a>
+                    ) : (
+                      <span>{ort.text}</span>
+                    )}
+                  </p>
+                  {m.note && <p class="eintrag__notiz">{m.note}</p>}
+                </div>
+
+                <div class="eintrag__fakten">
+                  <p class="eintrag__distanz">{formatDistances(m)}</p>
+                  <p class="etikett eintrag__wann">
+                    {formatDateRange(m)}
+                    {m.time_limit_hours && <> · {m.time_limit_hours} h Limit</>}
+                  </p>
+                  {status && <span class:list={['eintrag__status', `eintrag__status--${m.status}`]}>{status}</span>}
+                  {m.event_url && (
+                    <a
+                      class="eintrag__link"
+                      href={m.event_url}
+                      {...(m.event_url.startsWith('/') ? {} : { target: '_blank', rel: 'noopener' })}
+                    >
+                      {eigen ? 'Zur Tour' : 'Zum Veranstalter'} <span aria-hidden="true">↗</span>
+                      <span class="visually-hidden">: {m.title}</span>
+                    </a>
+                  )}
+                </div>
+              </li>
+            );
+          })}
+        </ol>
+      </section>
+    ))
+  }
+
+  <p class="liste__leer" data-leer hidden>Keine Termine für diese Auswahl.</p>
+</div>
+
+<script>
+  /*
+   * Sicherung gegen veraltete Builds: Die Seite wird statisch erzeugt und
+   * filtert vergangene Termine zur Build-Zeit. Ohne Deploy bliebe ein Termin
+   * danach stehen. Deshalb hier nochmal im Browser prüfen.
+   */
+  const heute = new Date().toISOString().slice(0, 10);
+  document.querySelectorAll<HTMLElement>('[data-marsch]').forEach((el) => {
+    if ((el.dataset.bis ?? '') < heute) el.remove();
+  });
+
+  function monateAufraeumen(liste: HTMLElement) {
+    let sichtbar = 0;
+    liste.querySelectorAll<HTMLElement>('[data-monat]').forEach((sec) => {
+      const n = sec.querySelectorAll('[data-marsch]:not([hidden])').length;
+      sec.hidden = n === 0;
+      const zahl = sec.querySelector<HTMLElement>('[data-monat-zahl]');
+      if (zahl) zahl.textContent = `${n} ${n === 1 ? 'Termin' : 'Termine'}`;
+      sichtbar += n;
+    });
+    const leer = liste.querySelector<HTMLElement>('[data-leer]');
+    if (leer) leer.hidden = sichtbar > 0;
+    return sichtbar;
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-liste]').forEach((liste) => {
+    monateAufraeumen(liste);
+
+    // Filter: Mehrfachauswahl je Gruppe, Gruppen werden UND-verknüpft.
+    const root = liste.querySelector<HTMLElement>('[data-filter-root]');
+    if (!root) return;
+    const chips = [...root.querySelectorAll<HTMLButtonElement>('.chip')];
+    const zahl = root.querySelector<HTMLElement>('[data-zahl]');
+    const reset = root.querySelector<HTMLButtonElement>('[data-reset]');
+    const aktiv: Record<string, Set<string>> = { format: new Set(), bucket: new Set() };
+
+    const anwenden = () => {
+      const eintraege = [...liste.querySelectorAll<HTMLElement>('[data-marsch]')];
+      for (const el of eintraege) {
+        const passt =
+          (aktiv.format!.size === 0 || aktiv.format!.has(el.dataset.format ?? '')) &&
+          (aktiv.bucket!.size === 0 ||
+            (el.dataset.buckets ?? '').split(' ').some((b) => aktiv.bucket!.has(b)));
+        el.hidden = !passt;
+      }
+      const n = monateAufraeumen(liste);
+      const gefiltert = aktiv.format!.size + aktiv.bucket!.size > 0;
+      if (zahl) zahl.textContent = gefiltert ? `${n} von ${eintraege.length} Terminen` : `${eintraege.length} Termine`;
+      if (reset) reset.hidden = !gefiltert;
+    };
+
+    for (const chip of chips) {
+      chip.addEventListener('click', () => {
+        const set = aktiv[chip.dataset.filter!]!;
+        const wert = chip.dataset.value!;
+        if (set.has(wert)) set.delete(wert);
+        else set.add(wert);
+        chip.setAttribute('aria-pressed', String(set.has(wert)));
+        anwenden();
+      });
+    }
+    reset?.addEventListener('click', () => {
+      Object.values(aktiv).forEach((s) => s.clear());
+      chips.forEach((c) => c.setAttribute('aria-pressed', 'false'));
+      anwenden();
+    });
+    anwenden();
+  });
+</script>
+
+<style>
+  /* ---------- Filter ---------- */
+  .filter {
+    display: grid;
+    gap: 10px;
+    margin: 0 0 8px;
+    padding: 16px 0 18px;
+    border-bottom: 1px solid var(--tinte-14);
+  }
+
+  .filter__zeile {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .filter__titel {
+    width: 78px;
+    color: var(--tinte-45);
+  }
+
+  .chip {
+    appearance: none;
+    padding: 7px 12px;
+    border: 1.5px solid var(--tinte-45);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--tinte);
+    font: 500 14px/1 var(--f-text);
+    cursor: pointer;
+    transition:
+      background 0.15s,
+      border-color 0.15s,
+      color 0.15s;
+  }
+
+  .chip:hover {
+    border-color: var(--tinte);
+  }
+
+  .chip[aria-pressed='true'] {
+    background: var(--tinte);
+    border-color: var(--tinte);
+    color: var(--grund);
+  }
+
+  .chip:focus-visible,
+  .filter__reset:focus-visible {
+    outline: 3px solid var(--glut);
+    outline-offset: 2px;
+  }
+
+  .chip__zahl {
+    font-family: var(--f-mono);
+    font-size: 11px;
+    opacity: 0.6;
+    margin-left: 2px;
+  }
+
+  .filter__stand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 4px 0 0;
+    color: var(--tinte-70);
+  }
+
+  .filter__reset {
+    appearance: none;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--glut);
+    font: inherit;
+    letter-spacing: inherit;
+    text-transform: inherit;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+  }
+
+  /* ---------- Monate ---------- */
+  .monat {
+    margin-top: clamp(28px, 5vw, 44px);
+  }
+
+  .monat__titel {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    margin: 0;
+    padding-bottom: 10px;
+    border-bottom: 1.5px solid var(--tinte);
+    font-family: var(--f-titel);
+    font-weight: 650;
+    font-size: clamp(26px, 3.6vw, 36px);
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+
+  .monat__zahl {
+    color: var(--tinte-45);
+    white-space: nowrap;
+  }
+
+  .eintraege {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* ---------- Ein Eintrag ---------- */
+  .eintrag {
+    display: grid;
+    grid-template-columns: 64px minmax(0, 1fr) minmax(170px, auto);
+    gap: 4px 22px;
+    align-items: start;
+    padding: 18px 0;
+    border-bottom: 1px solid var(--tinte-14);
+  }
+
+  .eintrag__datum {
+    display: grid;
+    justify-items: center;
+    gap: 2px;
+    padding: 8px 0 7px;
+    border: 1.5px solid var(--tinte);
+    border-radius: 4px;
+    background: var(--flaeche);
+    color: var(--tinte-70);
+  }
+
+  .eintrag__datum .etikett {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+  }
+
+  .eintrag__tag {
+    font-family: var(--f-titel);
+    font-weight: 700;
+    font-size: 26px;
+    line-height: 1;
+    color: var(--tinte);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .eintrag__veranstalter {
+    margin: 2px 0 4px;
+    color: var(--tinte-45);
+  }
+
+  .eintrag__eigen {
+    color: var(--glut);
+  }
+
+  .eintrag__titel {
+    margin: 0;
+    font-family: var(--f-titel);
+    font-weight: 650;
+    font-size: 21px;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+  }
+
+  .eintrag__ort {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 10px;
+    margin: 8px 0 0;
+    font-size: 15px;
+    color: var(--tinte-70);
+  }
+
+  .eintrag__ort a {
+    color: inherit;
+    text-decoration-color: var(--tinte-45);
+    text-underline-offset: 3px;
+  }
+
+  .eintrag__ort a:hover {
+    color: var(--tinte);
+    text-decoration-color: var(--glut);
+  }
+
+  .eintrag__format {
+    padding: 2px 8px;
+    border: 1px solid var(--tinte-45);
+    border-radius: 3px;
+    font-family: var(--f-mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .eintrag__notiz {
+    margin: 6px 0 0;
+    font-size: 14px;
+    color: var(--tinte-45);
+  }
+
+  .eintrag__fakten {
+    display: grid;
+    justify-items: end;
+    gap: 6px;
+    text-align: right;
+  }
+
+  .eintrag__distanz {
+    margin: 0;
+    font-family: var(--f-titel);
+    font-weight: 700;
+    font-size: 21px;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+  }
+
+  .eintrag__wann {
+    margin: 0;
+    color: var(--tinte-45);
+    font-size: 10.5px;
+  }
+
+  /* Ausgebucht / abgesagt: ein kleiner, schräg gesetzter Stempel. */
+  .eintrag__status {
+    padding: 2px 8px;
+    border: 1.5px solid var(--glut);
+    border-radius: 3px;
+    color: var(--glut);
+    font-family: var(--f-mono);
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    transform: rotate(-3deg);
+  }
+
+  .eintrag__status--anmeldung_offen {
+    border-color: var(--wald);
+    color: var(--wald);
+  }
+
+  .eintrag__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 4px;
+    padding: 7px 12px;
+    border: 1.5px solid var(--tinte);
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    transition:
+      translate 0.15s,
+      box-shadow 0.15s;
+  }
+
+  .eintrag__link:hover,
+  .eintrag__link:focus-visible {
+    translate: -2px -2px;
+    box-shadow: 3px 3px 0 var(--tinte);
+  }
+
+  .eintrag__link:focus-visible {
+    outline: 3px solid var(--glut);
+    outline-offset: 3px;
+  }
+
+  .eintrag--voll .eintrag__titel,
+  .eintrag--voll .eintrag__distanz {
+    color: var(--tinte-45);
+  }
+
+  .eintrag--eigen {
+    position: relative;
+  }
+
+  .eintrag--eigen::before {
+    content: '';
+    position: absolute;
+    left: -14px;
+    top: 18px;
+    bottom: 18px;
+    width: 3px;
+    border-radius: 2px;
+    background: var(--glut);
+  }
+
+  .liste__leer {
+    margin: 28px 0 0;
+    color: var(--tinte-70);
+  }
+
+  @media (max-width: 700px) {
+    .eintrag {
+      grid-template-columns: 54px minmax(0, 1fr);
+      gap: 4px 16px;
+    }
+
+    .eintrag__fakten {
+      grid-column: 2;
+      justify-items: start;
+      text-align: left;
+      margin-top: 8px;
+      grid-template-columns: auto auto;
+      align-items: center;
+      gap: 6px 12px;
+    }
+
+    .eintrag__distanz {
+      font-size: 18px;
+    }
+
+    .eintrag__wann {
+      grid-column: 1 / -1;
+      order: -1;
+    }
+
+    .eintrag__link {
+      grid-column: 1 / -1;
+    }
+
+    .eintrag__tag {
+      font-size: 22px;
+    }
+
+    .eintrag__titel {
+      font-size: 19px;
+    }
+
+    .filter__titel {
+      width: 100%;
+    }
+
+    .eintrag--eigen::before {
+      left: -10px;
+    }
+  }
+</style>

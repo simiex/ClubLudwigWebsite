@@ -1,0 +1,211 @@
+---
+/**
+ * Marschkalender je Region: /maersche/nordrhein-westfalen/, /maersche/bayern/ …
+ *
+ * Für Suchen wie „Märsche NRW“ oder „Wanderevents in der Nähe von Köln“: Titel,
+ * Überschrift und Text tragen die Region und die Städte der Termine. Gibt es
+ * gerade keinen Termin, bleibt die Seite trotzdem stehen und zeigt die
+ * Nachbarn – siehe lib/kalender.ts.
+ */
+import type { GetStaticPaths } from 'astro';
+import MarschpassLayout from '../../layouts/MarschpassLayout.astro';
+import StructuredData from '../../components/StructuredData.astro';
+import KalenderKopf from '../../components/marschpass/KalenderKopf.astro';
+import RegionenGitter from '../../components/marschpass/RegionenGitter.astro';
+import MarschListe from '../../components/marschpass/MarschListe.astro';
+import KalenderInDerApp from '../../components/marschpass/KalenderInDerApp.astro';
+import Fragen from '../../components/marschpass/Fragen.astro';
+import {
+  REGIONEN,
+  breadcrumbSchema,
+  faqSchema,
+  inDerRegion,
+  inRegion,
+  loadKalender,
+  marchSchema,
+  regionBySlug,
+  type Region,
+} from '../../lib/kalender';
+import { FORMAT_LABEL, formatDateRange } from '../../lib/marches';
+
+export const getStaticPaths = (() =>
+  REGIONEN.map((r) => ({ params: { region: r.slug }, props: { region: r } }))) satisfies GetStaticPaths;
+
+const { region } = Astro.props as { region: Region };
+const site = Astro.site!;
+const alle = await loadKalender();
+const termine = alle.filter((m) => inRegion(m, region));
+
+const nachbarn = region.nachbarn.map(regionBySlug).filter((r): r is Region => Boolean(r));
+/** Die nächsten Termine nebenan – bei leerer Region die wichtigste Liste der Seite. */
+const nebenan = alle.filter((m) => nachbarn.some((n) => inRegion(m, n))).slice(0, termine.length === 0 ? 10 : 6);
+
+const jahr = new Date().getFullYear();
+const saison = `${jahr}/${String(jahr + 1).slice(2)}`;
+const wo = inDerRegion(region);
+
+/* Städte und Veranstalter aus den Daten – gibt jeder Seite eigenen Text. */
+const staedte = [...new Set(termine.map((m) => m.city.replace(/\s*\(.*\)$/, '')))].filter((c) => c !== region.name);
+const veranstalter = [...new Set(termine.map((m) => m.organizer))];
+const formate = [...new Set(termine.map((m) => FORMAT_LABEL[m.format] ?? m.format))];
+const naechster = termine[0];
+
+/** „A, B und C“ – bei mehr als `max` Einträgen „A, B, C und weitere“. */
+const aufzaehlen = (xs: string[], max = 5) => {
+  if (xs.length <= 1) return xs[0] ?? '';
+  if (xs.length > max) return `${xs.slice(0, max).join(', ')} und weitere`;
+  return `${xs.slice(0, -1).join(', ')} und ${xs.at(-1)}`;
+};
+
+const fragen = [
+  {
+    frage: `Welche Märsche gibt es ${wo}?`,
+    antwort:
+      termine.length > 0
+        ? `Gerade stehen ${termine.length} ${termine.length === 1 ? 'Termin' : 'Termine'} ${wo} im Kalender${
+            veranstalter.length ? `, unter anderem von ${aufzaehlen(veranstalter, 4)}` : ''
+          }${staedte.length ? ` – in ${aufzaehlen(staedte)}` : ''}. Formate: ${formate.join(', ')}.`
+        : `Gerade steht ${wo} kein Termin im Kalender. Neue Märsche kommen laufend dazu; bis dahin findest du auf dieser Seite die nächsten Termine in ${aufzaehlen(nachbarn.map((n) => n.name), 6)}.`,
+  },
+  {
+    frage: `Wann ist der nächste Marsch ${wo}?`,
+    antwort: naechster
+      ? `Der nächste Termin ist „${naechster.title}“ am ${formatDateRange(naechster)} in ${naechster.city}. Die Anmeldung läuft beim Veranstalter – der Link steht am Termin.`
+      : `Gerade ist ${wo} keiner angekündigt. In der Club-Ludwig-App siehst du neue Termine, sobald sie im Kalender stehen.`,
+  },
+  {
+    frage: `Wie verpasse ich keinen Marsch ${wo}?`,
+    antwort:
+      'Mit der kostenlosen Club-Ludwig-App: Dort merkt sich der Marschkalender deine Region, du merkst dir Märsche mit einem Tipp vor, und der nächste Start steht auf deinem Startbildschirm.',
+  },
+];
+
+const schemas = [breadcrumbSchema(site, region), faqSchema(fragen), ...termine.map((m) => marchSchema(m, site))];
+
+const titel = `Märsche & Wanderevents ${wo} ${saison} | Club Ludwig`;
+const anzahl = `${termine.length} ${termine.length === 1 ? 'Termin' : 'Termine'}`;
+const beschreibung =
+  termine.length > 0
+    ? `${anzahl} für Märsche und Wanderevents ${wo}${staedte.length ? ` – ${aufzaehlen(staedte, 3)}` : ''}. Distanzen, Zeitlimit und Link zur Anmeldung. Mit App zum Vormerken.`
+    : `Märsche und Wanderevents ${wo} und in der Nachbarschaft: Termine, Distanzen und Link zur Anmeldung. Mit App zum Vormerken.`;
+---
+
+<MarschpassLayout title={titel} description={beschreibung} aktiv="maersche">
+  <StructuredData slot="head" schemas={schemas} />
+
+  <nav class="krumen etikett" aria-label="Brotkrumen">
+    <a href="/maersche/">Marschkalender</a>
+    <span aria-hidden="true">→</span>
+    <span aria-current="page">{region.name}</span>
+  </nav>
+
+  <KalenderKopf
+    etikett={`Marschkalender · ${region.name}`}
+    zeilen={['Märsche &', 'Wanderevents', `${wo}.`]}
+    stempelZahl={termine.length}
+    stempelUnten={region.kurz ?? saison}
+  >
+    {
+      termine.length > 0 ? (
+        <p>
+          {termine.length} {termine.length === 1 ? 'Termin' : 'Termine'} {wo}
+          {staedte.length > 0 && <> – in {aufzaehlen(staedte)}</>}. Mit Distanzen, Zeitlimit und dem
+          direkten Link zur Anmeldung beim Veranstalter.
+        </p>
+      ) : (
+        <p>
+          Gerade steht {wo} kein Termin im Kalender. Weiter unten findest du die nächsten Märsche in der
+          Nachbarschaft – {aufzaehlen(nachbarn.map((n) => n.name), 6)}.
+        </p>
+      )
+    }
+    <p>
+      In der <a href="#app">Club-Ludwig-App</a> merkt sich der Kalender deine Region.
+    </p>
+  </KalenderKopf>
+
+  {
+    termine.length > 0 && (
+      <section class="block" aria-labelledby="termine-titel">
+        <h2 class="block__titel" id="termine-titel">
+          Termine {wo}
+        </h2>
+        <MarschListe termine={termine} filter={termine.length >= 6} regionVerlinken={false} ebene="h3" />
+      </section>
+    )
+  }
+
+  {
+    nebenan.length > 0 && (
+      <section class="block" aria-labelledby="nebenan-titel">
+        <h2 class="block__titel" id="nebenan-titel">
+          {termine.length > 0 ? 'Auch in der Nähe' : 'Die nächsten Märsche in der Nähe'}
+        </h2>
+        <p class="block__text">Aus {aufzaehlen(nachbarn.map((n) => n.name), 6)}.</p>
+        <MarschListe termine={nebenan} ebene="h3" />
+      </section>
+    )
+  }
+
+  <section class="block" aria-labelledby="nachbarn-titel">
+    <h2 class="block__titel" id="nachbarn-titel">Nachbarregionen</h2>
+    <p class="block__text">Für einen Marsch fährt man gern mal eine Stunde.</p>
+    <RegionenGitter termine={alle} nur={nachbarn} />
+  </section>
+
+  <KalenderInDerApp titel={`Keinen Marsch ${wo} mehr verpassen.`} />
+
+  <Fragen titel={`Märsche ${wo} – häufige Fragen`} fragen={fragen} />
+
+  <section class="block" aria-labelledby="alle-titel">
+    <h2 class="block__titel" id="alle-titel">Alle Regionen</h2>
+    <p class="block__text">
+      Oder der <a href="/maersche/">ganze Marschkalender</a> auf einer Seite.
+    </p>
+    <RegionenGitter termine={alle} aktuell={region.slug} />
+  </section>
+</MarschpassLayout>
+
+<style>
+  .krumen {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 18px;
+    color: var(--tinte-45);
+  }
+
+  .krumen a {
+    color: var(--tinte-70);
+    text-underline-offset: 3px;
+  }
+
+  .krumen [aria-current] {
+    color: var(--tinte);
+  }
+
+  .block {
+    margin-top: clamp(48px, 8vw, 84px);
+  }
+
+  .block__titel {
+    margin: 0;
+    font-family: var(--f-titel);
+    font-weight: 650;
+    font-size: clamp(30px, 4.6vw, 52px);
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+  }
+
+  .block__text {
+    max-width: 560px;
+    margin: 12px 0 22px;
+    color: var(--tinte-70);
+  }
+
+  .block__text a {
+    color: var(--tinte);
+    text-decoration-color: var(--glut);
+    text-underline-offset: 3px;
+  }
+</style>
