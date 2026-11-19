@@ -10,6 +10,8 @@ import MarschpassLayout from '../layouts/MarschpassLayout.astro';
 import Fahrkarten from '../components/marschpass/Fahrkarten.astro';
 import { app } from '../config/site';
 import { SUN_PATH } from '../lib/sun';
+import StructuredData from '../components/StructuredData.astro';
+import { appSchemas, organizationSchema, websiteSchema } from '../lib/schema';
 
 const title = `${app.name} – jetzt für iPhone und Android`;
 const description =
@@ -27,6 +29,7 @@ const ETAPPEN = [
 ---
 
 <MarschpassLayout title={title} description={description} aktiv="start">
+  <StructuredData slot="head" schemas={[organizationSchema(), websiteSchema(), ...appSchemas()]} />
   <section class="held">
     <p class="etikett held__etikett reveal" style="--d: 0">
       <span class="punkt" aria-hidden="true"></span> Marschpass · Ausgabe 2026

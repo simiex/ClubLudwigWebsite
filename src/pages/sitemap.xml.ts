@@ -14,6 +14,8 @@ export const GET: APIRoute = ({ site }) => {
     { pfad: '/', prio: '1.0', freq: 'weekly' },
     { pfad: '/maersche/', prio: '0.9', freq: 'daily' },
     ...REGIONEN.map((r) => ({ pfad: `/maersche/${r.slug}/`, prio: '0.8', freq: 'weekly' })),
+    // Alte Neon-Seite, aber die einzige zu „Wandern in Bonn“ – im Fuß verlinkt, soll gefunden werden.
+    { pfad: '/wandern-bonn/', prio: '0.7', freq: 'monthly' },
     { pfad: '/impressum/', prio: '0.2', freq: 'yearly' },
     { pfad: '/datenschutz/', prio: '0.2', freq: 'monthly' },
     { pfad: '/nutzungsbedingungen/', prio: '0.2', freq: 'monthly' },
